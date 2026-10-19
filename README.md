@@ -71,7 +71,7 @@ MySQL (relacional)<br/>MongoDB (no relacional)
 | :--- | :--- |
 | **Gabriella Castro** | [@gabGABY006](https://github.com/gabGABY006) |
 | **Lina Patiño** | [@linasof](https://github.com/linasof) |
-| **Julián Rodríguez** | `[PENDING_CONNECTION]` |
+| **Julián Rodríguez** | [@JulianRH15](https://github.com/JulianRH15) |
 
 <br/>
 
