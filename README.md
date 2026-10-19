@@ -22,18 +22,18 @@
 
 ## Arquitectura del sistema
 
-Para mantener el código organizado, limpio y modular, el repositorio usa una estrategia de ramas independientes, una por cada capa de la aplicación.
+Para mantener el código organizado, limpio y modular, el repositorio usa una estrategia de carpetas independientes, una por cada capa de la aplicación.
 
 **Rama principal: `main`**
-Es la rama de producción. Contiene el código estable y consolidado. Aquí se integran las ramas de desarrollo una vez verificadas y probadas en el entorno local.
+Es la rama de producción. Contiene el código estable y consolidado. Aquí se integran las carpetas de desarrollo una vez verificadas y probadas en el entorno local.
 
-**Ramas de desarrollo**
+**Carpeta de desarrollo**
 
-| Capa | Rama | Contenido | Acceso |
-| :--- | :---: | :--- | :--- |
-| Interfaz | `frontend` | Interfaz de usuario, componentes visuales, estilos y lógica del cliente | `git checkout frontend` |
-| Servidor | `backend` | Lógica del servidor, API, rutas y controladores | `git checkout backend` |
-| Datos | `bd` | Scripts de inicialización, migraciones, modelos y diagramas de la base de datos híbrida | `git checkout bd` |
+| Capa | Carpeta | Contenido |
+| :--- | :---: | :--- |
+| Interfaz | `frontend` | Interfaz de usuario, componentes visuales, estilos y lógica del cliente |
+| Servidor | `backend` | Lógica del servidor, API, rutas y controladores |
+| Datos | `bd` | Scripts de inicialización, migraciones, modelos y diagramas de la base de datos híbrida |
 
 <img src="https://capsule-render.vercel.app/api?type=rect&color=0:19f5f0,50:1de9a0,100:e8408f&height=2" width="100%" alt=""/>
 
