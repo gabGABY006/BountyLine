@@ -1,26 +1,26 @@
 <div align="center">
 
-<img src="https://capsule-render.vercel.app/api?type=waving&color=0:000000,60:0a0014,100:2b0033&height=240&section=header&text=BOUNTYLINE&fontSize=72&fontColor=ff003c&fontAlignY=40&stroke=00f0ff&strokeWidth=1&desc=//%20SISTEMA%20DE%20GESTI%C3%93N%20DE%20CAZARRECOMPENSAS&descSize=15&descColor=8a8a9e&descAlignY=62" alt="BountyLine" width="100%"/>
+<img src="https://capsule-render.vercel.app/api?type=waving&color=0:0a1128,55:1b2a5c,100:ff4fa3&height=230&section=header&text=BOUNTYLINE&fontSize=64&fontColor=ffffff&fontAlignY=40&desc=Sistema%20de%20gesti%C3%B3n%20de%20cazarrecompensas&descSize=16&descColor=ffc2e0&descAlignY=62" alt="BountyLine" width="100%"/>
 
-<img src="https://readme-typing-svg.demolab.com?font=Fira+Code&weight=500&size=18&pause=2000&color=00F0FF&background=00000000&center=true&vCenter=true&width=700&lines=%3E+INICIALIZANDO+BOUNTY_LINE.exe...;%3E+CONECTANDO+A+LA+RED...;%3E+OBJETIVOS+LOCALIZADOS." alt="Typing"/>
+<img src="https://readme-typing-svg.demolab.com?font=Fira+Code&weight=400&size=16&pause=2500&color=FF7AC6&background=00000000&center=true&vCenter=true&width=600&lines=Proyecto+final+de+Bases+de+Datos+2;MySQL+%2B+MongoDB;Angular+%2B+Spring+Boot" alt="Typing"/>
 
 <br/>
 
-![STATUS](https://img.shields.io/badge/STATUS-ONLINE-000000?style=flat-square&labelColor=0a0a0a&color=00f0ff)
-![CURSO](https://img.shields.io/badge/BASES_DE_DATOS_2-PROYECTO_FINAL-000000?style=flat-square&labelColor=0a0a0a&color=ff003c)
-![DB](https://img.shields.io/badge/DB-HIBRIDA-000000?style=flat-square&labelColor=0a0a0a&color=7a00ff)
+![Estado](https://img.shields.io/badge/estado-en_desarrollo-0a1128?style=flat-square&labelColor=0a1128&color=ff4fa3)
+![Curso](https://img.shields.io/badge/Bases_de_Datos_2-proyecto_final-0a1128?style=flat-square&labelColor=0a1128&color=5b7cff)
+![DB](https://img.shields.io/badge/base_de_datos-h%C3%ADbrida-0a1128?style=flat-square&labelColor=0a1128&color=ff4fa3)
 
 </div>
 
-<br/>
+<img src="https://capsule-render.vercel.app/api?type=rect&color=0:1b2a5c,100:ff4fa3&height=2" width="100%" alt=""/>
 
-<img src="https://capsule-render.vercel.app/api?type=rect&color=0:000000,100:1a0010&height=50&text=//%20BRIEFING&fontSize=22&fontColor=ff003c&fontAlign=4&fontAlignY=55&stroke=ff003c&strokeWidth=1" alt="BRIEFING" width="100%"/>
+## Descripción
 
-**BountyLine** es un sistema de gestión de cazarrecompensas desarrollado como proyecto final de **Bases de Datos 2**. Combina una base de datos **relacional (MySQL)** con una **no relacional (MongoDB)** para rastrear objetivos, contratos y recompensas.
+**BountyLine** es un sistema de gestión de cazarrecompensas desarrollado como proyecto final de **Bases de Datos 2**. Combina una base de datos relacional (MySQL) con una no relacional (MongoDB) para gestionar objetivos, contratos y recompensas.
 
-<br/>
+<img src="https://capsule-render.vercel.app/api?type=rect&color=0:1b2a5c,100:ff4fa3&height=2" width="100%" alt=""/>
 
-<img src="https://capsule-render.vercel.app/api?type=rect&color=0:000000,100:001a1f&height=50&text=//%20ARQUITECTURA_DEL_SISTEMA&fontSize=22&fontColor=00f0ff&fontAlign=4&fontAlignY=55&stroke=00f0ff&strokeWidth=1" alt="ARQUITECTURA" width="100%"/>
+## Arquitectura del sistema
 
 Para mantener el código organizado, limpio y modular, el repositorio usa una estrategia de ramas independientes, una por cada capa de la aplicación.
 
@@ -29,43 +29,43 @@ Es la rama de producción. Contiene el código estable y consolidado. Aquí se i
 
 **Ramas de desarrollo**
 
-| Módulo | Rama | Contenido | Acceso |
+| Capa | Rama | Contenido | Acceso |
 | :--- | :---: | :--- | :--- |
 | Interfaz | `frontend` | Interfaz de usuario, componentes visuales, estilos y lógica del cliente | `git checkout frontend` |
 | Servidor | `backend` | Lógica del servidor, API, rutas y controladores | `git checkout backend` |
 | Datos | `bd` | Scripts de inicialización, migraciones, modelos y diagramas de la base de datos híbrida | `git checkout bd` |
 
-<br/>
+<img src="https://capsule-render.vercel.app/api?type=rect&color=0:1b2a5c,100:ff4fa3&height=2" width="100%" alt=""/>
 
-<img src="https://capsule-render.vercel.app/api?type=rect&color=0:000000,100:12001f&height=50&text=//%20TECNOLOG%C3%8DAS_UTILIZADAS&fontSize=22&fontColor=7a00ff&fontAlign=4&fontAlignY=55&stroke=7a00ff&strokeWidth=1" alt="TECNOLOGIAS" width="100%"/>
+## Tecnologías utilizadas
 
 <table>
 <tr>
-<td align="center" width="200">
-<b>FRONTEND</b><br/><br/>
-<img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/angular/angular-original.svg" alt="Angular" width="50" height="50"/><br/><br/>
+<td align="center" width="220">
+<b>Frontend</b><br/><br/>
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/angular/angular-original.svg" alt="Angular" width="48" height="48"/><br/><br/>
 Angular
 </td>
-<td align="center" width="200">
-<b>BACKEND</b><br/><br/>
-<img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/java/java-original.svg" alt="Java" width="50" height="50"/>
+<td align="center" width="220">
+<b>Backend</b><br/><br/>
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/java/java-original.svg" alt="Java" width="48" height="48"/>
 &nbsp;
-<img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/spring/spring-original.svg" alt="Spring Boot" width="50" height="50"/><br/><br/>
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/spring/spring-original.svg" alt="Spring Boot" width="48" height="48"/><br/><br/>
 Java | Spring Boot
 </td>
-<td align="center" width="200">
-<b>BASE DE DATOS</b><br/><br/>
-<img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/mysql/mysql-original.svg" alt="MySQL" width="50" height="50"/>
+<td align="center" width="220">
+<b>Base de datos</b><br/><br/>
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/mysql/mysql-original.svg" alt="MySQL" width="48" height="48"/>
 &nbsp;
-<img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/mongodb/mongodb-original.svg" alt="MongoDB" width="50" height="50"/><br/><br/>
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/mongodb/mongodb-original.svg" alt="MongoDB" width="48" height="48"/><br/><br/>
 MySQL (relacional)<br/>MongoDB (no relacional)
 </td>
 </tr>
 </table>
 
-<br/>
+<img src="https://capsule-render.vercel.app/api?type=rect&color=0:1b2a5c,100:ff4fa3&height=2" width="100%" alt=""/>
 
-<img src="https://capsule-render.vercel.app/api?type=rect&color=0:000000,100:1a0010&height=50&text=//%20INTEGRANTES_DEL_PROYECTO&fontSize=22&fontColor=ff003c&fontAlign=4&fontAlignY=55&stroke=ff003c&strokeWidth=1" alt="INTEGRANTES" width="100%"/>
+## Integrantes del proyecto
 
 | Integrante / Desarrollador | Perfil de GitHub |
 | :--- | :--- |
@@ -75,10 +75,4 @@ MySQL (relacional)<br/>MongoDB (no relacional)
 
 <br/>
 
-<div align="center">
-
-<img src="https://readme-typing-svg.demolab.com?font=Fira+Code&size=14&pause=3000&color=ff003c&background=00000000&center=true&vCenter=true&width=500&lines=%3E+TRANSMISI%C3%93N+FINALIZADA_" alt="fin"/>
-
-<img src="https://capsule-render.vercel.app/api?type=waving&color=0:2b0033,60:0a0014,100:000000&height=120&section=footer" alt="footer" width="100%"/>
-
-</div>
+<img src="https://capsule-render.vercel.app/api?type=waving&color=0:ff4fa3,50:1b2a5c,100:0a1128&height=100&section=footer" alt="footer" width="100%"/>
