@@ -1,0 +1,19 @@
+<div class="app-layout">
+  <app-navbar class="layout-navbar"
+              [alias]="alias"
+              [modo]="modo"
+              [notificaciones]="2">
+  </app-navbar>
+
+  <div class="layout-body">
+    <app-sidebar class="layout-sidebar"
+                 [modo]="modo"
+                 [misionesActivas]="3"
+                 [reputacion]="4.92">
+    </app-sidebar>
+
+    <main class="layout-content">
+      <router-outlet></router-outlet>
+    </main>
+  </div>
+</div>

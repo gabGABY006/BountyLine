@@ -1,0 +1,395 @@
+:host {
+  /* Aislamiento total para ignorar el layout global */
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 99999;
+  overflow: hidden;
+  display: block;
+
+  --bg: #080b0e;
+  --surface: #0c1116;
+  --surface-2: #10171c;
+  --line: #263238;
+  --muted: #819097;
+  --text: #e9f0f2;
+  --cyan: #5af5d6;
+  --cyan-dark: #24adcf;
+  --pink: #ff3d8d;
+  color: var(--text);
+  font-family: 'Space Grotesk', system-ui, sans-serif;
+  background: var(--bg);
+}
+
+:host *,
+:host *::before,
+:host *::after {
+  box-sizing: border-box;
+}
+
+:host button,
+:host input,
+:host select {
+  font: inherit;
+}
+
+/* CONTENEDOR PRINCIPAL */
+.auth-page,
+.fondo {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: grid;
+  grid-template-columns: minmax(400px, 1.1fr) minmax(500px, 0.9fr);
+  align-items: center;
+  overflow: hidden;
+}
+
+.auth-page::after,
+.fondo::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(rgba(90, 245, 214, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(90, 245, 214, 0.03) 1px, transparent 1px);
+  background-size: 40px 40px;
+  z-index: 1;
+}
+
+.auth-page::before,
+.fondo::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background-image:
+    radial-gradient(ellipse at center, transparent 25%, rgba(8, 11, 14, 0.85) 70%),
+    url("../../../assets/registro.jpg");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  z-index: 0;
+  filter: brightness(1.15) contrast(1.25) saturate(1.2);
+  background-blend-mode: color-burn;
+}
+
+/* LADO IZQUIERDO: Story */
+.auth-story {
+  position: relative;
+  z-index: 2;
+  min-height: 100vh;
+  padding: 44px clamp(40px, 5vw, 90px) 36px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  border-right: 1px solid var(--line);
+  background: linear-gradient(90deg, rgba(8, 11, 14, 0.75), rgba(8, 11, 14, 0.15));
+  backdrop-filter: blur(2px);
+}
+
+.brand {
+  font-family: 'Chakra Petch', sans-serif;
+  font-weight: 700;
+  font-size: 24px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.brand span,
+.story-copy h1 span {
+  color: var(--cyan);
+}
+
+.kicker,
+.eyebrow,
+.role-label,
+.field > span,
+.security {
+  color: var(--cyan);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 12px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.story-copy {
+  max-width: 680px;
+  margin: auto 0;
+}
+
+.story-copy h1 {
+  font-family: 'Chakra Petch', sans-serif;
+  font-weight: 700;
+  font-size: clamp(38px, 4vw, 58px);
+  line-height: 1.05;
+  letter-spacing: -0.5px;
+  margin: 20px 0;
+  text-transform: uppercase;
+}
+
+.story-copy h1 span {
+  color: var(--cyan);
+  white-space: nowrap;
+  display: inline-block;
+}
+
+.story-copy > p:not(.kicker) {
+  color: #93a1a8;
+  font-size: 15px;
+  line-height: 1.6;
+  max-width: 480px;
+}
+
+.stats {
+  display: flex;
+  gap: clamp(24px, 3vw, 50px);
+  margin-top: 40px;
+  padding-top: 22px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.stats div {
+  display: flex;
+  flex-direction: column;
+}
+
+.stats strong {
+  font-family: 'Chakra Petch', sans-serif;
+  font-weight: 700;
+  font-size: 30px;
+  color: var(--cyan);
+}
+
+.stats small {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 11px;
+  color: var(--muted);
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+}
+
+/* LADO DERECHO: Panel de Formulario Ampliado */
+.auth-zone {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px clamp(30px, 5vw, 70px);
+  height: 100%;
+  overflow-y: auto;
+  background: rgba(8, 11, 14, 0.92);
+}
+
+.auth-zone::-webkit-scrollbar {
+  width: 6px;
+}
+.auth-zone::-webkit-scrollbar-thumb {
+  background: rgba(90, 245, 214, 0.2);
+  border-radius: 2px;
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 520px;
+  padding: 10px 0;
+}
+
+.auth-card h2 {
+  margin: 6px 0 10px;
+  font-family: 'Chakra Petch', sans-serif;
+  font-weight: 700;
+  font-size: 36px;
+  letter-spacing: 0.5px;
+}
+
+.description {
+  color: var(--muted);
+  font-size: 15px;
+  line-height: 1.6;
+  margin-bottom: 22px;
+  font-family: 'Space Grotesk', sans-serif;
+}
+
+.role-label {
+  display: block;
+  margin: 18px 0 10px;
+  font-size: 12px;
+}
+
+/* SELECTOR DE PERFIL GRANDE */
+.role-selector {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  width: 100%;
+}
+
+.role-selector button {
+  min-height: 72px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  color: var(--muted);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.2s ease;
+  font-family: 'Chakra Petch', sans-serif;
+}
+
+.role-selector button.active {
+  color: var(--cyan) !important;
+  border-color: var(--cyan) !important;
+  background: rgba(90, 245, 214, 0.05) !important;
+  box-shadow: inset 0 0 12px rgba(90, 245, 214, 0.2) !important;
+}
+
+.role-selector button span {
+  font-size: 19px;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+.role-selector button small {
+  color: #56656b;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 12px;
+}
+
+/* CAMPOS DE ENTRADA GRANDES */
+.field {
+  display: flex;
+  flex-direction: column;
+  margin-top: 18px;
+  width: 100%;
+}
+
+.field > span {
+  margin-bottom: 6px;
+  font-size: 12px;
+}
+
+.password-field {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.field input,
+.mode-selector select,
+.password-field input {
+  width: 100%;
+  height: 48px;
+  padding: 0 16px;
+  color: var(--text);
+  background: #06090c;
+  border: 1px solid var(--line);
+  border-radius: 0;
+  outline: none;
+  font-size: 15px;
+  font-family: 'Space Grotesk', sans-serif;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.password-field input {
+  padding-right: 75px;
+}
+
+.password-field button {
+  position: absolute;
+  right: 1px;
+  top: 1px;
+  bottom: 1px;
+  height: calc(100% - 2px);
+  background: var(--surface-2);
+  border: none;
+  border-left: 1px solid var(--line);
+  color: var(--cyan);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 12px;
+  letter-spacing: 1.5px;
+  padding: 0 18px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.password-field button:hover {
+  background: #141b21;
+  color: #ffffff;
+}
+
+.field input:focus,
+.mode-selector select:focus {
+  border-color: var(--cyan);
+  box-shadow: 0 0 10px rgba(90, 245, 214, 0.25);
+}
+
+/* BOTÓN DE ACCESO PRINCIPAL */
+.auth-submit {
+  width: 100%;
+  min-height: 52px;
+  margin-top: 26px;
+  background: var(--pink) !important;
+  color: #ffffff !important;
+  border: 1px solid var(--pink) !important;
+  font-family: 'Chakra Petch', sans-serif;
+  font-weight: 700;
+  font-size: 16px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  clip-path: polygon(0 0, 96% 0, 100% 28%, 100% 100%, 4% 100%, 0 72%);
+  box-shadow: 0 0 25px rgba(255, 61, 141, 0.7) !important;
+}
+
+.auth-submit:hover {
+  background: #ff529a !important;
+  box-shadow: 0 0 30px rgba(255, 61, 141, 0.9) !important;
+}
+
+.switch-link {
+  margin-top: 20px;
+  color: var(--muted);
+  text-align: center;
+  font-size: 14px;
+}
+
+.switch-link a {
+  color: var(--cyan);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.security.text-center {
+  text-align: center;
+  margin-top: 20px;
+}
+
+/* RESPONSIVE */
+@media (max-width: 900px) {
+  .auth-page,
+  .fondo {
+    grid-template-columns: 1fr;
+    overflow-y: auto;
+  }
+
+  .auth-story {
+    min-height: auto;
+    padding: 32px 24px;
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .auth-zone {
+    height: auto;
+    padding: 32px 20px;
+  }
+}

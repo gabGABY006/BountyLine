@@ -1,0 +1,66 @@
+:host {
+  display: block;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  background: #080b0e;
+}
+
+.app-layout {
+  display: flex;
+  flex-direction: column;
+  width: 100vw;
+  height: 100vh;
+}
+
+/* Fija tu Navbar arriba */
+app-navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 60px;
+  z-index: 1000;
+}
+
+/* Contenedor inferior */
+.layout-body {
+  display: flex;
+  width: 100vw;
+  height: calc(100vh - 60px);
+  margin-top: 60px;
+}
+
+/* Fija tu Sidebar a la izquierda */
+app-sidebar {
+  position: fixed;
+  top: 60px;
+  left: 0;
+  width: 240px;
+  height: calc(100vh - 60px);
+  z-index: 900;
+}
+
+/* Área donde cambia el contenido (Usuario / Admin) */
+.layout-content {
+  margin-left: 240px;
+  width: calc(100vw - 240px);
+  height: calc(100vh - 60px);
+  overflow-y: auto;
+  padding: 24px;
+  box-sizing: border-box;
+}
+
+/* Personalización de la barra de scroll del contenido */
+.layout-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.layout-content::-webkit-scrollbar-thumb {
+  background: rgba(90, 245, 214, 0.2);
+  border-radius: 3px;
+}
+
+.layout-content::-webkit-scrollbar-thumb:hover {
+  background: #5af5d6;
+}

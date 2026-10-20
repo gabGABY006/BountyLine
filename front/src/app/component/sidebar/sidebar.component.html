@@ -1,0 +1,49 @@
+<aside class="cyber-sidebar">
+  <div class="sidebar-top">
+    <span class="sidebar-section-label">MODO {{ etiquetaModo }}</span>
+
+    <nav class="sidebar-nav">
+      <a *ngFor="let item of menu"
+         [routerLink]="item.ruta"
+         routerLinkActive="active"
+         class="nav-item">
+        <i class="pi" [ngClass]="item.icono" style="font-size: 1rem"></i>
+        <span>{{ item.texto }}</span>
+        <span class="badge-pink" *ngIf="item.badge">{{ item.badge }}</span>
+      </a>
+    </nav>
+
+    <div class="activity-section" *ngIf="!esAdmin">
+      <span class="sidebar-section-label">TU ACTIVIDAD</span>
+
+      <div class="activity-row">
+        <span>Misiones activas</span>
+        <strong class="white-val">{{ misionesActivas | number:'2.0-0' }}</strong>
+      </div>
+
+      <div class="activity-row">
+        <span>Reputación</span>
+        <strong class="white-val">{{ reputacion | number:'1.2-2' }}</strong>
+      </div>
+    </div>
+
+    <button *ngIf="esNormal"
+            class="btn-publicar"
+            type="button"
+            routerLink="/usuario/nueva-mision">
+      <span>+ NUEVA MISIÓN</span>
+    </button>
+  </div>
+
+  <div class="sidebar-bottom">
+    <button class="btn-logout" type="button" (click)="cerrarSesion.emit()">
+      <span class="icon">🔓</span>
+      <span>CERRAR SESIÓN</span>
+    </button>
+
+    <div class="sys-info">
+      <span>PROTOCOLO V4.0.1</span>
+      <span>ENCRYPTED</span>
+    </div>
+  </div>
+</aside>

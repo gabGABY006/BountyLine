@@ -1,0 +1,21 @@
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { NotificacionComponent } from './notificacion.component';
+
+describe('NotificacionComponent', () => {
+  let component: NotificacionComponent;
+  let fixture: ComponentFixture<NotificacionComponent>;
+
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      declarations: [NotificacionComponent],
+    }).compileComponents();
+
+    fixture = TestBed.createComponent(NotificacionComponent);
+    component = fixture.componentInstance;
+    await fixture.whenStable();
+  });
+
+  it('should create', () => {
+    expect(component).toBeTruthy();
+  });
+});

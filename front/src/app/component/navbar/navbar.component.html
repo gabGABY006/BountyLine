@@ -1,0 +1,43 @@
+<header class="cyber-navbar">
+  <!-- Brand / Logo -->
+  <div class="nav-brand">
+    <div class="brand-icon">❖</div>
+    <div class="brand-text">
+      <span class="title">BOUNTYLINE</span>
+      <span class="sub-text">● RED SEGURA</span>
+    </div>
+  </div>
+
+  <!-- Buscador Central -->
+  <div class="nav-search">
+    <i class="pi pi-search search-icon"></i>
+    <input type="text" placeholder="Buscar contrato, alias o zona..." />
+    <span class="shortcut">⌘ K</span>
+  </div>
+
+  <!-- Zona Usuario & Notificaciones -->
+  <div class="nav-user-zone">
+    <button
+      class="notif-btn"
+      type="button"
+      routerLink="/notificaciones"
+      routerLinkActive="active">
+      <i class="pi pi-bell" style="font-size: 1.2rem"></i>
+      <span class="notif-badge" *ngIf="notificaciones > 0">{{ notificaciones }}</span>
+    </button>
+
+    <button
+      class="user-profile-btn"
+      type="button"
+      routerLink="/perfil"
+      routerLinkActive="active">
+      <div class="user-avatar">
+        <i class="pi pi-user" style="font-size: 1.2rem"></i>
+      </div>
+      <div class="user-info">
+        <span class="user-alias">{{ alias }}</span>
+        <span class="user-mode">MODO: {{ etiquetaModo }}</span>
+      </div>
+    </button>
+  </div>
+</header>

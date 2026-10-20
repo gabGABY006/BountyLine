@@ -1,0 +1,177 @@
+<main class="users-main">
+  <section class="users-hero">
+    <div>
+      <p class="kicker"><span>///</span> CONTROL DE IDENTIDADES · {{ total }} REGISTROS</p>
+      <h1>GESTIÓN DE<br><span>USUARIOS.</span></h1>
+      <p>Revisa el estado de cada cuenta y suspende o reactiva accesos a la red.</p>
+    </div>
+  </section>
+
+  <section class="user-pulse" aria-label="Resumen de los usuaios">
+    <article>
+      <span class="pulse-icon"><i class="pi pi-users"></i></span>
+      <div><small>TOTAL EN LA RED</small><b>{{ total }}</b><em>{{ totalCazadores }} cazarrecompensas</em></div>
+    </article>
+    <article>
+      <span class="pulse-icon"><i class="pi pi-wifi"></i></span>
+      <div><small>ACTIVAS</small><b>{{ contar('ACTIVA') }}</b><em>con acceso a la red</em></div>
+    </article>
+    <article>
+      <span class="pulse-icon ambar"><i class="pi pi-ban"></i></span>
+      <div><small>SUSPENDIDAS</small><b>{{ contar('SUSPENDIDA') }}</b><em>sin acceso temporal</em></div>
+    </article>
+    <article>
+      <span class="pulse-icon rosa"><i class="pi pi-trash"></i></span>
+      <div><small>ELIMINADAS</small><b>{{ contar('ELIMINADA') }}</b><em>dadas de baja</em></div>
+    </article>
+  </section>
+
+  <p *ngIf="mensaje" class="aviso" [class.error]="tipoMensaje === 'error'">{{ mensaje }}</p>
+
+  <div class="users-layout">
+    <!-- Directorio -->
+    <section class="operator-directory">
+      <div class="directory-toolbar">
+        <div>
+          <p class="eyebrow">DIRECTORIO GLOBAL</p>
+          <h2>Cuentas registradas</h2>
+        </div>
+        <div class="directory-filters" role="group" aria-label="Filtrar por estado">
+          <button type="button"
+                  *ngFor="let f of filtrosEstado"
+                  [class.active]="filtroEstado === f.valor"
+                  (click)="filtroEstado = f.valor">
+            {{ f.texto }}<span>{{ contarFiltro(f.valor) }}</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="directory-search">
+        <label class="buscar">
+          <i class="pi pi-search"></i>
+          <input type="search" [(ngModel)]="busqueda" placeholder="Buscar por alias o correo...">
+        </label>
+        <select [(ngModel)]="filtroRol" aria-label="Filtrar por rol">
+          <option value="TODOS">Todos los roles</option>
+          <option value="NORMAL">Normal</option>
+          <option value="CAZARRECOMPENSAS">Cazarrecompensas</option>
+        </select>
+      </div>
+
+      <div class="operator-table-head">
+        <span>OPERADOR</span><span>ROL / ESTADO</span><span>REGISTRO</span><span></span>
+      </div>
+
+      <div class="operator-list">
+        <button type="button"
+                class="operator-row"
+                *ngFor="let u of usuariosFiltrados"
+                [class.selected]="u.id === seleccionado.id"
+                (click)="seleccionar(u)">
+          <span class="operator-identity">
+            <span class="avatar" [ngClass]="u.estado.toLowerCase()">{{ u.iniciales }}</span>
+            <span>
+              <b>{{ u.alias }} <em *ngIf="u.id === idSesion" class="tu">TÚ</em></b>
+              <small>{{ u.codigo }} · {{ u.correo }}</small>
+            </span>
+          </span>
+
+          <span class="operator-level">
+            <b>{{ etiquetaRol(u.rol) }}</b>
+            <small class="user-status" [ngClass]="u.estado.toLowerCase()"><i></i>{{ u.estado }}</small>
+          </span>
+
+          <span class="operator-activity">
+            <b>{{ u.registro }}</b>
+            <small>ALTA</small>
+          </span>
+
+          <span class="row-arrow"><i class="pi pi-arrow-right"></i></span>
+        </button>
+
+        <div class="operator-empty" *ngIf="usuariosFiltrados.length === 0">
+          <i class="pi pi-search"></i>
+          <b>SIN IDENTIDADES</b>
+          <span>No hay operadores para este filtro.</span>
+        </div>
+      </div>
+
+      <div class="directory-footer">
+        <span>MOSTRANDO {{ usuariosFiltrados.length }} DE {{ total }} CUENTAS</span>
+      </div>
+    </section>
+
+    <!-- Perfil del operador seleccionado -->
+    <aside class="operator-profile">
+      <div class="profile-scan">
+        <span class="profile-avatar" [ngClass]="seleccionado.estado.toLowerCase()">
+          {{ seleccionado.iniciales }}<i></i>
+        </span>
+        <div>
+          <small>IDENTIDAD SELECCIONADA</small>
+          <h2>{{ seleccionado.alias }}</h2>
+          <span>{{ seleccionado.codigo }} // {{ etiquetaRol(seleccionado.rol) }}</span>
+        </div>
+      </div>
+
+      <div class="profile-estado">
+        <span class="estado-orbita" [ngClass]="seleccionado.estado.toLowerCase()">
+          <i class="pi" [ngClass]="iconoEstado(seleccionado.estado)"></i>
+        </span>
+        <div>
+          <small>ESTADO DE LA CUENTA</small>
+          <b [ngClass]="seleccionado.estado.toLowerCase()">{{ seleccionado.estado }}</b>
+          <p>{{ descripcionEstado(seleccionado.estado) }}</p>
+        </div>
+      </div>
+
+      <div class="profile-data">
+        <div><small>CORREO</small><b>{{ seleccionado.correo }}</b></div>
+        <div><small>ROL</small><b>{{ etiquetaRol(seleccionado.rol) }}</b></div>
+        <div><small>REGISTRO</small><b>{{ seleccionado.registro }}</b></div>
+        <div><small>CÓDIGO</small><b>{{ seleccionado.codigo }}</b></div>
+      </div>
+
+      <div class="profile-actions">
+        <button type="button"
+                class="accion-principal"
+                [ngClass]="seleccionado.estado === 'ACTIVA' ? 'suspender' : 'reactivar'"
+                [disabled]="seleccionado.estado === 'ELIMINADA' || seleccionado.id === idSesion"
+                (click)="pedirCambio()">
+          <i class="pi" [ngClass]="seleccionado.estado === 'ACTIVA' ? 'pi-ban' : 'pi-refresh'"></i>
+          {{ seleccionado.estado === 'ACTIVA' ? 'SUSPENDER CUENTA' : 'REACTIVAR CUENTA' }}
+        </button>
+      </div>
+
+      <div class="profile-seguridad">
+        <i class="pi pi-lock"></i>
+        <span>Los cambios quedan registrados en el log de auditoría.</span>
+      </div>
+    </aside>
+  </div>
+
+  <!-- Confirmación antes de cambiar el estado -->
+  <div class="modal-fondo" *ngIf="pendiente as cuenta">
+    <div class="modal" role="dialog" aria-modal="true">
+      <p class="eyebrow">CONFIRMAR ACCIÓN</p>
+      <h2>{{ cuenta.estado === 'ACTIVA' ? 'Suspender cuenta' : 'Reactivar cuenta' }}</h2>
+
+      <p *ngIf="cuenta.estado === 'ACTIVA'; else reactivar">
+        La cuenta <b>{{ cuenta.alias }}</b> perderá el acceso a la red hasta que sea reactivada.
+      </p>
+      <ng-template #reactivar>
+        <p>La cuenta <b>{{ cuenta.alias }}</b> recuperará el acceso a la red.</p>
+      </ng-template>
+
+      <div class="modal-acciones">
+        <button type="button" class="btn cancelar" (click)="cancelar()">CANCELAR</button>
+        <button type="button"
+                class="btn"
+                [ngClass]="cuenta.estado === 'ACTIVA' ? 'suspender' : 'reactivar'"
+                (click)="confirmar()">
+          CONFIRMAR
+        </button>
+      </div>
+    </div>
+  </div>
+</main>

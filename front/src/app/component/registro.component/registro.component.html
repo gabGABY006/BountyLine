@@ -1,0 +1,199 @@
+<main class="fondo">
+  <!-- LADO IZQUIERDO: STORY -->
+  <section class="auth-story">
+    <div class="brand">◎ BountyLine</div>
+
+    <div class="story-copy">
+      <p class="kicker">/// NUEVO OPERADOR DETECTADO</p>
+      <h1>CONSTRUYE TU<br>REPUTACIÓN.<br><span>DOMINA LA RED.</span></h1>
+      <p>
+        Crea tu identidad, explora nuevos contratos
+        y forma parte de una comunidad de operadores.
+      </p>
+
+      <div class="stats">
+        <div><strong>8.4K</strong><small>OPERADORES</small></div>
+        <div><strong>€42M</strong><small>PAGADOS</small></div>
+        <div><strong>99.8%</strong><small>RED SEGURA</small></div>
+      </div>
+    </div>
+
+    <p class="security">◈ REGISTRO DE NUEVA IDENTIDAD</p>
+  </section>
+
+  <!-- LADO DERECHO: FORMULARIO -->
+  <section class="auth-zone">
+    <form class="auth-card" #registroForm="ngForm" (ngSubmit)="registrar(registroForm)">
+
+      <p class="eyebrow">REGISTRO DEL SISTEMA / NB-002</p>
+      <h2>Crear nueva identidad</h2>
+      <p class="description">Completa los datos para crear tu cuenta.</p>
+
+      <span class="role-label">TIPO DE CUENTA</span>
+
+      <div class="role-selector">
+        <button type="button"
+                [class.active]="rol === 'usuario'"
+                (click)="rol = 'usuario'">
+          <span>♙</span>
+          <strong>USUARIO</strong>
+          <small>Cuenta de jugador</small>
+        </button>
+
+        <button type="button"
+                [class.active]="rol === 'admin'"
+                (click)="rol = 'admin'">
+          <span>⬡</span>
+          <strong>ADMINISTRADOR</strong>
+          <small>Gestión de la plataforma</small>
+        </button>
+      </div>
+
+      <!-- ===== USUARIO ===== -->
+      <ng-container *ngIf="rol === 'usuario'">
+
+        <label class="field">
+          <span>ALIAS DE OPERADOR</span>
+          <input name="alias" [(ngModel)]="alias"
+                 required minlength="3" maxlength="30"
+                 placeholder="Ej. GHOST_77">
+        </label>
+
+        <label class="field">
+          <span>CORREO ELECTRÓNICO</span>
+          <input type="email" name="correo" [(ngModel)]="correo"
+                 required email maxlength="120"
+                 placeholder="jugador@neonbounty.net">
+        </label>
+
+        <label class="field">
+          <span>CONTRASEÑA</span>
+          <input type="password" name="password" [(ngModel)]="contrasenia"
+                 required minlength="6"
+                 placeholder="Mínimo 6 caracteres">
+        </label>
+
+        <label class="field">
+          <span>CONFIRMAR CONTRASEÑA</span>
+          <input type="password" name="confirmacion" [(ngModel)]="confirmacion"
+                 required minlength="6"
+                 placeholder="Repite tu contraseña">
+        </label>
+
+        <p class="feedback error" *ngIf="confirmacion && contrasenia !== confirmacion">
+          Las contraseñas no coinciden.
+        </p>
+
+        <label class="field">
+          <span>ZONA DE RESIDENCIA</span>
+          <select name="zona" [(ngModel)]="zonaId">
+            <option [ngValue]="null">Sin zona (opcional)</option>
+            <option *ngFor="let z of zonas" [ngValue]="z.id">{{ z.nombre }}</option>
+          </select>
+        </label>
+
+        <label class="field">
+          <span>AVATAR (URL, OPCIONAL)</span>
+          <input name="avatar" [(ngModel)]="avatar"
+                 maxlength="255"
+                 placeholder="https://...">
+        </label>
+
+        <span class="role-label">ROL INICIAL</span>
+        <div class="role-selector">
+          <button type="button"
+                  [class.active]="rolInicial === 'NORMAL'"
+                  (click)="rolInicial = 'NORMAL'">
+            <strong>NORMAL</strong>
+            <small>Publica y contrata</small>
+          </button>
+
+          <button type="button"
+                  [class.active]="rolInicial === 'CAZARRECOMPENSAS'"
+                  (click)="rolInicial = 'CAZARRECOMPENSAS'">
+            <strong>CAZARRECOMPENSAS</strong>
+            <small>Resuelve misiones</small>
+          </button>
+        </div>
+
+        <!-- Campos extra solo si es cazarrecompensas -->
+        <ng-container *ngIf="rolInicial === 'CAZARRECOMPENSAS'">
+
+          <label class="field">
+            <span>DESCRIPCIÓN</span>
+            <textarea name="descripcion" [(ngModel)]="descripcion"
+                      required maxlength="300" rows="3"
+                      placeholder="Cuéntanos sobre tu experiencia"></textarea>
+            <small class="contador">{{ descripcion?.length || 0 }}/300</small>
+          </label>
+
+          <div class="field">
+            <span>ESPECIALIDADES (MÍN. 1)</span>
+            <label class="check" *ngFor="let e of especialidades">
+              <input type="checkbox" name="esp{{ e.id }}"
+                     [(ngModel)]="especialidadesMarcadas[e.id]">
+              {{ e.nombre }}
+            </label>
+          </div>
+
+          <div class="field">
+            <span>ZONAS DE OPERACIÓN (MÍN. 1)</span>
+            <label class="check" *ngFor="let z of zonas">
+              <input type="checkbox" name="zop{{ z.id }}"
+                     [(ngModel)]="zonasMarcadas[z.id]">
+              {{ z.nombre }}
+            </label>
+          </div>
+
+        </ng-container>
+      </ng-container>
+
+      <!-- ===== ADMINISTRADOR ===== -->
+      <ng-container *ngIf="rol === 'admin'">
+
+        <label class="field">
+          <span>NOMBRE COMPLETO</span>
+          <input name="nombre" [(ngModel)]="nombre"
+                 required maxlength="120"
+                 placeholder="Tu nombre completo">
+        </label>
+
+        <label class="field">
+          <span>CORREO ELECTRÓNICO</span>
+          <input type="email" name="correoAdmin" [(ngModel)]="correo"
+                 required email maxlength="120"
+                 placeholder="admin@neonbounty.net">
+        </label>
+
+        <label class="field">
+          <span>CONTRASEÑA</span>
+          <input type="password" name="passwordAdmin" [(ngModel)]="contrasenia"
+                 required minlength="6"
+                 placeholder="Mínimo 6 caracteres">
+        </label>
+
+        <label class="field">
+          <span>CÓDIGO DE AUTORIZACIÓN</span>
+          <input type="password" name="codigoAdmin" [(ngModel)]="codigoAdmin"
+                 required
+                 placeholder="Código proporcionado por el sistema">
+        </label>
+
+      </ng-container>
+
+      <p class="feedback" *ngIf="mensaje">{{ mensaje }}</p>
+
+      <button class="auth-submit" type="submit"
+              [disabled]="registroForm.invalid || (confirmacion !== contrasenia)">
+        CREAR CUENTA →
+      </button>
+
+      <p class="switch-link">
+        ¿Ya tienes una cuenta?
+        <a routerLink="/inicio">Iniciar sesión</a>
+      </p>
+
+      <p class="security text-center">◈ REGISTRO PROTEGIDO</p>
+    </form>
+  </section>
+</main>

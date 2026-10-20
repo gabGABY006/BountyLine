@@ -1,0 +1,140 @@
+<section class="cc">
+  <header class="hero">
+    <div>
+      <p class="kicker"><span>///</span> NÚCLEO DE SUPERVISIÓN · NIVEL 5</p>
+      <div class="titulo-fila">
+        <div>
+          <h1>COMMAND<br><span>CENTER.</span></h1>
+          <p class="hero-sub">Control operativo de la red Neon Bounty en tiempo real.</p>
+        </div>
+        <div class="autorizacion">
+          <span class="anillo-auth"><i class="pi pi-shield"></i></span>
+          <div>
+            <small>AUTORIZACIÓN</small>
+            <b>BLACK // 05</b>
+            <em>SESIÓN VERIFICADA</em>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="orbita" aria-hidden="true">
+      <span class="anillo-externo"></span>
+      <span class="anillo-interno"></span>
+      <span class="nucleo"><i class="pi pi-wifi"></i></span>
+      <b>RED NOMINAL</b>
+      <small>99.98% UPTIME</small>
+    </div>
+  </header>
+
+  <section class="metricas">
+    <article *ngFor="let m of metricas" class="metrica" [ngClass]="m.tono">
+      <span class="metrica-indice">{{ m.indice }}</span>
+      <div class="metrica-icono"><i class="pi" [ngClass]="m.icono"></i></div>
+      <div class="metrica-texto">
+        <small>{{ m.etiqueta }}</small>
+        <strong>{{ m.valor }}</strong>
+        <span>{{ m.detalle }}</span>
+      </div>
+      <i class="metrica-linea"></i>
+    </article>
+  </section>
+
+  <div class="grid">
+    <!-- Cola de moderación (reportes pendientes) -->
+    <section class="panel">
+      <header class="panel-head">
+        <div>
+          <p class="eyebrow">COLA DE MODERACIÓN</p>
+          <h2>Reportes prioritarios</h2>
+        </div>
+        <a routerLink="/admin/reportes" class="accion">ABRIR CONSOLA <i class="pi pi-arrow-right"></i></a>
+      </header>
+
+      <a *ngFor="let i of incidentes" routerLink="/admin/reportes" class="incidente">
+        <span class="nivel" [ngClass]="i.nivel === 'ALFA' ? 'alfa' : 'beta'">{{ i.nivel }}</span>
+        <span>
+          <b>{{ i.id }}</b>
+          <small>{{ i.hace }}</small>
+        </span>
+        <span>
+          <b>{{ i.objetivo }}</b>
+          <small>{{ i.motivo }}</small>
+        </span>
+        <i class="pi pi-arrow-right"></i>
+      </a>
+
+      <footer class="panel-pie">
+        <span><i class="dot rosa"></i> {{ incidentes.length }} casos esperando revisión</span>
+        <b>TIEMPO MEDIO 08:14</b>
+      </footer>
+    </section>
+
+    <!-- Flujo de misiones -->
+    <section class="panel">
+      <header class="panel-head">
+        <div>
+          <p class="eyebrow">TELEMETRÍA // 24H</p>
+          <h2>Flujo de misiones</h2>
+        </div>
+        <span class="live"><i class="dot cian"></i> LIVE</span>
+      </header>
+
+      <div class="grafica">
+        <div class="escala">
+          <span *ngFor="let e of escala">{{ e }}</span>
+        </div>
+        <div class="barras" aria-label="Misiones publicadas por hora">
+          <span *ngFor="let f of flujo"
+                class="barra"
+                [style.height.%]="alturaBarra(f.valor)"
+                [title]="f.hora + ': ' + f.valor + ' misiones'"></span>
+        </div>
+      </div>
+
+      <div class="leyenda">
+        <span><i class="dot cian"></i> PUBLICADAS <b>{{ totalPublicadas }}</b></span>
+        <span><i class="dot rosa"></i> CANCELADAS <b>{{ canceladas }}</b></span>
+      </div>
+    </section>
+
+    <!-- Auditoría -->
+    <section class="panel">
+      <header class="panel-head">
+        <div>
+          <p class="eyebrow">AUDITORÍA CIFRADA</p>
+          <h2>Actividad del sistema</h2>
+        </div>
+        <span class="hash">HASH 8F:2A:91</span>
+      </header>
+
+      <div class="evento" *ngFor="let e of eventos">
+        <span class="evento-icono" [ngClass]="e.tono"><i class="pi" [ngClass]="e.icono"></i></span>
+        <p>
+          <b>{{ e.titulo }}</b>
+          <small>{{ e.detalle }}</small>
+        </p>
+        <time>{{ e.hora }}</time>
+      </div>
+    </section>
+
+    <!-- Accesos rápidos -->
+    <section class="panel panel-accesos">
+      <header class="panel-head">
+        <div>
+          <p class="eyebrow">ACCESO DIRECTO</p>
+          <h2>Operaciones rápidas</h2>
+        </div>
+      </header>
+
+      <a *ngFor="let a of accesos" [routerLink]="a.ruta" class="acceso">
+        <span class="acceso-icono"><i class="pi" [ngClass]="a.icono"></i></span>
+        <span class="acceso-texto">
+          <b>{{ a.titulo }}</b>
+          <small>{{ a.detalle }}</small>
+        </span>
+        <i class="pi pi-arrow-right"></i>
+      </a>
+    </section>
+  </div>
+</section>

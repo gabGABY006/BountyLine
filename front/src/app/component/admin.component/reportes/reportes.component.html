@@ -1,0 +1,255 @@
+<main class="reports-main">
+  <section class="reports-hero">
+    <div>
+      <p class="kicker"><span>///</span> CENTRO DE MODERACIÓN · CANAL SEGURO</p>
+      <h1>INTELIGENCIA<br><span>&amp; REPORTES.</span></h1>
+      <p>Revisa las señales de la red, valida el caso y aplica una acción de moderación.</p>
+    </div>
+
+    <div class="threat-monitor">
+      <span class="threat-radar"><i></i><b>{{ abiertos }}</b></span>
+      <div>
+        <small>NIVEL DE AMENAZA</small>
+        <strong>{{ nivelAmenaza }}</strong>
+        <span><i></i> {{ abiertos }} reportes abiertos</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="report-metrics" aria-label="Estado de reportes">
+    <article>
+      <span>01</span>
+      <div><small>TOTAL DE REPORTES</small><b>{{ total }}</b><em>en la bandeja</em></div>
+      <i class="pi pi-inbox"></i>
+    </article>
+    <article class="critical">
+      <span>02</span>
+      <div><small>PENDIENTES</small><b>{{ contar('PENDIENTE') }}</b><em>acción requerida</em></div>
+      <i class="pi pi-bolt"></i>
+    </article>
+    <article>
+      <span>03</span>
+      <div><small>EN REVISIÓN</small><b>{{ contar('EN REVISIÓN') }}</b><em>asignados a moderación</em></div>
+      <i class="pi pi-eye"></i>
+    </article>
+    <article>
+      <span>04</span>
+      <div><small>RESUELTOS</small><b>{{ contar('RESUELTO') }}</b><em>casos cerrados</em></div>
+      <i class="pi pi-check"></i>
+    </article>
+  </section>
+
+  <p *ngIf="mensaje" class="aviso" [class.error]="tipoMensaje === 'error'">{{ mensaje }}</p>
+
+  <div class="reports-layout">
+    <!-- Bandeja -->
+    <section class="reports-inbox">
+      <div class="report-toolbar">
+        <div>
+          <p class="eyebrow">BANDEJA DE SEÑALES</p>
+          <h2>Reportes de la red</h2>
+        </div>
+        <div class="report-filters" role="group" aria-label="Filtrar reportes por estado">
+          <button type="button"
+                  *ngFor="let f of filtrosEstado"
+                  [class.active]="filtroEstado === f.valor"
+                  (click)="filtroEstado = f.valor">
+            {{ f.texto }}<span>{{ contarFiltro(f.valor) }}</span>
+          </button>
+        </div>
+        <div class="report-toolbar">
+          <div>
+            <p class="eyebrow">BANDEJA DE SEÑALES</p>
+            <h2>Reportes de la red</h2>
+          </div>
+          <div class="report-filters" role="group" aria-label="Filtrar reportes por estado">
+            <!-- ...botones de filtro de siempre... -->
+          </div>
+          <button type="button" class="nuevo" (click)="abrirNuevo()">
+            <i class="pi pi-plus"></i> NUEVO REPORTE
+          </button>
+        </div>
+      </div>
+
+      <div class="report-busqueda">
+        <label class="buscar">
+          <i class="pi pi-search"></i>
+          <input type="search" [(ngModel)]="busqueda" placeholder="Buscar por ID, motivo u objetivo...">
+        </label>
+      </div>
+
+      <div class="report-list">
+        <button type="button"
+                class="report-row"
+                *ngFor="let r of reportesFiltrados"
+                [class.selected]="r.id === seleccionado.id"
+                (click)="seleccionar(r)">
+          <span class="priority-rail" [ngClass]="claseEstado(r.estado)"></span>
+
+          <span class="report-tipo" [ngClass]="r.tipo.toLowerCase()">
+            <i class="pi" [ngClass]="r.tipo === 'POST' ? 'pi-comment' : 'pi-user'"></i>
+            {{ r.tipo }}
+            <small>{{ r.hace }}</small>
+          </span>
+
+          <span class="report-summary">
+            <b>{{ r.motivo }}</b>
+            <small><em>{{ r.id }}</em> OBJETIVO: {{ r.objetivo }}</small>
+          </span>
+
+          <span class="report-state" [ngClass]="claseEstado(r.estado)">{{ r.estado }}</span>
+
+          <i class="pi pi-arrow-right row-flecha"></i>
+        </button>
+
+        <div class="report-empty" *ngIf="reportesFiltrados.length === 0">
+          <i class="pi pi-shield"></i>
+          <b>CANAL DESPEJADO</b>
+          <span>No hay reportes que coincidan con este filtro.</span>
+        </div>
+      </div>
+
+      <div class="report-footer">
+        <span>{{ reportesFiltrados.length }} SEÑALES VISIBLES // {{ total }} TOTALES</span>
+      </div>
+    </section>
+
+    <!-- Expediente del reporte seleccionado -->
+    <aside class="report-case">
+      <div class="case-header">
+        <span class="case-estado" [ngClass]="claseEstado(seleccionado.estado)">
+          <i></i>{{ seleccionado.estado }}
+        </span>
+        <h2>{{ seleccionado.id }}</h2>
+        <small>TIPO // {{ seleccionado.tipo }}</small>
+      </div>
+
+      <div class="case-subject">
+        <small>MOTIVO DEL REPORTE</small>
+        <p>{{ seleccionado.motivo }}</p>
+      </div>
+
+      <div class="case-target">
+        <span class="target-glyph">
+          <i class="pi" [ngClass]="seleccionado.tipo === 'POST' ? 'pi-comment' : 'pi-user'"></i>
+        </span>
+        <div>
+          <small>OBJETIVO // {{ seleccionado.tipo }}</small>
+          <b>{{ seleccionado.objetivo }}</b>
+        </div>
+      </div>
+
+      <div class="case-data">
+        <div><small>REPORTADO POR</small><b>{{ seleccionado.reportadoPor }}</b></div>
+        <div><small>ANTIGÜEDAD</small><b>{{ seleccionado.hace }}</b></div>
+        <div><small>ESTADO</small><b>{{ seleccionado.estado }}</b></div>
+        <div><small>ACCIÓN APLICADA</small><b class="cian-texto">{{ seleccionado.accion || 'SIN ACCIÓN' }}</b></div>
+      </div>
+
+      <div class="case-timeline">
+        <p class="eyebrow">TRAZA DEL EXPEDIENTE</p>
+        <div>
+          <i></i>
+          <span><b>Reporte recibido</b><small>Sentinel Gateway · {{ seleccionado.hace }}</small></span>
+        </div>
+        <div>
+          <i [class.pending]="seleccionado.estado !== 'RESUELTO'"></i>
+          <span>
+            <b>{{ seleccionado.estado === 'RESUELTO' ? 'Resolución emitida' : 'Esperando revisión humana' }}</b>
+            <small>{{ seleccionado.estado === 'RESUELTO' ? 'ADMIN_CORE · ' + seleccionado.accion : 'Cola de moderación' }}</small>
+          </span>
+        </div>
+      </div>
+
+      <div class="case-acciones">
+        <button type="button"
+                [disabled]="seleccionado.estado !== 'PENDIENTE'"
+                (click)="marcarEnRevision()">
+          <i class="pi pi-eye"></i> EN REVISIÓN
+        </button>
+        <button type="button"
+                class="resolver"
+                [class.resuelto]="!puedeResolver"
+                [disabled]="!puedeResolver"
+                (click)="abrirResolucion()">
+          <i class="pi pi-check"></i> {{ puedeResolver ? 'RESOLVER CASO' : 'CASO RESUELTO' }}
+        </button>
+      </div>
+    </aside>
+  </div>
+
+  <!-- Elegir la acción de moderación -->
+  <div class="modal-fondo" *ngIf="resolviendo">
+    <div class="modal" role="dialog" aria-modal="true">
+      <p class="eyebrow">RESOLVER REPORTE</p>
+      <h2>{{ seleccionado.id }}</h2>
+      <p>Elige la acción de moderación. Quedará registrada en el log de auditoría.</p>
+
+      <div class="acciones-lista" role="radiogroup" aria-label="Acción de moderación">
+        <label *ngFor="let a of acciones"
+               class="accion-opcion"
+               [class.bloqueada]="!accionDisponible(a.valor, seleccionado)">
+          <input type="radio"
+                 name="accion"
+                 [value]="a.valor"
+                 [(ngModel)]="accionElegida"
+                 [disabled]="!accionDisponible(a.valor, seleccionado)">
+          <span>
+            <b>{{ a.valor }}</b>
+            <small>{{ a.detalle }}</small>
+          </span>
+        </label>
+      </div>
+
+      <div class="modal-acciones">
+        <button type="button" class="btn cancelar" (click)="cancelarResolucion()">CANCELAR</button>
+        <button type="button" class="btn confirmar" (click)="confirmarResolucion()">CONFIRMAR</button>
+      </div>
+    </div>
+  </div>
+  <!-- Nuevo reporte -->
+  <div class="modal-fondo" *ngIf="creando">
+    <form class="modal" (ngSubmit)="crearReporte()" noValidate>
+      <p class="eyebrow">NUEVO REPORTE</p>
+      <h2>Registrar señal</h2>
+
+      <div class="tipos-mini">
+        <button type="button" [class.active]="nuevo.tipo === 'POST'" (click)="cambiarTipoNuevo('POST')">
+          <i class="pi pi-comment"></i> POST
+        </button>
+        <button type="button" [class.active]="nuevo.tipo === 'USUARIO'" (click)="cambiarTipoNuevo('USUARIO')">
+          <i class="pi pi-user"></i> USUARIO
+        </button>
+      </div>
+
+      <label class="campo">
+        <span>{{ nuevo.tipo === 'POST' ? 'ID DEL POST' : 'ALIAS DEL USUARIO' }}</span>
+        <input name="objetivo"
+               [(ngModel)]="nuevo.objetivo"
+               [maxlength]="nuevo.tipo === 'POST' ? 24 : 30"
+               [placeholder]="nuevo.tipo === 'POST' ? '24 caracteres hexadecimales' : 'Ej. GHOST_77'"
+               [class.invalido]="intentoEnvio && errorObjetivo">
+        <small class="error" *ngIf="intentoEnvio && errorObjetivo">{{ errorObjetivo }}</small>
+      </label>
+
+      <label class="campo">
+        <span>MOTIVO</span>
+        <textarea name="motivo"
+                  [(ngModel)]="nuevo.motivo"
+                  rows="4"
+                  [maxlength]="maxMotivo"
+                  placeholder="Describe qué ocurrió..."
+                  [class.invalido]="intentoEnvio && errorMotivo"></textarea>
+        <div class="pie">
+          <small class="error" *ngIf="intentoEnvio && errorMotivo">{{ errorMotivo }}</small>
+          <small class="contador">{{ nuevo.motivo.length }}/{{ maxMotivo }}</small>
+        </div>
+      </label>
+
+      <div class="modal-acciones">
+        <button type="button" class="btn cancelar" (click)="cerrarNuevo()">CANCELAR</button>
+        <button type="submit" class="btn confirmar">CREAR REPORTE</button>
+      </div>
+    </form>
+  </div>
+</main>

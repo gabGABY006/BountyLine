@@ -1,0 +1,71 @@
+
+<main class="fondo">
+  <section class="auth-story">
+    <div class="brand">◎ BOUNTYLINE</div>
+
+    <div class="story-copy">
+      <p class="kicker">/// RED GLOBAL DE OPERADORES</p>
+      <h1>LA CIUDAD TIENE<br>OBJETIVOS.<br><span>TÚ TIENES PRECIO.</span></h1>
+      <p>
+        Entra en la red de cazarrecompensas.
+        Descubre contratos, explora la comunidad
+        y construye tu reputación.
+      </p>
+
+      <div class="stats">
+        <div><strong>8.4K</strong><small>OPERADORES</small></div>
+        <div><strong>€42M</strong><small>PAGADOS</small></div>
+        <div><strong>99.8%</strong><small>RED SEGURA</small></div>
+      </div>
+    </div>
+
+    <p class="security">◈ CONEXIÓN SEGURA · BOUNTYLINE</p>
+  </section>
+
+  <section class="auth-zone">
+    <form class="auth-card" #loginForm="ngForm"
+          (ngSubmit)="iniciarSesion(loginForm)">
+
+      <p class="eyebrow">ACCESO AL SISTEMA / NB-001</p>
+      <h2>Identifícate, usuario</h2>
+      <p class="description">Introduce tus credenciales para continuar.</p>
+
+
+      <label class="field">
+        <span>CORREO ELECTRÓNICO</span>
+        <input type="email" name="correo"
+               [(ngModel)]="correo"
+               required email
+               placeholder="jugador@neonbounty.net">
+      </label>
+
+      <label class="field">
+        <span>CONTRASEÑA</span>
+        <div class="password-field">
+          <input [type]="mostrarContrasenia ? 'text' : 'password'"
+                 name="password"
+                 [(ngModel)]="contrasenia"
+                 required minlength="6"
+                 placeholder="Mínimo 6 caracteres">
+          <button type="button"
+                  (click)="mostrarContrasenia = !mostrarContrasenia">
+            {{ mostrarContrasenia ? 'OCULTAR' : 'VER' }}
+          </button>
+        </div>
+      </label>
+
+      <p class="feedback" *ngIf="mensaje">{{ mensaje }}</p>
+
+      <button class="auth-submit" type="button" routerLink="/admin">
+        ACCEDER A LA RED →
+      </button>
+
+      <p class="switch-link">
+        ¿Todavía no tienes cuenta?
+        <a routerLink="/registro">Crear cuenta</a>
+      </p>
+
+      <p class="security">◈ AUTENTICACIÓN PROTEGIDA</p>
+    </form>
+  </section>
+</main>
