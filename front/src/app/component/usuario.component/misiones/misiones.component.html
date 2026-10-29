@@ -1,0 +1,187 @@
+<section class="workspace-heading">
+  <div>
+    <p class="section-kicker"><span>///</span> CONTROL DE ENCARGOS</p>
+    <h1>Mis misiones<span>.</span></h1>
+    <p>Publica, asigna y sigue cada trabajo desde un solo lugar.</p>
+  </div>
+  <button type="button" class="heading-action" (click)="titulo.focus()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="square" aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg>
+    NUEVA MISIÓN
+  </button>
+</section>
+
+<!-- PUBLICAR ENCARGO -->
+<section class="quick-form panel">
+  <div>
+    <p class="eyebrow">NUEVA MISIÓN</p>
+    <h2>Publicar encargo</h2>
+    <small class="saldo-note">SALDO DISPONIBLE: {{ formatear(saldoDisponible) }} CR</small>
+  </div>
+  <form (submit)="publicar($event, titulo, zona, especialidad, recompensa)">
+    <input #titulo name="titulo" placeholder="Título de la misión" autocomplete="off" />
+    <select #zona name="zona">
+      <option value="" disabled selected>Zona</option>
+      <option *ngFor="let z of zonas" [value]="z">{{ z }}</option>
+    </select>
+    <select #especialidad name="especialidad">
+      <option value="" disabled selected>Especialidad</option>
+      <option *ngFor="let e of especialidades" [value]="e">{{ e }}</option>
+    </select>
+    <input #recompensa name="recompensa" type="number" placeholder="Recompensa CR" />
+    <button type="submit">PUBLICAR</button>
+    <p class="form-error" *ngIf="formError" role="alert">{{ formError }}</p>
+  </form>
+</section>
+
+<div class="workspace-grid">
+  <section>
+    <!-- Filtros -->
+    <div class="list-toolbar">
+      <div class="filter-row">
+        <button type="button" *ngFor="let item of filtros" [class.active]="filtro === item" (click)="filtro = item">{{ item }}</button>
+      </div>
+    </div>
+
+    <!-- Lista de misiones -->
+    <div class="mission-stack">
+      <div *ngFor="let mission of filtradas" (click)="seleccionar(mission)">
+        <article class="simple-mission-card" [ngClass]="mission.tone" [class.selected]="mission.id === selectedId">
+          <div class="simple-mission-image"><img [src]="mission.image" alt="" /><span>{{ mission.id }}</span></div>
+          <div class="simple-mission-body">
+            <div class="mission-card-top">
+              <span>{{ mission.id }}</span>
+              <span class="mission-status" [ngClass]="statusClass(mission.status)"><i></i>{{ mission.status }}</span>
+            </div>
+            <h3>{{ mission.title }}</h3>
+            <div class="mission-tags">
+              <span>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="square" aria-hidden="true"><path d="m3 6 6-3 6 3 6-3v15l-6 3-6-3-6 3Z" /><path d="M9 3v15m6-12v15" /></svg>
+                {{ mission.zone }}
+              </span>
+              <span>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="7" /><path d="M12 2v5m0 10v5M2 12h5m10 0h5" /></svg>
+                {{ mission.specialty }}
+              </span>
+            </div>
+            <div class="mission-card-foot">
+              <div><small>RECOMPENSA</small><strong>{{ formatear(mission.reward) }} <em>CR</em></strong></div>
+              <button type="button" class="compact-primary">
+                VER DETALLE
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="square" aria-hidden="true"><path d="M5 12h14m-5-5 5 5-5 5" /></svg>
+              </button>
+            </div>
+          </div>
+        </article>
+      </div>
+
+      <div class="empty-state" *ngIf="filtradas.length === 0">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="square" aria-hidden="true"><circle cx="12" cy="12" r="8" /><circle cx="12" cy="12" r="3" /><path d="M12 2v3m0 14v3M2 12h3m14 0h3" /></svg>
+        <b>SIN MISIONES</b>
+        <span>No hay resultados para este filtro.</span>
+      </div>
+    </div>
+
+    <!-- Postulaciones y acciones sobre la misión seleccionada -->
+    <section class="applications panel">
+      <div class="panel-heading">
+        <div>
+          <p class="eyebrow">POSTULACIONES RECIBIDAS</p>
+          <h2>{{ hunters.length }} candidatos disponibles</h2>
+        </div>
+      </div>
+      <div class="compact-list">
+        <button type="button" class="hunter-result" *ngFor="let hunter of hunters" [class.selected]="selectedHunter === hunter.alias" (click)="selectedHunter = hunter.alias">
+          <span class="avatar" [ngClass]="hunter.tone">{{ hunter.initials }}</span>
+          <span class="hunter-result-copy">
+            <b>{{ hunter.alias }}</b>
+            <small>{{ hunter.specialty }} · {{ hunter.zone }}</small>
+            <span>
+              <span class="stars">
+                <svg *ngFor="let star of stars" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="m12 3 2.7 5.6 6.1.9-4.4 4.3 1 6.1-5.4-2.9-5.4 2.9 1-6.1-4.4-4.3 6.1-.9Z" /></svg>
+              </span>
+              {{ hunter.rating }} · {{ hunter.jobs }} misiones
+            </span>
+          </span>
+          <span class="match-score" [ngClass]="hunter.tone"><b>{{ hunter.match }}%</b><small>MATCH</small></span>
+          <svg class="go" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="square" aria-hidden="true"><path d="M5 12h14m-5-5 5 5-5 5" /></svg>
+        </button>
+      </div>
+      <div class="inline-actions">
+        <button type="button" class="assign" [disabled]="!puedeAsignar" (click)="pedir('asignar')">ASIGNAR A {{ selectedHunter }}</button>
+        <button type="button" class="cancel" [disabled]="!puedeCancelar" (click)="pedir('cancelar')">CANCELAR MISIÓN</button>
+        <button type="button" [disabled]="!puedeCerrar" (click)="pedir('cerrar')">CONFIRMAR CIERRE</button>
+      </div>
+    </section>
+
+    <!-- Calificar (solo misiones cerradas) -->
+    <form class="rating-form panel" *ngIf="selected.status === 'CERRADA'" (submit)="enviarCalificacion($event, comentarioCalificacion)">
+      <div>
+        <p class="eyebrow">CALIFICAR SERVICIO</p>
+        <h2>¿Cómo fue la operación?</h2>
+      </div>
+      <div class="rating-stars" [class.locked]="yaCalificada">
+        <button type="button" *ngFor="let star of stars" [class.on]="star <= valorEstrellas" [disabled]="yaCalificada" [attr.aria-label]="'Calificar con ' + star" (click)="calificacion = star">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="m12 3 2.7 5.6 6.1.9-4.4 4.3 1 6.1-5.4-2.9-5.4 2.9 1-6.1-4.4-4.3 6.1-.9Z" /></svg>
+        </button>
+      </div>
+      <input #comentarioCalificacion placeholder="Comentario opcional" [disabled]="yaCalificada" />
+      <button type="submit" [disabled]="yaCalificada">{{ yaCalificada ? 'CALIFICACIÓN ENVIADA' : 'ENVIAR CALIFICACIÓN' }}</button>
+    </form>
+  </section>
+
+  <!-- DETALLE DE LA MISIÓN -->
+  <aside class="mission-detail panel">
+    <div class="detail-header">
+      <div><small>MISIÓN SELECCIONADA</small><h2>{{ selected.id }}</h2></div>
+      <span class="mission-status" [ngClass]="statusClass(selected.status)"><i></i>{{ selected.status }}</span>
+    </div>
+
+    <div class="detail-copy">
+      <h3>{{ selected.title }}</h3>
+      <p>El objetivo compartirá la ubicación exacta al asignar un cazarrecompensas. Pago protegido por la red.</p>
+    </div>
+
+    <div class="mission-timeline">
+      <div *ngFor="let paso of pasos; let i = index" [class.done]="estaCompleto(i)">
+        <i></i>
+        <span><b>{{ paso }}</b><small>{{ subtituloPaso(i) }}</small></span>
+      </div>
+    </div>
+
+    <div class="mini-chat">
+      <p class="eyebrow">CANAL DE MISIÓN</p>
+
+      <p class="chat-empty" *ngIf="!selected.hunter">El chat se habilita al asignar un cazarrecompensas.</p>
+
+      <div class="chat-message" *ngFor="let msg of selected.messages">
+        <span class="avatar" [ngClass]="msg.tono">{{ msg.iniciales }}</span>
+        <p><b>{{ msg.autor }}</b><span>{{ msg.texto }}</span></p>
+      </div>
+
+      <form (submit)="enviarMensaje($event, mensaje)">
+        <input #mensaje placeholder="Escribe un mensaje..." [disabled]="!chatActivo" />
+        <button type="submit" aria-label="Enviar mensaje" [disabled]="!chatActivo">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="square" stroke-linejoin="miter" aria-hidden="true"><path d="m22 2-7 20-4-9-9-4Z" /><path d="M22 2 11 13" /></svg>
+        </button>
+      </form>
+    </div>
+  </aside>
+</div>
+
+<!-- MODAL DE CONFIRMACIÓN -->
+<div class="modal-backdrop" *ngIf="pendiente" (click)="cancelarConfirmacion()">
+  <section class="confirm-modal" (click)="$event.stopPropagation()">
+    <span class="modal-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="square" stroke-linejoin="miter" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z" /></svg>
+    </span>
+    <p class="eyebrow">CONFIRMACIÓN REQUERIDA</p>
+    <h2>¿Confirmar operación?</h2>
+    <p class="modal-copy">{{ pendiente.texto }}</p>
+    <div class="modal-actions">
+      <button type="button" (click)="cancelarConfirmacion()">VOLVER</button>
+      <button type="button" class="primary" (click)="confirmar()">CONFIRMAR</button>
+    </div>
+  </section>
+</div>
+
+<div class="toast" *ngIf="toast">{{ toast }}</div>

@@ -24,23 +24,24 @@ export class SidebarComponent {
 
   private readonly menuPorModo: Record<ModoApp, ItemMenu[]> = {
     NORMAL: [
-      { texto: 'Mis misiones', ruta: '/usuario/mis-misiones', icono: 'pi-list' },
+      { texto: 'Feed', ruta: '/usuario/feed', icono: 'pi-hashtag' },
+      { texto: 'Mis misiones', ruta: '/usuario/misiones', icono: 'pi-list' },
       { texto: 'Billetera', ruta: '/usuario/billetera', icono: 'pi-wallet' },
       { texto: 'Mi perfil', ruta: '/usuario/mi-perfil', icono: 'pi-user' },
+      { texto: 'Cazadores', ruta: '/usuario/cazadores', icono: 'pi-book' },
     ],
     CAZARRECOMPENSAS: [
-      { texto: 'Misiones disponibles', ruta: '/cazarrecompensas/misiones-disponibles', icono: 'pi-receipt' },
-      { texto: 'Mis postulaciones', ruta: '/cazarrecompensas/mis-misiones', icono: 'pi-send' },
-      { texto: 'Ranking', ruta: '/cazarrecompensas/ranking', icono: 'pi-trophy' },
-      { texto: 'Mi calificación', ruta: '/cazarrecompensas/mi-calificacion', icono: 'pi-star' },
-      { texto: 'Billetera', ruta: '/usuario/billetera', icono: 'pi-wallet' },
-      { texto: 'Mi perfil', ruta: '/usuario/mi-perfil', icono: 'pi-user' },
+      { texto: 'Mercado', ruta: '/cazarrecompensas/mercado', icono: 'pi-bullseye' },
+      { texto: 'Mis trabajos', ruta: '/cazarrecompensas/trabajos', icono: 'pi-map-marker' },
+      { texto: 'Ganancias', ruta: '/cazarrecompensas/ganancias', icono: 'pi-wallet' },
+      { texto: 'Mi perfil', ruta: '/cazarrecompensas/mi-perfil', icono: 'pi-user' },
     ],
     ADMIN: [
       { texto: 'Panel', ruta: '/admin/panel', icono: 'pi-th-large' },
       { texto: 'Usuarios', ruta: '/admin/usuarios', icono: 'pi-users' },
       { texto: 'Reportes', ruta: '/admin/reportes', icono: 'pi-exclamation-triangle' },
       { texto: 'Catálogos', ruta: '/admin/catalogos', icono: 'pi-list' },
+      { texto: 'Bitácora', ruta: '/admin/bitacora', icono: 'pi-clock' },
     ],
   };
 

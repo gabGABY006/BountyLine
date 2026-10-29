@@ -1,1 +1,142 @@
-<p>catalogos.component works!</p>
+<section class="users-hero">
+  <div>
+    <p class="section-kicker"><span>///</span> CONFIGURACIÓN CENTRAL · DATOS COMPARTIDOS</p>
+    <h1>CATÁLOGOS<br /><span>DEL SISTEMA.</span></h1>
+    <p>Administra las opciones que aparecen en los formularios de toda la red.</p>
+  </div>
+  <span class="catalog-summary">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="square" stroke-linejoin="miter" aria-hidden="true">
+      <path d="m3 6 6-3 6 3 6-3v15l-6 3-6-3-6 3Z" /><path d="M9 3v15m6-12v15" />
+    </svg>
+    <b>{{ zones.length + specialties.length }}</b>
+    <small>REGISTROS ACTIVOS</small>
+  </span>
+</section>
+
+<div class="catalog-grid">
+  <!-- ZONAS -->
+  <section class="admin-panel catalog-panel">
+    <div class="admin-panel-heading">
+      <div>
+        <p class="eyebrow">UBICACIONES OPERATIVAS</p>
+        <h2>Zonas</h2>
+      </div>
+      <div class="heading-actions">
+        <span>{{ zones.length }} ACTIVAS</span>
+        <button type="button" class="btn-nuevo" (click)="abrirModal('zone')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="square" aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg>
+          NUEVA ZONA
+        </button>
+      </div>
+    </div>
+    <div class="catalog-list">
+      <div *ngFor="let zone of zones; let i = index">
+        <span class="catalog-index">Z-{{ pad(i + 1) }}</span>
+        <span><b>{{ zone.nombre }}</b><small>{{ zone.descripcion || 'Disponible para perfiles y misiones' }}</small></span>
+        <em>ACTIVA</em>
+        <button type="button" [attr.aria-label]="'Opciones de ' + zone.nombre">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="5" cy="12" r="1" /><circle cx="12" cy="12" r="1" /><circle cx="19" cy="12" r="1" /></svg>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ESPECIALIDADES -->
+  <section class="admin-panel catalog-panel">
+    <div class="admin-panel-heading">
+      <div>
+        <p class="eyebrow">TIPOS DE OPERACIÓN</p>
+        <h2>Especialidades</h2>
+      </div>
+      <div class="heading-actions">
+        <span>{{ specialties.length }} ACTIVAS</span>
+        <button type="button" class="btn-nuevo" (click)="abrirModal('specialty')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="square" aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg>
+          NUEVA ESPECIALIDAD
+        </button>
+      </div>
+    </div>
+    <div class="catalog-list">
+      <div *ngFor="let specialty of specialties; let i = index">
+        <span class="catalog-index">E-{{ pad(i + 1) }}</span>
+        <span><b>{{ specialty.nombre }}</b><small>{{ specialty.descripcion || 'Visible para todos los cazadores' }}</small></span>
+        <em>ACTIVA</em>
+        <button type="button" [attr.aria-label]="'Opciones de ' + specialty.nombre">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="5" cy="12" r="1" /><circle cx="12" cy="12" r="1" /><circle cx="19" cy="12" r="1" /></svg>
+        </button>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- MISIONES CANCELABLES -->
+<section class="admin-panel cancellable-missions">
+  <div class="admin-panel-heading">
+    <div>
+      <p class="eyebrow">CONTROL DE OPERACIONES</p>
+      <h2>Misiones disponibles para cancelar</h2>
+    </div>
+    <span class="count-label">{{ misionesEnCurso }} EN CURSO</span>
+  </div>
+  <div class="admin-mission-head">
+    <span>MISIÓN</span><span>ZONA / ESPECIALIDAD</span><span>RECOMPENSA</span><span>ESTADO</span><span></span>
+  </div>
+  <div class="admin-mission-row" *ngFor="let mission of misionesVisibles" [class.cancelled]="isCancelled(mission.id)">
+    <span>
+      <img [src]="mission.image" alt="" />
+      <span><b>{{ mission.title }}</b><small>{{ mission.id }} · {{ mission.applicants }} postulaciones</small></span>
+    </span>
+    <span><b>{{ mission.zone }}</b><small>{{ mission.specialty }}</small></span>
+    <strong>{{ mission.reward }} CR</strong>
+    <span class="mission-status" [ngClass]="statusClass(mission)"><i></i>{{ statusLabel(mission) }}</span>
+    <button type="button" [disabled]="isCancelled(mission.id)" (click)="cancelMission(mission)">
+      {{ isCancelled(mission.id) ? 'CANCELADA' : 'CANCELAR MISIÓN' }}
+    </button>
+  </div>
+</section>
+
+<!-- MODAL: NUEVA ZONA / NUEVA ESPECIALIDAD -->
+<div class="modal-backdrop" *ngIf="modal" (click)="cerrarModal()">
+  <form class="form-modal" [class.is-zone]="modal === 'zone'" [class.is-specialty]="modal === 'specialty'" novalidate (click)="$event.stopPropagation()" (submit)="guardar($event)">
+    <p class="eyebrow">{{ modal === 'zone' ? 'UBICACIONES OPERATIVAS' : 'TIPOS DE OPERACIÓN' }}</p>
+    <h2>{{ modal === 'zone' ? 'Nueva zona' : 'Nueva especialidad' }}</h2>
+    <p class="modal-copy">
+      {{ modal === 'zone'
+      ? 'Será un distrito disponible para perfiles de cazarrecompensas y para publicar misiones.'
+      : 'Será un tipo de trabajo que los cazarrecompensas podrán registrar y que las misiones podrán requerir.' }}
+    </p>
+
+    <label class="field">
+      <span>NOMBRE *</span>
+      <input
+        type="text"
+        name="nombre"
+        autofocus
+        autocomplete="off"
+        [class.invalid]="formError"
+        [value]="formNombre"
+        (input)="onNombre($event)"
+        [placeholder]="modal === 'zone' ? 'Ej: Distrito Norte' : 'Ej: Recuperación de bienes'" />
+      <small class="counter">{{ formNombre.length }}/{{ maxNombre }}</small>
+    </label>
+
+    <label class="field">
+      <span>DESCRIPCIÓN (OPCIONAL)</span>
+      <textarea
+        name="descripcion"
+        [value]="formDescripcion"
+        (input)="onDescripcion($event)"
+        placeholder="Una línea que explique para qué sirve"></textarea>
+      <small class="counter">{{ formDescripcion.length }}/{{ maxDescripcion }}</small>
+    </label>
+
+    <p class="form-error" *ngIf="formError" role="alert">{{ formError }}</p>
+
+    <div class="modal-actions">
+      <button type="button" class="btn-secundario" (click)="cerrarModal()">CANCELAR</button>
+      <button type="submit" class="btn-primario">{{ modal === 'zone' ? 'CREAR ZONA' : 'CREAR ESPECIALIDAD' }}</button>
+    </div>
+  </form>
+</div>
+
+<div class="toast" *ngIf="toast">{{ toast }}</div>

@@ -1,0 +1,57 @@
+<section class="reports-hero">
+  <div>
+    <p class="section-kicker"><span>///</span> AUDITORÍA CENTRAL · SOLO EVENTOS CRÍTICOS</p>
+    <h1>BITÁCORA<br /><span>DE ACTIVIDAD.</span></h1>
+    <p>Traza los movimientos importantes de usuarios, créditos, misiones y moderación.</p>
+  </div>
+  <div class="audit-seal">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="square" stroke-linejoin="miter" aria-hidden="true">
+      <rect x="5" y="10" width="14" height="11" rx="1" /><path d="M8 10V7a4 4 0 0 1 8 0v3m-4 4v3" />
+    </svg>
+    <div>
+      <small>REGISTRO INMUTABLE</small>
+      <b>HASH 8F:2A:91</b>
+      <span><i></i> SIN ALTERACIONES</span>
+    </div>
+  </div>
+</section>
+
+<section class="audit-metrics">
+  <article *ngFor="let metric of metrics">
+    <small>{{ metric.label }}</small>
+    <b>{{ metric.value }}</b>
+    <span>{{ metric.note }}</span>
+  </article>
+</section>
+
+<section class="admin-panel audit-panel">
+  <div class="report-toolbar">
+    <div>
+      <p class="eyebrow">MOVIMIENTOS IMPORTANTES</p>
+      <h2>Registro de la red</h2>
+    </div>
+    <div class="report-filters">
+      <button type="button" *ngFor="let item of filters" [class.active]="type === item" (click)="setType(item)">{{ item }}</button>
+    </div>
+  </div>
+
+  <div class="audit-table-head">
+    <span>HORA / TIPO</span><span>OPERADOR</span><span>MOVIMIENTO</span><span>REFERENCIA</span><span>DETALLE</span>
+  </div>
+
+  <div class="audit-list">
+    <article *ngFor="let event of visible" [ngClass]="event.tone">
+      <span><i [ngClass]="event.tone"></i><b>{{ event.time }}</b><small>{{ event.type }}</small></span>
+      <strong>{{ event.operator }}</strong>
+      <p>{{ event.action }}</p>
+      <code>{{ event.reference }}</code>
+      <em>{{ event.detail }}</em>
+    </article>
+
+    <div class="report-empty" *ngIf="visible.length === 0">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="square" aria-hidden="true"><circle cx="11" cy="11" r="7" /><path d="m20 20-4-4" /></svg>
+      <b>SIN MOVIMIENTOS</b>
+      <span>No hay eventos para este filtro.</span>
+    </div>
+  </div>
+</section>

@@ -1,5 +1,7 @@
 import { Component } from '@angular/core';
 import { NgForm } from '@angular/forms';
+import { Router } from '@angular/router';
+
 @Component({
   selector: 'app-inicio',
   standalone: false,
@@ -17,6 +19,8 @@ export class InicioComponent {
   mostrarContrasenia = false;
   mensaje = '';
 
+  constructor(private router: Router) {}
+
   iniciarSesion(form: NgForm): void {
     if (form.invalid) {
       form.control.markAllAsTouched();
@@ -24,7 +28,13 @@ export class InicioComponent {
       return;
     }
 
-    this.mensaje =
-      'Formulario válido. Falta verificar la autenticación.';
+    // TEMPORAL: borrar este bloque cuando exista la autenticación con el back
+    if (this.rol === 'admin') {
+      this.router.navigate(['/admin/panel']);
+    } else if (this.modo === 'cazarrecompensas') {
+      this.router.navigate(['/cazarrecompensas/mercado']);
+    } else {
+      this.router.navigate(['/usuario/misiones']);
+    }
   }
 }

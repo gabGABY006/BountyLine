@@ -7,18 +7,16 @@ import { AdminComponent } from './component/admin.component/admin.component';
 import { GestionUsuariosComponent } from './component/admin.component/gestion-usuarios.component/gestion-usuarios.component';
 import { ReportesComponent } from './component/admin.component/reportes/reportes.component';
 import { FeedAdminComponent } from './component/admin.component/feed-admin.component/feed-admin.component';
-import { MisMisionesComponent } from './component/usuario.component/mis-misiones.component/mis-misiones.component';
-import { NuevaMisionComponent } from './component/usuario.component/nueva-mision.component/nueva-mision.component';
-import { DetalleMisionComponent } from './component/usuario.component/detalle-mision.component/detalle-mision.component';
 import { BilleteraComponent } from './component/usuario.component/billetera.component/billetera.component';
 import { MiPerfilComponent } from './component/usuario.component/mi-perfil/mi-perfil.component';
-import { FeedComponent } from './component/usuario.component/feed.component/feed.component';
-import { MisionesDisponiblesComponent } from './component/cazarecompensas.component/misiones-disponibles.component/misiones-disponibles.component';
-import { MisMisionesCazaComponent } from './component/cazarecompensas.component/mis-misiones-caza.component/mis-misiones-caza.component';
-import { DetalleMisionCazaComponent } from './component/cazarecompensas.component/detalle-mision-caza.component/detalle-mision-caza.component';
-import { MiCalificacionComponent } from './component/cazarecompensas.component/mi-calificacion.component/mi-calificacion.component';
-import { FeedCazaComponent } from './component/cazarecompensas.component/feed-caza.component/feed-caza.component';
+import { FeedComponent } from './component/usuario.component/feed/feed.component';
 import { CatalogosComponent} from './component/admin.component/catalogos/catalogos.component';
+import { BitacoraComponent } from './component/admin.component/bitacora/bitacora.component';
+import { MisionesComponent } from './component/usuario.component/misiones/misiones.component';
+import { CazadoresComponent } from './component/usuario.component/cazadores.component/cazadores.component';
+import { MercadoCazaComponent } from './component/cazarecompensas.component/mercado-caza.component/mercado-caza.component';
+import { GananciasComponent } from './component/cazarecompensas.component/ganancias.component/ganancias.component';
+import { MisTrabajosComponent } from './component/cazarecompensas.component/mis-trabajos.component/mis-trabajos.component';
 
 const routes: Routes = [
   { path: '', redirectTo: 'inicio', pathMatch: 'full' },
@@ -36,6 +34,7 @@ const routes: Routes = [
       { path: 'reportes', component: ReportesComponent },
       { path: 'feed', component: FeedAdminComponent },
       { path: 'catalogos', component: CatalogosComponent },
+      { path: 'bitacora', component: BitacoraComponent },
     ],
   },
 
@@ -44,13 +43,12 @@ const routes: Routes = [
     component: LayoutComponent,
     data: { modo: 'NORMAL' },
     children: [
-      { path: '', redirectTo: 'mis-misiones', pathMatch: 'full' },
-      { path: 'mis-misiones', component: MisMisionesComponent },
-      { path: 'nueva-mision', component: NuevaMisionComponent },
-      { path: 'detalle/:id', component: DetalleMisionComponent },
+      { path: '', redirectTo: 'feed', pathMatch: 'full' },
+      { path: 'misiones', component: MisionesComponent },
       { path: 'billetera', component: BilleteraComponent },
       { path: 'mi-perfil', component: MiPerfilComponent },
       { path: 'feed', component: FeedComponent },
+      { path: 'cazadores', component: CazadoresComponent },
     ],
   },
 
@@ -59,14 +57,11 @@ const routes: Routes = [
     component: LayoutComponent,
     data: { modo: 'CAZARRECOMPENSAS' },
     children: [
-      { path: '', redirectTo: 'misiones-disponibles', pathMatch: 'full' },
-      { path: 'misiones-disponibles', component: MisionesDisponiblesComponent },
-      { path: 'mis-misiones', component: MisMisionesCazaComponent },
-      { path: 'detalle/:id', component: DetalleMisionCazaComponent },
-      { path: 'mi-calificacion', component: MiCalificacionComponent },
-      { path: 'billetera', component: BilleteraComponent },
+      { path: '', redirectTo: 'mercado', pathMatch: 'full' },
+      { path: 'mercado', component: MercadoCazaComponent },
+      { path: 'ganancias', component: GananciasComponent },
       { path: 'mi-perfil', component: MiPerfilComponent },
-      { path: 'feed', component: FeedCazaComponent },
+      { path: 'trabajos', component: MisTrabajosComponent },
     ],
   },
 

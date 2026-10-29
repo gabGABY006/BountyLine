@@ -1,0 +1,150 @@
+@import url("https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Rajdhani:wght@500;600;700&display=swap");
+
+:host {
+  display: block;
+  --bg: #080b0e;
+  --surface: #0d1216;
+  --line: #222c32;
+  --muted: #8a9aa1;
+  --text: #e9f1f2;
+  --cyan: #5af5d6;
+  --pink: #ff3d8d;
+  --amber: #ffb547;
+  color: var(--text);
+  font-family: "DM Sans", sans-serif;
+  font-size: 16px;
+}
+
+* { box-sizing: border-box; }
+button, input, textarea { font: inherit; }
+button { color: inherit; cursor: pointer; }
+button:focus-visible, input:focus-visible, textarea:focus-visible { outline: 2px solid var(--cyan); outline-offset: 2px; }
+h1, h2, p { margin: 0; }
+
+.eyebrow { color: #7f909a; font: 600 12px "Rajdhani"; letter-spacing: .18em; margin: 0 0 12px; }
+.section-kicker { color: #8c9ba2; font: 600 13px "Rajdhani"; letter-spacing: .2em; margin: 0 0 14px; }
+.section-kicker span { color: var(--cyan); }
+
+/* ---------- Hero ---------- */
+.users-hero { min-height: 260px; display: flex; align-items: center; justify-content: space-between; gap: 30px; position: relative; border-bottom: 1px solid var(--line); }
+.users-hero::after { content: "IDENTITY CONTROL"; position: absolute; right: 5px; bottom: -10px; color: rgba(90,245,214,.025); font: 700 96px "Rajdhani"; letter-spacing: -.04em; pointer-events: none; }
+.users-hero > div { position: relative; z-index: 1; }
+.users-hero h1 { margin: 0; font: 700 clamp(54px, 5.5vw, 84px)/.85 "Rajdhani"; letter-spacing: -.04em; }
+.users-hero h1 span { color: var(--cyan); }
+.users-hero > div > p:last-child { margin: 18px 0 0; color: var(--muted); font-size: 16px; }
+
+.catalog-summary { min-width: 250px; padding: 20px 24px; display: grid; grid-template-columns: 58px 1fr; align-items: center; color: var(--cyan); border: 1px solid #31534e; background: rgba(90,245,214,.045); }
+.catalog-summary svg { grid-row: 1/3; width: 34px; height: 34px; }
+.catalog-summary b { font: 700 34px "Rajdhani"; }
+.catalog-summary small { color: var(--muted); font: 600 11px "Rajdhani"; letter-spacing: .1em; }
+
+/* ---------- Paneles ---------- */
+.admin-panel { min-width: 0; border: 1px solid var(--line); background: rgba(13,18,22,.88); }
+.admin-panel-heading { min-height: 88px; padding: 18px 22px; display: flex; justify-content: space-between; align-items: center; gap: 16px; border-bottom: 1px solid var(--line); }
+.admin-panel-heading .eyebrow { margin-bottom: 4px; }
+.admin-panel-heading h2 { margin: 0; font: 700 26px "Rajdhani"; }
+.admin-panel-heading > span, .heading-actions > span, .count-label { color: var(--muted); font: 600 11px "Rajdhani"; letter-spacing: .1em; white-space: nowrap; }
+.heading-actions { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; justify-content: flex-end; }
+
+.btn-nuevo { min-height: 42px; padding: 0 16px; display: inline-flex; align-items: center; gap: 8px; border: 1px solid var(--cyan); background: var(--cyan); color: #07110f; font: 700 13px "Rajdhani"; letter-spacing: .06em; transition: filter .15s; }
+.btn-nuevo svg { width: 18px; height: 18px; }
+.btn-nuevo:hover { filter: brightness(1.1); }
+
+.catalog-grid { margin: 24px 0; display: grid; grid-template-columns: 1fr 1fr; gap: 22px; }
+.catalog-panel { overflow: hidden; }
+.catalog-panel:first-child { border-top: 2px solid var(--amber); }
+.catalog-panel:nth-child(2) { border-top: 2px solid var(--pink); }
+
+/* ---------- Lista ---------- */
+.catalog-list > div { min-height: 80px; padding: 12px 18px; display: grid; grid-template-columns: 56px 1fr auto 32px; align-items: center; gap: 14px; border-bottom: 1px solid #1c252a; }
+.catalog-list > div:last-child { border-bottom: 0; }
+.catalog-index { color: var(--cyan); font: 700 13px "Rajdhani"; }
+.catalog-list > div > span:nth-child(2) { display: flex; flex-direction: column; min-width: 0; }
+.catalog-list b { font: 700 17px "Rajdhani"; }
+.catalog-list small { margin-top: 4px; color: var(--muted); font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.catalog-list em { color: var(--cyan); font: 700 11px "Rajdhani"; font-style: normal; letter-spacing: .06em; }
+.catalog-list button { border: 0; background: transparent; color: var(--muted); }
+.catalog-list button svg { width: 20px; height: 20px; }
+.catalog-list button:hover { color: var(--text); }
+
+.catalog-panel:first-child .catalog-index,
+.catalog-panel:first-child .catalog-list em { color: var(--amber); }
+.catalog-panel:nth-child(2) .catalog-index,
+.catalog-panel:nth-child(2) .catalog-list em { color: var(--pink); }
+.catalog-panel:nth-child(2) .btn-nuevo { border-color: var(--pink); background: var(--pink); color: #fff; }
+
+/* ---------- Misiones cancelables ---------- */
+.cancellable-missions { margin-bottom: 30px; overflow: hidden; border-top: 2px solid var(--pink); }
+.admin-mission-head, .admin-mission-row { display: grid; grid-template-columns: minmax(300px, 1.5fr) minmax(180px, 1fr) 130px 130px 170px; align-items: center; gap: 16px; }
+.admin-mission-head { min-height: 44px; padding: 0 20px; color: #6b7a81; background: #090e11; font: 600 11px "Rajdhani"; letter-spacing: .09em; }
+.admin-mission-row { min-height: 100px; padding: 12px 20px; border-top: 1px solid var(--line); }
+.admin-mission-row > span:first-child { min-width: 0; display: flex; align-items: center; gap: 14px; }
+.admin-mission-row img { width: 88px; height: 62px; object-fit: cover; filter: saturate(.65); }
+.admin-mission-row > span > span, .admin-mission-row > span:nth-child(2) { min-width: 0; display: flex; flex-direction: column; }
+.admin-mission-row b { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font: 700 16px "Rajdhani"; }
+.admin-mission-row small { margin-top: 5px; color: var(--muted); font-size: 12px; }
+.admin-mission-row > strong { color: var(--cyan); font: 700 17px "Rajdhani"; }
+.admin-mission-row:nth-child(2n) > strong { color: var(--amber); }
+.admin-mission-row > button { min-height: 44px; border: 1px solid #6a2944; background: transparent; color: var(--pink); font: 700 12px "Rajdhani"; letter-spacing: .05em; }
+.admin-mission-row > button:disabled { color: var(--muted); border-color: var(--line); cursor: default; }
+.admin-mission-row.cancelled { opacity: .5; }
+
+.mission-status { width: max-content; padding: 6px 10px; display: inline-flex; align-items: center; gap: 7px; color: var(--cyan); border: 1px solid #28534c; font: 700 11px "Rajdhani"; letter-spacing: .08em; }
+.mission-status i { width: 6px; height: 6px; border-radius: 50%; background: currentColor; box-shadow: 0 0 6px currentColor; }
+.mission-status.en-curso { color: var(--amber); border-color: #5f4828; }
+.mission-status.cerrada { color: #74838a; border-color: #374249; }
+.mission-status.cancelada { color: var(--pink); border-color: #6a2944; }
+
+/* ---------- Modal / formulario ---------- */
+.modal-backdrop { position: fixed; inset: 0; z-index: 200; padding: 20px; display: flex; align-items: center; justify-content: center; background: rgba(4,7,9,.78); backdrop-filter: blur(3px); }
+.form-modal { width: min(540px, 100%); max-height: 100%; overflow-y: auto; padding: 32px; border: 1px solid #34524e; border-top: 3px solid var(--amber); background: #0d1216; box-shadow: 0 24px 80px rgba(0,0,0,.55); }
+.form-modal.is-specialty { border-top-color: var(--pink); }
+.form-modal h2 { font: 700 32px "Rajdhani"; margin-bottom: 8px; }
+.modal-copy { color: var(--muted); font-size: 14px; line-height: 1.5; margin-bottom: 22px; }
+
+.field { display: block; margin-bottom: 18px; position: relative; }
+.field > span { display: block; margin-bottom: 8px; color: #9aa9b0; font: 700 12px "Rajdhani"; letter-spacing: .12em; }
+.field input, .field textarea { width: 100%; padding: 12px 14px; border: 1px solid var(--line); outline: 0; background: #090e11; color: var(--text); font-size: 16px; }
+.field textarea { resize: vertical; min-height: 88px; }
+.field input:focus, .field textarea:focus { border-color: var(--cyan); }
+.field input.invalid { border-color: var(--pink); }
+.counter { display: block; margin-top: 5px; text-align: right; color: #62727a; font-size: 12px; }
+
+.form-error { margin: -4px 0 18px; padding: 10px 12px; color: var(--pink); font-size: 14px; border: 1px solid #6a2944; background: rgba(255,61,141,.07); }
+
+.modal-actions { display: flex; justify-content: flex-end; gap: 12px; margin-top: 8px; }
+.modal-actions button { min-height: 46px; padding: 0 22px; font: 700 14px "Rajdhani"; letter-spacing: .06em; }
+.btn-secundario { border: 1px solid var(--line); background: transparent; color: var(--muted); }
+.btn-secundario:hover { color: var(--text); border-color: #3c4a51; }
+.btn-primario { border: 1px solid var(--cyan); background: var(--cyan); color: #07110f; }
+.btn-primario:hover { filter: brightness(1.1); }
+.is-specialty .btn-primario { border-color: var(--pink); background: var(--pink); color: #fff; }
+
+/* Toast */
+.toast { position: fixed; right: 24px; bottom: 24px; z-index: 300; padding: 16px 22px; background: #0d1216; border: 1px solid #34524e; color: var(--cyan); font: 700 15px "Rajdhani"; letter-spacing: .06em; box-shadow: 0 12px 40px rgba(0,0,0,.5); }
+
+/* ---------- Responsive ---------- */
+@media (max-width: 1100px) {
+  .catalog-grid { grid-template-columns: 1fr; }
+  .admin-mission-head, .admin-mission-row { grid-template-columns: minmax(260px, 1.5fr) minmax(160px, 1fr) 110px 150px; }
+  .admin-mission-head span:nth-child(4), .admin-mission-row .mission-status { display: none; }
+}
+@media (max-width: 820px) {
+  .admin-mission-head, .admin-mission-row { grid-template-columns: minmax(240px, 1fr) 150px; }
+  .admin-mission-head span:nth-child(2), .admin-mission-head span:nth-child(3),
+  .admin-mission-row > span:nth-child(2), .admin-mission-row > strong { display: none; }
+}
+@media (max-width: 600px) {
+  .users-hero { min-height: 280px; align-items: flex-start; flex-direction: column; justify-content: center; }
+  .users-hero::after { display: none; }
+  .users-hero h1 { font-size: 54px; }
+  .catalog-summary { width: 100%; min-width: 0; }
+  .admin-panel-heading { flex-direction: column; align-items: flex-start; }
+  .heading-actions { width: 100%; justify-content: space-between; }
+  .admin-mission-head { display: none; }
+  .admin-mission-row { grid-template-columns: 1fr; gap: 10px; }
+  .admin-mission-row > button { width: 100%; }
+  .form-modal { padding: 24px; }
+  .modal-actions { flex-direction: column-reverse; }
+  .modal-actions button { width: 100%; }
+}
