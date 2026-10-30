@@ -19,21 +19,21 @@
 button, input, textarea, select { font: inherit; }
 button { color: inherit; cursor: pointer; }
 button:disabled { cursor: default; }
-button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px solid var(--cyan); outline-offset: 2px; }
-h1, h2, h3, p { margin: 0; }
+button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 2px solid var(--cyan); outline-offset: 2px; }
+h1, h2, h3, p, dl, dd { margin: 0; }
 svg { display: block; }
 
 .eyebrow { color: #7f909a; font: 600 12px "Rajdhani"; letter-spacing: .18em; margin: 0 0 12px; }
 .section-kicker { color: #8c9ba2; font: 600 13px "Rajdhani"; letter-spacing: .2em; margin: 0 0 14px; }
 .section-kicker span { color: var(--amber); }
 
-.avatar { width: 40px; height: 40px; display: grid; place-items: center; flex: 0 0 auto; color: #06100e; font: 700 14px "Rajdhani"; border: 1px solid currentColor; clip-path: polygon(20% 0, 100% 0, 100% 80%, 80% 100%, 0 100%, 0 20%); }
+.avatar { width: 44px; height: 44px; display: grid; place-items: center; flex: 0 0 auto; color: #06100e; font: 700 15px "Rajdhani"; border: 1px solid currentColor; clip-path: polygon(20% 0, 100% 0, 100% 80%, 80% 100%, 0 100%, 0 20%); }
 .avatar.cyan { background: var(--cyan); }
 .avatar.pink { background: var(--pink); color: #18040c; }
 .avatar.amber { background: var(--amber); color: #180f02; }
 
 .panel { border: 1px solid var(--line); background: var(--surface); }
-.panel-heading { padding: 22px 24px 18px; display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 1px solid var(--line); }
+.panel-heading { padding: 20px 22px 16px; display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 1px solid var(--line); }
 .panel-heading .eyebrow { margin-bottom: 4px; }
 .panel h2 { font: 700 26px "Rajdhani"; letter-spacing: -.01em; }
 
@@ -43,57 +43,106 @@ svg { display: block; }
 .workspace-heading h1 span { color: var(--pink); text-shadow: 0 0 24px rgba(255,61,141,.16); }
 .workspace-heading > div > p:last-child { max-width: 760px; margin: 18px 0 0; color: var(--muted); font-size: 16px; }
 
-.heading-action, .compact-primary, .quick-form button[type="submit"] { min-height: 50px; padding: 0 22px; display: flex; align-items: center; justify-content: center; gap: 10px; border: 1px solid var(--cyan); background: var(--cyan); color: #07110f; font: 700 14px "Rajdhani"; letter-spacing: .08em; }
-.heading-action svg { width: 20px; height: 20px; }
-.heading-action:hover, .quick-form button[type="submit"]:hover { filter: brightness(1.1); }
-
-/* ---------- Publicar encargo ---------- */
-.quick-form { margin-bottom: 28px; padding: 24px; display: flex; align-items: flex-start; gap: 28px; background: linear-gradient(100deg, rgba(255,181,71,.025), rgba(13,18,22,.88) 38%); }
-.quick-form > div { min-width: 210px; }
-.quick-form h2 { font: 700 26px "Rajdhani"; }
-.saldo-note { display: block; margin-top: 10px; color: var(--muted); font: 600 12px "Rajdhani"; letter-spacing: .08em; }
-.quick-form form { flex: 1; display: grid; grid-template-columns: 1.4fr 1fr 1fr .9fr auto; gap: 10px; }
-.quick-form input, .quick-form select { min-width: 0; min-height: 50px; padding: 0 14px; border: 1px solid var(--line); outline: 0; background: #090e11; color: #c4cfd2; font-size: 15px; }
-.quick-form input:focus, .quick-form select:focus { border-color: var(--cyan); }
-.form-error { grid-column: 1 / -1; padding: 10px 14px; color: var(--pink); font-size: 14px; border: 1px solid #6a2944; background: rgba(255,61,141,.07); }
+.heading-action, .compact-primary, .composer-foot button { min-height: 50px; padding: 0 22px; display: flex; align-items: center; justify-content: center; gap: 10px; border: 1px solid var(--cyan); background: var(--cyan); color: #07110f; font: 700 14px "Rajdhani"; letter-spacing: .08em; }
+.heading-action svg, .composer-foot button svg { width: 20px; height: 20px; }
+.heading-action:hover, .composer-foot button:hover { filter: brightness(1.1); }
 
 /* ---------- Layout ---------- */
 .workspace-grid { display: grid; grid-template-columns: minmax(0, 1fr) 460px; gap: 28px; align-items: start; }
+.feed-column { min-width: 0; display: flex; flex-direction: column; gap: 22px; }
 
-.filter-row { margin: 0 0 18px; display: flex; flex-wrap: wrap; gap: 10px; }
-.filter-row button { min-width: 80px; min-height: 42px; padding: 0 18px; background: var(--surface); border: 1px solid var(--line); color: #8da0a8; font: 600 13px "Rajdhani"; text-transform: uppercase; letter-spacing: .08em; }
+/* ---------- Composer (publicar misión) ---------- */
+.composer { padding: 24px; display: flex; flex-direction: column; gap: 14px; background: linear-gradient(100deg, rgba(255,181,71,.03), rgba(13,18,22,.9) 40%); }
+.composer-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; }
+.composer-head .eyebrow { margin-bottom: 4px; }
+.saldo-note { color: var(--muted); font: 600 12px "Rajdhani"; letter-spacing: .08em; }
+
+.composer-main { display: flex; align-items: center; gap: 14px; }
+.composer-main input { flex: 1; }
+
+.composer input, .composer select { min-width: 0; width: 100%; min-height: 50px; padding: 0 14px; border: 1px solid var(--line); outline: 0; background: #090e11; color: #c4cfd2; font-size: 15px; }
+.composer input:focus, .composer select:focus { border-color: var(--cyan); }
+.composer-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+.composer-fields { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+
+.field { display: flex; flex-direction: column; gap: 6px; }
+.field > span { color: #7f909a; font: 600 12px "Rajdhani"; letter-spacing: .1em; }
+
+.composer-hint { padding: 14px; color: var(--muted); font-size: 14px; border: 1px dashed #2f3d44; }
+
+.preview { padding: 14px 16px; border-left: 2px solid var(--amber); background: #090e11; }
+.preview .eyebrow { margin-bottom: 8px; }
+.preview p:last-child { color: #c4cfd2; font-size: 15px; line-height: 1.6; }
+
+.form-error { padding: 10px 14px; color: var(--pink); font-size: 14px; border: 1px solid #6a2944; background: rgba(255,61,141,.07); }
+
+.composer-foot { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding-top: 14px; border-top: 1px solid var(--line); }
+.composer-foot span { color: var(--muted); font-size: 13px; }
+
+/* ---------- Pestañas y filtros ---------- */
+.list-toolbar { display: flex; flex-direction: column; gap: 14px; }
+.view-tabs { display: flex; gap: 0; border-bottom: 1px solid var(--line); }
+.view-tabs button { min-height: 48px; padding: 0 24px; display: flex; align-items: center; gap: 10px; border: 0; border-bottom: 2px solid transparent; background: transparent; color: #8da0a8; font: 700 15px "Rajdhani"; letter-spacing: .1em; }
+.view-tabs button:hover { color: var(--text); }
+.view-tabs button.active { color: var(--cyan); border-bottom-color: var(--cyan); }
+.view-tabs em { min-width: 24px; padding: 2px 7px; color: var(--muted); border: 1px solid var(--line); font: 700 12px "Rajdhani"; font-style: normal; text-align: center; }
+.view-tabs button.active em { color: var(--cyan); border-color: #28534c; }
+
+.filter-row { display: flex; flex-wrap: wrap; gap: 10px; }
+.filter-row button { min-width: 80px; min-height: 40px; padding: 0 16px; background: var(--surface); border: 1px solid var(--line); color: #8da0a8; font: 600 13px "Rajdhani"; text-transform: uppercase; letter-spacing: .08em; }
 .filter-row button:hover { color: var(--text); border-color: #3c4a51; }
 .filter-row button.active { color: #07100e; background: var(--cyan); border-color: var(--cyan); }
 
-/* ---------- Tarjetas de misión ---------- */
-.mission-stack { display: flex; flex-direction: column; gap: 14px; }
-.simple-mission-card { min-height: 220px; display: grid; grid-template-columns: 230px minmax(0, 1fr); border: 1px solid var(--line); background: var(--surface); overflow: hidden; cursor: pointer; transition: border-color .2s, transform .2s; }
-.simple-mission-card:hover { border-color: #3a4a51; transform: translateY(-1px); }
-.simple-mission-card.selected { border-color: var(--cyan); }
-.simple-mission-card.amber { border-left: 3px solid var(--amber); }
-.simple-mission-card.pink { border-left: 3px solid var(--pink); }
-.simple-mission-image { min-height: 200px; position: relative; overflow: hidden; background: #091014; }
-.simple-mission-image::after { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, rgba(4,8,10,.1), rgba(4,8,10,.45)); }
-.simple-mission-image img { width: 100%; height: 100%; object-fit: cover; filter: saturate(.7) contrast(1.12); }
-.simple-mission-image span { position: absolute; left: 12px; bottom: 12px; z-index: 1; padding: 5px 9px; color: #c3ced1; border: 1px solid rgba(255,255,255,.2); background: rgba(5,9,11,.78); font: 700 12px "Rajdhani"; }
-.simple-mission-body { min-width: 0; padding: 22px; display: flex; flex-direction: column; }
-.mission-card-top, .mission-card-foot { display: flex; align-items: center; justify-content: space-between; gap: 14px; }
-.mission-card-top > span:first-child { color: #7b8a91; font: 700 13px "Rajdhani"; letter-spacing: .12em; }
-.simple-mission-card h3 { margin: 16px 0 12px; font: 700 24px "Rajdhani"; }
-.mission-tags { display: flex; flex-wrap: wrap; gap: 18px; color: var(--muted); font-size: 14px; }
+/* ---------- Tarjeta de misión (estilo feed) ---------- */
+.mission-stack { display: flex; flex-direction: column; gap: 16px; }
+.mision-card { padding: 24px; border: 1px solid var(--line); background: var(--surface); cursor: pointer; transition: border-color .2s, transform .2s; }
+.mision-card:hover { border-color: #3a4a51; transform: translateY(-1px); }
+.mision-card.selected { border-color: var(--cyan); }
+.mision-card.amber { border-top: 2px solid var(--amber); background: linear-gradient(115deg, rgba(255,181,71,.025), var(--surface) 35%); }
+.mision-card.pink { border-top: 2px solid var(--pink); background: linear-gradient(115deg, rgba(255,61,141,.025), var(--surface) 35%); }
+
+.card-author { display: flex; align-items: center; gap: 14px; }
+.author-copy { min-width: 0; margin-right: auto; display: flex; flex-direction: column; }
+.author-copy b { display: flex; align-items: center; gap: 8px; font: 700 18px "Rajdhani"; }
+.author-copy small { margin-top: 4px; color: var(--muted); font: 600 12px "Rajdhani"; letter-spacing: .06em; }
+.own-badge { padding: 2px 7px; color: var(--cyan); border: 1px solid #28534c; font: 700 11px "Rajdhani"; font-style: normal; letter-spacing: .08em; }
+.icon-btn { border: 0; background: transparent; color: var(--muted); }
+.icon-btn:hover { color: var(--text); }
+.icon-btn svg { width: 24px; height: 24px; }
+
+.mision-card h3 { margin: 20px 0 10px; font: 700 26px "Rajdhani"; }
+.card-desc { margin-bottom: 16px; color: #c4cfd2; font-size: 16px; line-height: 1.65; }
+
+.mission-tags { display: flex; flex-wrap: wrap; gap: 8px 18px; color: var(--muted); font-size: 14px; }
 .mission-tags span { display: flex; align-items: center; gap: 7px; }
 .mission-tags svg { width: 18px; height: 18px; color: var(--cyan); }
-.mission-card-foot { margin-top: auto; padding-top: 14px; border-top: 1px solid var(--line); }
+
+.post-tags { margin-top: 14px; display: flex; flex-wrap: wrap; gap: 8px; }
+.post-tags span { padding: 5px 10px; color: var(--cyan); border: 1px solid #264843; font: 700 12px "Rajdhani"; letter-spacing: .04em; }
+.mision-card.amber .post-tags span { color: var(--amber); border-color: #5f4828; }
+.mision-card.pink .post-tags span { color: var(--pink); border-color: #5d263e; }
+
+.post-actions { margin-top: 16px; display: flex; gap: 20px; }
+.post-actions button { min-height: 36px; padding: 0; display: flex; align-items: center; gap: 8px; border: 0; background: transparent; color: #8a99a0; font: 600 14px "Rajdhani"; letter-spacing: .04em; }
+.post-actions button svg { width: 20px; height: 20px; }
+.post-actions button.react { color: var(--pink); }
+.post-actions button.react.liked { font-weight: 700; text-shadow: 0 0 10px rgba(255,61,141,.5); }
+.post-actions button.react.liked svg { fill: currentColor; }
+.post-actions button.comments { color: var(--amber); }
+
+.mission-card-foot { margin-top: 12px; padding-top: 14px; display: flex; align-items: center; justify-content: space-between; gap: 14px; border-top: 1px solid var(--line); }
 .mission-card-foot > div { display: flex; flex-direction: column; }
 .mission-card-foot small { color: var(--muted); font: 600 12px "Rajdhani"; letter-spacing: .06em; }
 .mission-card-foot strong { color: var(--cyan); font: 700 26px "Rajdhani"; }
-.simple-mission-card.amber .mission-card-foot strong { color: var(--amber); }
-.simple-mission-card.pink .mission-card-foot strong { color: var(--pink); }
+.mision-card.amber .mission-card-foot strong { color: var(--amber); }
+.mision-card.pink .mission-card-foot strong { color: var(--pink); }
 .mission-card-foot em { color: var(--muted); font: 700 12px "Rajdhani"; font-style: normal; }
 .compact-primary { min-height: 44px; background: transparent; color: var(--cyan); }
 .compact-primary svg { width: 18px; height: 18px; }
+.compact-primary:hover { background: var(--cyan); color: #07110f; }
 
-.empty-state { min-height: 260px; border: 1px solid var(--line); display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--muted); gap: 10px; }
+.empty-state { min-height: 260px; border: 1px solid var(--line); display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 20px; color: var(--muted); gap: 10px; }
+.empty-state.flat { border: 0; }
 .empty-state svg { width: 32px; height: 32px; }
 .empty-state b { color: var(--text); font: 700 17px "Rajdhani"; letter-spacing: .12em; }
 .empty-state span { font-size: 14px; }
@@ -101,59 +150,22 @@ svg { display: block; }
 /* ---------- Estado ---------- */
 .mission-status { width: max-content; padding: 6px 11px; display: inline-flex; align-items: center; gap: 7px; color: var(--cyan); border: 1px solid #28534c; font: 700 12px "Rajdhani"; letter-spacing: .08em; }
 .mission-status i { width: 6px; height: 6px; border-radius: 50%; background: currentColor; box-shadow: 0 0 6px currentColor; }
-.mission-status.en-curso { color: var(--amber); border-color: #5f4828; }
+.mission-status.asignada, .mission-status.en-curso { color: var(--amber); border-color: #5f4828; }
 .mission-status.cerrada { color: #74838a; border-color: #374249; }
 .mission-status.cancelada { color: var(--pink); border-color: #6a2944; }
 
-/* ---------- Postulaciones ---------- */
-.applications, .rating-form { margin-top: 20px; overflow: hidden; }
-.compact-list { display: flex; flex-direction: column; }
-.hunter-result { width: 100%; min-height: 104px; padding: 14px 22px; display: flex; align-items: center; gap: 14px; border: 0; border-bottom: 1px solid var(--line); background: transparent; text-align: left; }
-.hunter-result:hover, .hunter-result.selected { background: #11191e; }
-.hunter-result:last-child { border-bottom: 0; }
-.hunter-result .avatar { width: 48px; height: 48px; font-size: 16px; }
-.hunter-result-copy { min-width: 0; display: flex; flex: 1; flex-direction: column; }
-.hunter-result-copy > b { font: 700 18px "Rajdhani"; }
-.hunter-result-copy > small { margin-top: 3px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--muted); font-size: 13px; }
-.hunter-result-copy > span { margin-top: 6px; display: flex; align-items: center; gap: 8px; color: #8a99a0; font-size: 13px; }
-.stars { display: inline-flex; gap: 2px; color: var(--amber); }
-.stars svg { width: 15px; height: 15px; fill: currentColor; }
-.match-score { display: flex; flex-direction: column; text-align: right; }
-.match-score b { color: var(--cyan); font: 700 22px "Rajdhani"; }
-.match-score.pink b { color: var(--pink); }
-.match-score.amber b { color: var(--amber); }
-.match-score small { color: var(--muted); font: 600 11px "Rajdhani"; letter-spacing: .08em; }
-.hunter-result .go { width: 20px; height: 20px; color: var(--muted); }
-
-.inline-actions { padding: 16px; display: flex; flex-wrap: wrap; gap: 10px; border-top: 1px solid var(--line); }
-.inline-actions button { min-height: 48px; flex: 1; padding: 0 16px; border: 1px solid #2b3a40; background: transparent; color: #aab6ba; font: 700 13px "Rajdhani"; letter-spacing: .05em; }
-.inline-actions button.assign { color: #07110f; border-color: var(--cyan); background: var(--cyan); }
-.inline-actions button.cancel { color: var(--pink); border-color: #5d263e; }
-.inline-actions button:disabled { opacity: .35; }
-
-/* ---------- Calificación ---------- */
-.rating-form { padding: 22px; display: grid; grid-template-columns: 1fr auto 1.3fr auto; align-items: center; gap: 18px; border-left: 2px solid var(--pink); background: linear-gradient(100deg, rgba(255,61,141,.035), transparent 35%); }
-.rating-form h2 { font: 700 22px "Rajdhani"; }
-.rating-form input { min-width: 0; min-height: 50px; padding: 0 14px; border: 1px solid var(--line); outline: 0; background: #090e11; color: #c4cfd2; font-size: 15px; }
-.rating-form input:focus { border-color: var(--cyan); }
-.rating-form > button { min-height: 50px; padding: 0 20px; border: 1px solid var(--cyan); background: transparent; color: var(--cyan); font: 700 13px "Rajdhani"; letter-spacing: .06em; }
-.rating-form > button:disabled { opacity: .5; }
-.rating-stars { display: flex; gap: 4px; }
-.rating-stars button { padding: 4px; border: 0; background: transparent; color: #46545a; }
-.rating-stars button svg { width: 28px; height: 28px; }
-.rating-stars button.on { color: var(--amber); }
-.rating-stars button.on svg { fill: currentColor; }
-.rating-stars button:not(:disabled):hover { color: var(--amber); }
-
-/* ---------- Detalle ---------- */
-.mission-detail { position: sticky; top: 24px; overflow: hidden; border-top: 2px solid var(--amber); }
+/* ---------- Panel de detalle ---------- */
+.mission-detail { position: sticky; top: 24px; max-height: calc(100vh - 48px); overflow-y: auto; border-top: 2px solid var(--amber); }
 .detail-header { min-height: 96px; padding: 18px 22px; display: flex; align-items: center; justify-content: space-between; gap: 12px; border-bottom: 1px solid var(--line); background: linear-gradient(100deg, rgba(255,181,71,.08), rgba(255,61,141,.025), transparent); }
 .detail-header > div { display: flex; flex-direction: column; }
 .detail-header small { color: var(--muted); font: 600 12px "Rajdhani"; letter-spacing: .08em; }
 .detail-header h2 { margin: 4px 0 0; font: 700 30px "Rajdhani"; }
 .detail-copy { padding: 22px; border-bottom: 1px solid var(--line); }
 .detail-copy h3 { margin: 0 0 10px; font: 700 22px "Rajdhani"; }
-.detail-copy p { color: var(--muted); font-size: 14px; line-height: 1.6; }
+.detail-copy > p { color: var(--muted); font-size: 14px; line-height: 1.6; }
+
+.private-note { margin-top: 16px; padding: 10px 12px; color: var(--muted); font-size: 13px; line-height: 1.5; border: 1px dashed #2f3d44; }
+.private-note b { margin-right: 6px; color: var(--amber); font: 700 12px "Rajdhani"; letter-spacing: .1em; }
 
 .mission-timeline { padding: 22px; border-bottom: 1px solid var(--line); }
 .mission-timeline > div { min-height: 64px; position: relative; display: flex; gap: 14px; }
@@ -164,12 +176,61 @@ svg { display: block; }
 .mission-timeline b { font: 700 16px "Rajdhani"; }
 .mission-timeline small { margin-top: 4px; color: var(--muted); font: 600 12px "Rajdhani"; letter-spacing: .06em; }
 
+/* ---------- Postulaciones y acciones (dueño) ---------- */
+.applications { border-bottom: 1px solid var(--line); }
+.applications .panel-heading h2 { font-size: 22px; }
+.compact-list { display: flex; flex-direction: column; }
+.hunter-result { width: 100%; min-height: 96px; padding: 12px 20px; display: flex; align-items: center; gap: 14px; border: 0; border-bottom: 1px solid var(--line); background: transparent; text-align: left; }
+.hunter-result:not(:disabled):hover, .hunter-result.selected { background: #11191e; }
+.hunter-result:disabled:not(.selected) { opacity: .55; }
+.hunter-result:last-child { border-bottom: 0; }
+.hunter-result.static { cursor: default; }
+.hunter-result.static:hover { background: transparent; }
+.hunter-result .avatar { width: 48px; height: 48px; font-size: 16px; }
+.hunter-result-copy { min-width: 0; display: flex; flex: 1; flex-direction: column; }
+.hunter-result-copy > b { font: 700 18px "Rajdhani"; }
+.hunter-result-copy > small { margin-top: 3px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--muted); font-size: 13px; }
+.hunter-result-copy > span { margin-top: 6px; display: flex; align-items: center; gap: 8px; color: #8a99a0; font-size: 13px; }
+.stars { display: inline-flex; gap: 2px; color: var(--amber); }
+.stars svg { width: 14px; height: 14px; fill: currentColor; }
+.match-score { display: flex; flex-direction: column; text-align: right; }
+.match-score b { color: var(--cyan); font: 700 22px "Rajdhani"; }
+.match-score.pink b { color: var(--pink); }
+.match-score.amber b { color: var(--amber); }
+.match-score small { color: var(--muted); font: 600 11px "Rajdhani"; letter-spacing: .08em; }
+
+.inline-actions { padding: 16px; display: flex; flex-wrap: wrap; gap: 10px; border-top: 1px solid var(--line); }
+.inline-actions button { min-height: 46px; flex: 1 1 120px; padding: 0 14px; border: 1px solid #2b3a40; background: transparent; color: #aab6ba; font: 700 13px "Rajdhani"; letter-spacing: .05em; }
+.inline-actions button.assign { color: #07110f; border-color: var(--cyan); background: var(--cyan); }
+.inline-actions button.cancel { color: var(--pink); border-color: #5d263e; }
+.inline-actions button:disabled { opacity: .35; }
+
+/* ---------- Calificación ---------- */
+.rating-form { padding: 22px; display: flex; flex-direction: column; gap: 14px; border-bottom: 1px solid var(--line); border-left: 2px solid var(--pink); background: linear-gradient(100deg, rgba(255,61,141,.035), transparent 35%); }
+.rating-form h2 { font: 700 22px "Rajdhani"; }
+.rating-form .eyebrow { margin-bottom: 4px; }
+.rating-form input { min-width: 0; min-height: 48px; padding: 0 14px; border: 1px solid var(--line); outline: 0; background: #090e11; color: #c4cfd2; font-size: 15px; }
+.rating-form input:focus { border-color: var(--cyan); }
+.rating-form > button { min-height: 48px; padding: 0 20px; border: 1px solid var(--cyan); background: transparent; color: var(--cyan); font: 700 13px "Rajdhani"; letter-spacing: .06em; }
+.rating-form > button:disabled { opacity: .5; }
+.rating-stars { display: flex; gap: 4px; }
+.rating-stars button { padding: 4px; border: 0; background: transparent; color: #46545a; }
+.rating-stars button svg { width: 28px; height: 28px; }
+.rating-stars button.on { color: var(--amber); }
+.rating-stars button.on svg { fill: currentColor; }
+.rating-stars button:not(:disabled):hover { color: var(--amber); }
+
+/* ---------- Chat privado y preguntas públicas ---------- */
 .mini-chat { padding: 22px; }
+.mini-chat + .mini-chat { border-top: 1px solid var(--line); }
 .chat-message { margin-top: 12px; display: flex; gap: 12px; }
+.chat-message .avatar { width: 40px; height: 40px; font-size: 14px; }
 .chat-message p { display: flex; flex-direction: column; }
 .chat-message b { font: 700 14px "Rajdhani"; }
+.chat-message b small { margin-left: 6px; color: var(--muted); font: 600 11px "Rajdhani"; letter-spacing: .06em; }
 .chat-message p span { margin-top: 4px; color: #9aa8ad; font-size: 14px; line-height: 1.45; }
 .chat-empty { color: var(--muted); font-size: 14px; line-height: 1.5; }
+.chat-empty.pad { padding: 16px 22px; }
 .mini-chat form { height: 52px; margin-top: 16px; display: flex; border: 1px solid var(--line); background: #090e11; }
 .mini-chat input { min-width: 0; flex: 1; padding: 0 14px; border: 0; outline: 0; background: transparent; color: var(--text); font-size: 15px; }
 .mini-chat input:disabled { cursor: not-allowed; }
@@ -177,7 +238,7 @@ svg { display: block; }
 .mini-chat form button:disabled { background: #2a363c; color: #62727a; }
 .mini-chat form button svg { width: 20px; height: 20px; }
 
-/* ---------- Modal de confirmación ---------- */
+/* ---------- Modales ---------- */
 .modal-backdrop { position: fixed; inset: 0; z-index: 200; padding: 20px; display: grid; place-items: center; background: rgba(2,5,7,.82); backdrop-filter: blur(4px); }
 .confirm-modal { width: min(500px, 100%); padding: 32px; border: 1px solid #34524e; background: #0d1216; box-shadow: 0 24px 80px rgba(0,0,0,.55); }
 .modal-icon { width: 60px; height: 60px; margin-bottom: 22px; display: grid; place-items: center; color: var(--cyan); border: 1px solid var(--cyan); }
@@ -191,30 +252,33 @@ svg { display: block; }
 .modal-actions button.primary { color: #07110f; border-color: var(--cyan); background: var(--cyan); }
 .modal-actions button.primary:hover { filter: brightness(1.1); }
 
+.report-modal { width: min(520px, 100%); display: flex; flex-direction: column; gap: 14px; }
+.report-modal .modal-icon { margin-bottom: 8px; }
+.report-modal .eyebrow { margin: 0; }
+.report-modal select, .report-modal textarea { width: 100%; min-height: 50px; padding: 0 14px; border: 1px solid var(--line); outline: 0; background: #090e11; color: #c4cfd2; font-size: 16px; }
+.report-modal textarea { min-height: 120px; padding-top: 12px; resize: vertical; }
+.report-modal select:focus, .report-modal textarea:focus { border-color: var(--cyan); }
+.report-modal .modal-actions { margin-top: 8px; }
+
 /* ---------- Toast ---------- */
 .toast { position: fixed; right: 24px; bottom: 24px; z-index: 300; padding: 16px 22px; background: #0d1216; border: 1px solid #34524e; color: var(--cyan); font: 700 15px "Rajdhani"; letter-spacing: .06em; box-shadow: 0 12px 40px rgba(0,0,0,.5); }
 
 /* ---------- Responsive ---------- */
-@media (max-width: 1300px) {
-  .quick-form { flex-direction: column; }
-  .quick-form form { width: 100%; }
-}
 @media (max-width: 1100px) {
   .workspace-grid { grid-template-columns: 1fr; }
-  .mission-detail { position: static; }
-  .quick-form form { grid-template-columns: 1fr 1fr; }
-  .rating-form { grid-template-columns: 1fr auto; }
+  .mission-detail { position: static; max-height: none; overflow: visible; }
 }
 @media (max-width: 820px) {
-  .simple-mission-card { grid-template-columns: 180px minmax(0, 1fr); }
+  .composer-row { grid-template-columns: 1fr; }
 }
 @media (max-width: 600px) {
   .workspace-heading { min-height: 190px; align-items: flex-start; flex-direction: column; justify-content: center; }
   .workspace-heading h1 { font-size: 52px; }
   .heading-action { width: 100%; }
-  .quick-form form { grid-template-columns: 1fr; }
-  .rating-form { grid-template-columns: 1fr; }
-  .simple-mission-card { grid-template-columns: 1fr; }
-  .simple-mission-image { min-height: 150px; max-height: 170px; }
+  .composer { padding: 16px; }
+  .composer-foot { flex-direction: column; align-items: stretch; }
+  .mision-card { padding: 18px; }
+  .card-author { flex-wrap: wrap; }
+  .view-tabs button { padding: 0 14px; }
   .modal-actions { grid-template-columns: 1fr; }
 }

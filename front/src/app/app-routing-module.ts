@@ -9,7 +9,6 @@ import { ReportesComponent } from './component/admin.component/reportes/reportes
 import { FeedAdminComponent } from './component/admin.component/feed-admin.component/feed-admin.component';
 import { BilleteraComponent } from './component/usuario.component/billetera.component/billetera.component';
 import { MiPerfilComponent } from './component/usuario.component/mi-perfil/mi-perfil.component';
-import { FeedComponent } from './component/usuario.component/feed/feed.component';
 import { CatalogosComponent} from './component/admin.component/catalogos/catalogos.component';
 import { BitacoraComponent } from './component/admin.component/bitacora/bitacora.component';
 import { MisionesComponent } from './component/usuario.component/misiones/misiones.component';
@@ -43,11 +42,10 @@ const routes: Routes = [
     component: LayoutComponent,
     data: { modo: 'NORMAL' },
     children: [
-      { path: '', redirectTo: 'feed', pathMatch: 'full' },
+      { path: 'feed', redirectTo: 'misiones', pathMatch: 'full' },
       { path: 'misiones', component: MisionesComponent },
       { path: 'billetera', component: BilleteraComponent },
       { path: 'mi-perfil', component: MiPerfilComponent },
-      { path: 'feed', component: FeedComponent },
       { path: 'cazadores', component: CazadoresComponent },
     ],
   },

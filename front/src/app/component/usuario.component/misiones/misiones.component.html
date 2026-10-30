@@ -1,8 +1,8 @@
 <section class="workspace-heading">
   <div>
-    <p class="section-kicker"><span>///</span> CONTROL DE ENCARGOS</p>
-    <h1>Mis misiones<span>.</span></h1>
-    <p>Publica, asigna y sigue cada trabajo desde un solo lugar.</p>
+    <p class="section-kicker"><span>///</span> RED DE MISIONES</p>
+    <h1>Misiones<span>.</span></h1>
+    <p>Pide ayuda, sigue tus encargos y mira lo que pasa en la red. Aquí todo es una misión.</p>
   </div>
   <button type="button" class="heading-action" (click)="titulo.focus()">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="square" aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg>
@@ -10,161 +10,288 @@
   </button>
 </section>
 
-<!-- PUBLICAR ENCARGO -->
-<section class="quick-form panel">
-  <div>
-    <p class="eyebrow">NUEVA MISIÓN</p>
-    <h2>Publicar encargo</h2>
-    <small class="saldo-note">SALDO DISPONIBLE: {{ formatear(saldoDisponible) }} CR</small>
-  </div>
-  <form (submit)="publicar($event, titulo, zona, especialidad, recompensa)">
-    <input #titulo name="titulo" placeholder="Título de la misión" autocomplete="off" />
-    <select #zona name="zona">
-      <option value="" disabled selected>Zona</option>
-      <option *ngFor="let z of zonas" [value]="z">{{ z }}</option>
-    </select>
-    <select #especialidad name="especialidad">
-      <option value="" disabled selected>Especialidad</option>
-      <option *ngFor="let e of especialidades" [value]="e">{{ e }}</option>
-    </select>
-    <input #recompensa name="recompensa" type="number" placeholder="Recompensa CR" />
-    <button type="submit">PUBLICAR</button>
-    <p class="form-error" *ngIf="formError" role="alert">{{ formError }}</p>
-  </form>
-</section>
-
 <div class="workspace-grid">
-  <section>
-    <!-- Filtros -->
+  <!-- =============== COLUMNA PRINCIPAL: composer + feed =============== -->
+  <section class="feed-column">
+
+    <!-- PUBLICAR MISIÓN (formulario generado desde la plantilla) -->
+    <form class="composer panel" (submit)="publicar($event)">
+      <div class="composer-head">
+        <div>
+          <p class="eyebrow">NUEVA MISIÓN</p>
+          <h2>Pide ayuda</h2>
+        </div>
+        <small class="saldo-note">SALDO DISPONIBLE: {{ formatear(saldoDisponible) }} CR</small>
+      </div>
+
+      <div class="composer-main">
+        <span class="avatar cyan">{{ miIniciales }}</span>
+        <input #titulo name="titulo" autocomplete="off" placeholder="¿Qué necesitas? Título corto de la misión"
+               [value]="tituloNuevo" (input)="tituloNuevo = $any($event.target).value" />
+      </div>
+
+      <div class="composer-row">
+        <select name="especialidad" [value]="especialidadSel" (change)="elegirEspecialidad($any($event.target).value)">
+          <option value="" disabled>Especialidad</option>
+          <option *ngFor="let e of especialidades" [value]="e">{{ e }}</option>
+        </select>
+        <select name="zona" [value]="zonaSel" (change)="zonaSel = $any($event.target).value">
+          <option value="" disabled>Zona</option>
+          <option *ngFor="let z of zonas" [value]="z">{{ z }}</option>
+        </select>
+        <input name="recompensa" type="number" min="0" placeholder="Recompensa CR"
+               [value]="recompensaNueva" (input)="recompensaNueva = $any($event.target).value" />
+      </div>
+
+      <!-- Campos que cambian según la especialidad -->
+      <div class="composer-fields" *ngIf="plantillaActual as p; else sinPlantilla">
+        <label class="field" *ngFor="let c of p.campos">
+          <span>{{ c.etiqueta }}</span>
+          <input autocomplete="off" [value]="valores[c.clave] || ''" (input)="valores[c.clave] = $any($event.target).value" />
+        </label>
+      </div>
+      <ng-template #sinPlantilla>
+        <p class="composer-hint">Elige una especialidad y se cargará una plantilla con las preguntas necesarias.</p>
+      </ng-template>
+
+      <div class="preview" *ngIf="plantillaActual">
+        <p class="eyebrow">ASÍ SE VERÁ TU PUBLICACIÓN</p>
+        <p>{{ descripcionPrevia }}</p>
+      </div>
+
+      <label class="field" *ngIf="plantillaActual">
+        <span>ETIQUETAS EXTRA (OPCIONAL · SEPARADAS POR ESPACIO)</span>
+        <input autocomplete="off" placeholder="Ej: clan_kuro urgente" [value]="etiquetasNuevas" (input)="etiquetasNuevas = $any($event.target).value" />
+      </label>
+
+      <p class="form-error" *ngIf="formError" role="alert">{{ formError }}</p>
+
+      <div class="composer-foot">
+        <span>Los créditos quedan retenidos hasta que cierres la misión.</span>
+        <button type="submit">
+          PUBLICAR MISIÓN
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="square" stroke-linejoin="miter" aria-hidden="true"><path d="m22 2-7 20-4-9-9-4Z" /><path d="M22 2 11 13" /></svg>
+        </button>
+      </div>
+    </form>
+
+    <!-- RED / MIS MISIONES + filtros por estado -->
     <div class="list-toolbar">
+      <div class="view-tabs" role="tablist">
+        <button type="button" role="tab" *ngFor="let v of vistas" [class.active]="vista === v.id" [attr.aria-selected]="vista === v.id" (click)="vista = v.id">
+          {{ v.texto }} <em>{{ contar(v.id) }}</em>
+        </button>
+      </div>
       <div class="filter-row">
-        <button type="button" *ngFor="let item of filtros" [class.active]="filtro === item" (click)="filtro = item">{{ item }}</button>
+        <button type="button" *ngFor="let item of filtros" [class.active]="filtro === item" (click)="filtro = item">{{ etiquetaEstado(item) }}</button>
       </div>
     </div>
 
-    <!-- Lista de misiones -->
+    <!-- FEED DE MISIONES -->
     <div class="mission-stack">
-      <div *ngFor="let mission of filtradas" (click)="seleccionar(mission)">
-        <article class="simple-mission-card" [ngClass]="mission.tone" [class.selected]="mission.id === selectedId">
-          <div class="simple-mission-image"><img [src]="mission.image" alt="" /><span>{{ mission.id }}</span></div>
-          <div class="simple-mission-body">
-            <div class="mission-card-top">
-              <span>{{ mission.id }}</span>
-              <span class="mission-status" [ngClass]="statusClass(mission.status)"><i></i>{{ mission.status }}</span>
-            </div>
-            <h3>{{ mission.title }}</h3>
-            <div class="mission-tags">
-              <span>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="square" aria-hidden="true"><path d="m3 6 6-3 6 3 6-3v15l-6 3-6-3-6 3Z" /><path d="M9 3v15m6-12v15" /></svg>
-                {{ mission.zone }}
-              </span>
-              <span>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="7" /><path d="M12 2v5m0 10v5M2 12h5m10 0h5" /></svg>
-                {{ mission.specialty }}
-              </span>
-            </div>
-            <div class="mission-card-foot">
-              <div><small>RECOMPENSA</small><strong>{{ formatear(mission.reward) }} <em>CR</em></strong></div>
-              <button type="button" class="compact-primary">
-                VER DETALLE
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="square" aria-hidden="true"><path d="M5 12h14m-5-5 5 5-5 5" /></svg>
-              </button>
-            </div>
+      <article class="mision-card" *ngFor="let m of visibles; trackBy: porId" [ngClass]="tono(m)" [class.selected]="m.id === selectedId" (click)="seleccionar(m)">
+        <div class="card-author">
+          <span class="avatar" [ngClass]="tonoAutor(m.autor.alias)">{{ m.autor.iniciales }}</span>
+          <div class="author-copy">
+            <b>{{ m.autor.alias }} <em class="own-badge" *ngIf="esMia(m)">TÚ</em></b>
+            <small>{{ m.id }} · {{ hace(m.creadaEn) }}</small>
           </div>
-        </article>
-      </div>
+          <span class="mission-status" [ngClass]="statusClass(m.estado)"><i></i>{{ etiquetaEstado(m.estado) }}</span>
+          <button type="button" class="icon-btn" *ngIf="!esMia(m)" aria-label="Reportar misión" (click)="abrirReporte(m, $event)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="5" cy="12" r="1" /><circle cx="12" cy="12" r="1" /><circle cx="19" cy="12" r="1" /></svg>
+          </button>
+        </div>
 
-      <div class="empty-state" *ngIf="filtradas.length === 0">
+        <h3>{{ m.titulo }}</h3>
+        <p class="card-desc">{{ m.descripcion }}</p>
+
+        <div class="mission-tags">
+          <span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="square" aria-hidden="true"><path d="m3 6 6-3 6 3 6-3v15l-6 3-6-3-6 3Z" /><path d="M9 3v15m6-12v15" /></svg>
+            {{ m.zona }}
+          </span>
+          <span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="7" /><path d="M12 2v5m0 10v5M2 12h5m10 0h5" /></svg>
+            {{ m.especialidad }}
+          </span>
+          <span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="9" cy="8" r="3.5" /><path d="M2.5 20c0-3.6 2.9-6 6.5-6s6.5 2.4 6.5 6" /><path d="M16 4.5a3.5 3.5 0 0 1 0 7M18 14c2.2.6 3.5 2.4 3.5 5" /></svg>
+            {{ m.postulaciones.length }} postulados
+          </span>
+        </div>
+
+        <div class="post-tags" *ngIf="m.etiquetas.length">
+          <span *ngFor="let tag of m.etiquetas">{{ tag }}</span>
+        </div>
+
+        <div class="post-actions">
+          <button type="button" class="react" [class.liked]="m.miReaccion" aria-label="Reaccionar" (click)="reaccionar(m, $event)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="square" stroke-linejoin="miter" aria-hidden="true"><path d="m13 2-8 12h7l-1 8 8-12h-7Z" /></svg>
+            {{ totalReacciones(m) }}
+          </button>
+          <button type="button" class="comments" aria-label="Ver comentarios">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="square" stroke-linejoin="miter" aria-hidden="true"><path d="M21 15a4 4 0 0 1-4 4H8l-5 3 1.5-5A7 7 0 0 1 3 12V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4Z" /></svg>
+            {{ m.comentarios.length }}
+          </button>
+        </div>
+
+        <div class="mission-card-foot">
+          <div><small>RECOMPENSA</small><strong>{{ formatear(m.recompensa) }} <em>CR</em></strong></div>
+          <button type="button" class="compact-primary">
+            VER DETALLE
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="square" aria-hidden="true"><path d="M5 12h14m-5-5 5 5-5 5" /></svg>
+          </button>
+        </div>
+      </article>
+
+      <div class="empty-state" *ngIf="visibles.length === 0">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="square" aria-hidden="true"><circle cx="12" cy="12" r="8" /><circle cx="12" cy="12" r="3" /><path d="M12 2v3m0 14v3M2 12h3m14 0h3" /></svg>
         <b>SIN MISIONES</b>
         <span>No hay resultados para este filtro.</span>
       </div>
     </div>
-
-    <!-- Postulaciones y acciones sobre la misión seleccionada -->
-    <section class="applications panel">
-      <div class="panel-heading">
-        <div>
-          <p class="eyebrow">POSTULACIONES RECIBIDAS</p>
-          <h2>{{ hunters.length }} candidatos disponibles</h2>
-        </div>
-      </div>
-      <div class="compact-list">
-        <button type="button" class="hunter-result" *ngFor="let hunter of hunters" [class.selected]="selectedHunter === hunter.alias" (click)="selectedHunter = hunter.alias">
-          <span class="avatar" [ngClass]="hunter.tone">{{ hunter.initials }}</span>
-          <span class="hunter-result-copy">
-            <b>{{ hunter.alias }}</b>
-            <small>{{ hunter.specialty }} · {{ hunter.zone }}</small>
-            <span>
-              <span class="stars">
-                <svg *ngFor="let star of stars" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="m12 3 2.7 5.6 6.1.9-4.4 4.3 1 6.1-5.4-2.9-5.4 2.9 1-6.1-4.4-4.3 6.1-.9Z" /></svg>
-              </span>
-              {{ hunter.rating }} · {{ hunter.jobs }} misiones
-            </span>
-          </span>
-          <span class="match-score" [ngClass]="hunter.tone"><b>{{ hunter.match }}%</b><small>MATCH</small></span>
-          <svg class="go" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="square" aria-hidden="true"><path d="M5 12h14m-5-5 5 5-5 5" /></svg>
-        </button>
-      </div>
-      <div class="inline-actions">
-        <button type="button" class="assign" [disabled]="!puedeAsignar" (click)="pedir('asignar')">ASIGNAR A {{ selectedHunter }}</button>
-        <button type="button" class="cancel" [disabled]="!puedeCancelar" (click)="pedir('cancelar')">CANCELAR MISIÓN</button>
-        <button type="button" [disabled]="!puedeCerrar" (click)="pedir('cerrar')">CONFIRMAR CIERRE</button>
-      </div>
-    </section>
-
-    <!-- Calificar (solo misiones cerradas) -->
-    <form class="rating-form panel" *ngIf="selected.status === 'CERRADA'" (submit)="enviarCalificacion($event, comentarioCalificacion)">
-      <div>
-        <p class="eyebrow">CALIFICAR SERVICIO</p>
-        <h2>¿Cómo fue la operación?</h2>
-      </div>
-      <div class="rating-stars" [class.locked]="yaCalificada">
-        <button type="button" *ngFor="let star of stars" [class.on]="star <= valorEstrellas" [disabled]="yaCalificada" [attr.aria-label]="'Calificar con ' + star" (click)="calificacion = star">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="m12 3 2.7 5.6 6.1.9-4.4 4.3 1 6.1-5.4-2.9-5.4 2.9 1-6.1-4.4-4.3 6.1-.9Z" /></svg>
-        </button>
-      </div>
-      <input #comentarioCalificacion placeholder="Comentario opcional" [disabled]="yaCalificada" />
-      <button type="submit" [disabled]="yaCalificada">{{ yaCalificada ? 'CALIFICACIÓN ENVIADA' : 'ENVIAR CALIFICACIÓN' }}</button>
-    </form>
   </section>
 
-  <!-- DETALLE DE LA MISIÓN -->
-  <aside class="mission-detail panel">
-    <div class="detail-header">
-      <div><small>MISIÓN SELECCIONADA</small><h2>{{ selected.id }}</h2></div>
-      <span class="mission-status" [ngClass]="statusClass(selected.status)"><i></i>{{ selected.status }}</span>
-    </div>
-
-    <div class="detail-copy">
-      <h3>{{ selected.title }}</h3>
-      <p>El objetivo compartirá la ubicación exacta al asignar un cazarrecompensas. Pago protegido por la red.</p>
-    </div>
-
-    <div class="mission-timeline">
-      <div *ngFor="let paso of pasos; let i = index" [class.done]="estaCompleto(i)">
-        <i></i>
-        <span><b>{{ paso }}</b><small>{{ subtituloPaso(i) }}</small></span>
-      </div>
-    </div>
-
-    <div class="mini-chat">
-      <p class="eyebrow">CANAL DE MISIÓN</p>
-
-      <p class="chat-empty" *ngIf="!selected.hunter">El chat se habilita al asignar un cazarrecompensas.</p>
-
-      <div class="chat-message" *ngFor="let msg of selected.messages">
-        <span class="avatar" [ngClass]="msg.tono">{{ msg.iniciales }}</span>
-        <p><b>{{ msg.autor }}</b><span>{{ msg.texto }}</span></p>
+  <!-- =============== PANEL DE DETALLE =============== -->
+  <aside class="mission-detail panel" #detalle>
+    <ng-container *ngIf="selected as m; else sinSeleccion">
+      <div class="detail-header">
+        <div><small>MISIÓN SELECCIONADA</small><h2>{{ m.id }}</h2></div>
+        <span class="mission-status" [ngClass]="statusClass(m.estado)"><i></i>{{ etiquetaEstado(m.estado) }}</span>
       </div>
 
-      <form (submit)="enviarMensaje($event, mensaje)">
-        <input #mensaje placeholder="Escribe un mensaje..." [disabled]="!chatActivo" />
-        <button type="submit" aria-label="Enviar mensaje" [disabled]="!chatActivo">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="square" stroke-linejoin="miter" aria-hidden="true"><path d="m22 2-7 20-4-9-9-4Z" /><path d="M22 2 11 13" /></svg>
-        </button>
+      <div class="detail-copy">
+        <h3>{{ m.titulo }}</h3>
+        <p>{{ m.descripcion }}</p>
+
+        <p class="private-note">
+          <b>PAGO PROTEGIDO</b> El monto queda retenido por la red hasta que el usuario confirme el cierre.
+        </p>
+      </div>
+
+      <div class="mission-timeline">
+        <div *ngFor="let paso of pasos; let i = index" [class.done]="estaCompleto(m, i)">
+          <i></i>
+          <span><b>{{ paso }}</b><small>{{ subtituloPaso(m, i) }}</small></span>
+        </div>
+      </div>
+
+      <!-- Solo el dueño: postulaciones y acciones -->
+      <section class="applications" *ngIf="esMia(m)">
+        <div class="panel-heading">
+          <div>
+            <p class="eyebrow">POSTULACIONES RECIBIDAS</p>
+            <h2>{{ m.postulaciones.length }} candidatos</h2>
+          </div>
+        </div>
+
+        <p class="chat-empty pad" *ngIf="m.postulaciones.length === 0">Aún no hay cazadores postulados a esta misión.</p>
+
+        <div class="compact-list">
+          <button type="button" class="hunter-result" *ngFor="let p of m.postulaciones"
+                  [class.selected]="cazadorSel === p.alias" [disabled]="m.estado !== 'PUBLICADA'" (click)="cazadorSel = p.alias">
+            <span class="avatar" [ngClass]="tonoAutor(p.alias)">{{ p.iniciales }}</span>
+            <span class="hunter-result-copy">
+              <b>{{ p.alias }}</b>
+              <small>{{ p.especialidad }} · {{ p.zona }}</small>
+              <span>
+                <span class="stars">
+                  <svg *ngFor="let star of stars" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="m12 3 2.7 5.6 6.1.9-4.4 4.3 1 6.1-5.4-2.9-5.4 2.9 1-6.1-4.4-4.3 6.1-.9Z" /></svg>
+                </span>
+                {{ p.rating }} · {{ p.trabajos }} misiones
+              </span>
+            </span>
+            <span class="match-score" [ngClass]="tonoAutor(p.alias)"><b>{{ p.match }}%</b><small>MATCH</small></span>
+          </button>
+        </div>
+
+        <div class="inline-actions">
+          <button type="button" class="assign" [disabled]="!puedeAsignar" (click)="pedir('asignar')">ASIGNAR{{ cazadorSel ? ' A ' + cazadorSel : '' }}</button>
+          <button type="button" class="cancel" [disabled]="!puedeCancelar" (click)="pedir('cancelar')">CANCELAR MISIÓN</button>
+          <button type="button" [disabled]="!puedeCerrar" (click)="pedir('cerrar')">CONFIRMAR CIERRE</button>
+        </div>
+      </section>
+
+      <!-- Emparejamiento automático (sp_sugerir_cazarrecompensas) -->
+      <section class="applications" *ngIf="esMia(m) && m.estado === 'PUBLICADA' && sugeridosDe(m).length">
+        <div class="panel-heading">
+          <div>
+            <p class="eyebrow">EMPAREJAMIENTO AUTOMÁTICO</p>
+            <h2>Cazadores sugeridos</h2>
+          </div>
+        </div>
+        <div class="compact-list">
+          <div class="hunter-result static" *ngFor="let c of sugeridosDe(m)">
+            <span class="avatar" [ngClass]="tonoAutor(c.alias)">{{ c.iniciales }}</span>
+            <span class="hunter-result-copy">
+              <b>{{ c.alias }}</b>
+              <small>{{ c.especialidad }} · {{ c.zona }}</small>
+              <span>
+                <span class="stars">
+                  <svg *ngFor="let star of stars" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="m12 3 2.7 5.6 6.1.9-4.4 4.3 1 6.1-5.4-2.9-5.4 2.9 1-6.1-4.4-4.3 6.1-.9Z" /></svg>
+                </span>
+                {{ c.rating }} · {{ c.trabajos }} misiones
+              </span>
+            </span>
+            <span class="match-score" [ngClass]="tonoAutor(c.alias)"><b>{{ c.match }}%</b><small>MATCH</small></span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Calificar (solo dueño, misión cerrada) -->
+      <form class="rating-form" *ngIf="esMia(m) && m.estado === 'CERRADA'" (submit)="enviarCalificacion($event, comentarioCalificacion)">
+        <div>
+          <p class="eyebrow">CALIFICAR SERVICIO</p>
+          <h2>¿Cómo fue la operación?</h2>
+        </div>
+        <div class="rating-stars" [class.locked]="yaCalificada">
+          <button type="button" *ngFor="let star of stars" [class.on]="star <= valorEstrellas" [disabled]="yaCalificada" [attr.aria-label]="'Calificar con ' + star" (click)="calificacion = star">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="m12 3 2.7 5.6 6.1.9-4.4 4.3 1 6.1-5.4-2.9-5.4 2.9 1-6.1-4.4-4.3 6.1-.9Z" /></svg>
+          </button>
+        </div>
+        <input #comentarioCalificacion placeholder="Comentario opcional" [disabled]="yaCalificada" />
+        <button type="submit" [disabled]="yaCalificada">{{ yaCalificada ? 'CALIFICACIÓN ENVIADA' : 'ENVIAR CALIFICACIÓN' }}</button>
       </form>
-    </div>
+
+      <!-- Chat privado: dueño ↔ cazador asignado -->
+      <div class="mini-chat" *ngIf="esMia(m)">
+        <p class="eyebrow">CANAL DE MISIÓN (PRIVADO)</p>
+        <p class="chat-empty" *ngIf="!m.cazador">El chat se habilita al asignar un cazarrecompensas.</p>
+        <div class="chat-message" *ngFor="let msg of m.mensajes">
+          <span class="avatar" [ngClass]="tonoAutor(msg.autor)">{{ msg.iniciales }}</span>
+          <p><b>{{ msg.autor }}</b><span>{{ msg.texto }}</span></p>
+        </div>
+        <form (submit)="enviarMensaje($event, mensaje)">
+          <input #mensaje placeholder="Escribe un mensaje..." [disabled]="!chatActivo" />
+          <button type="submit" aria-label="Enviar mensaje" [disabled]="!chatActivo">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="square" stroke-linejoin="miter" aria-hidden="true"><path d="m22 2-7 20-4-9-9-4Z" /><path d="M22 2 11 13" /></svg>
+          </button>
+        </form>
+      </div>
+
+      <!-- Preguntas públicas (visibles para toda la red) -->
+      <div class="mini-chat comments">
+        <p class="eyebrow">COMENTARIOS</p>
+        <p class="chat-empty" *ngIf="m.comentarios.length === 0">Nadie ha preguntado todavía.</p>
+        <div class="chat-message" *ngFor="let c of m.comentarios">
+          <span class="avatar" [ngClass]="tonoAutor(c.autor)">{{ c.iniciales }}</span>
+          <p><b>{{ c.autor }} <small>{{ hace(c.fecha) }}</small></b><span>{{ c.texto }}</span></p>
+        </div>
+        <form (submit)="enviarComentario($event, pregunta)">
+          <input #pregunta placeholder="Añadir comentario..." [disabled]="!comentariosAbiertos(m)" />
+          <button type="submit" aria-label="Enviar comentario" [disabled]="!comentariosAbiertos(m)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="square" stroke-linejoin="miter" aria-hidden="true"><path d="m22 2-7 20-4-9-9-4Z" /><path d="M22 2 11 13" /></svg>
+          </button>
+        </form>
+      </div>
+    </ng-container>
+
+    <ng-template #sinSeleccion>
+      <div class="empty-state flat">
+        <b>SIN SELECCIÓN</b>
+        <span>Elige una misión del feed para ver su detalle.</span>
+      </div>
+    </ng-template>
   </aside>
 </div>
 
@@ -182,6 +309,25 @@
       <button type="button" class="primary" (click)="confirmar()">CONFIRMAR</button>
     </div>
   </section>
+</div>
+
+<!-- MODAL: REPORTAR MISIÓN -->
+<div class="modal-backdrop" *ngIf="reportando" (click)="cerrarReporte()">
+  <form class="confirm-modal report-modal" (click)="$event.stopPropagation()" (submit)="enviarReporte($event)">
+    <span class="modal-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="square" stroke-linejoin="miter" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z" /></svg>
+    </span>
+    <p class="eyebrow">REPORTE DE PUBLICACIÓN · {{ reportando.id }}</p>
+    <h2>¿Qué ocurrió?</h2>
+    <select name="motivo">
+      <option *ngFor="let motivo of motivos">{{ motivo }}</option>
+    </select>
+    <textarea name="detalle" placeholder="Añade contexto para moderación..."></textarea>
+    <div class="modal-actions">
+      <button type="button" (click)="cerrarReporte()">CANCELAR</button>
+      <button type="submit" class="primary">ENVIAR REPORTE</button>
+    </div>
+  </form>
 </div>
 
 <div class="toast" *ngIf="toast">{{ toast }}</div>

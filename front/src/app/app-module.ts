@@ -6,7 +6,6 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { InicioComponent } from './component/inicio.component/inicio.component';
 import { RegistroComponent } from './component/registro.component/registro.component';
-import { FeedComponent } from './component/usuario.component/feed/feed.component';
 import { UsuarioComponent } from './component/usuario.component/usuario.component';
 import { CazarecompensasComponent } from './component/cazarecompensas.component/cazarecompensas.component';
 import { AdminComponent } from './component/admin.component/admin.component';
@@ -32,7 +31,6 @@ import { MisTrabajosComponent } from './component/cazarecompensas.component/mis-
     AppComponent,
     InicioComponent,
     RegistroComponent,
-    FeedComponent,
     UsuarioComponent,
     CazarecompensasComponent,
     AdminComponent,

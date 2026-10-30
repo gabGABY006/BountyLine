@@ -24,8 +24,7 @@ export class SidebarComponent {
 
   private readonly menuPorModo: Record<ModoApp, ItemMenu[]> = {
     NORMAL: [
-      { texto: 'Feed', ruta: '/usuario/feed', icono: 'pi-hashtag' },
-      { texto: 'Mis misiones', ruta: '/usuario/misiones', icono: 'pi-list' },
+      { texto: 'Misiones', ruta: '/usuario/misiones', icono: 'pi-list' },
       { texto: 'Billetera', ruta: '/usuario/billetera', icono: 'pi-wallet' },
       { texto: 'Mi perfil', ruta: '/usuario/mi-perfil', icono: 'pi-user' },
       { texto: 'Cazadores', ruta: '/usuario/cazadores', icono: 'pi-book' },
