@@ -58,7 +58,7 @@ const routes: Routes = [
       { path: '', redirectTo: 'mercado', pathMatch: 'full' },
       { path: 'mercado', component: MercadoCazaComponent },
       { path: 'ganancias', component: GananciasComponent },
-      { path: 'mi-perfil', component: MiPerfilComponent },
+      { path: 'mi-perfil', component: MiPerfilComponent, data: { mostrarEspecialidades: true } },
       { path: 'trabajos', component: MisTrabajosComponent },
     ],
   },

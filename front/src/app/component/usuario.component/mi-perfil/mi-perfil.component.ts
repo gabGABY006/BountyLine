@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 
 interface Habilidad {
   nombre: string;
@@ -12,6 +13,8 @@ interface Habilidad {
   templateUrl: './mi-perfil.component.html',
 })
 export class MiPerfilComponent {
+  constructor(private readonly route: ActivatedRoute) {}
+
   // Datos de ejemplo: reemplazar por el servicio cuando exista el back.
   // Zonas y especialidades deberían venir del catálogo que administra el admin.
   readonly cero = 0;
@@ -36,6 +39,10 @@ export class MiPerfilComponent {
   selectorAbierto = false;
   formError = '';
   toast = '';
+
+  get mostrarEspecialidades(): boolean {
+    return this.route.snapshot.data['mostrarEspecialidades'] === true;
+  }
 
   get iniciales(): string {
     return this.perfil.alias.replace(/[^A-Za-z0-9]/g, '').slice(0, 2).toUpperCase();

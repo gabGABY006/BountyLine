@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { ModoApp } from '../navbar/navbar.component';
 
 @Component({
@@ -12,9 +12,16 @@ export class LayoutComponent implements OnInit {
   modo: ModoApp = 'NORMAL';
   alias = 'AXIOM_47';
 
-  constructor(private ruta: ActivatedRoute) {}
+  constructor(
+    private ruta: ActivatedRoute,
+    private router: Router,
+  ) {}
 
   ngOnInit(): void {
     this.modo = this.ruta.snapshot.data['modo'] ?? 'NORMAL';
+  }
+
+  cerrarSesion(): void {
+    void this.router.navigate(['/inicio']);
   }
 }

@@ -2,11 +2,15 @@
   <div>
     <p class="section-kicker"><span>///</span> IDENTIDAD OPERATIVA</p>
     <h1>Mi perfil<span>.</span></h1>
-    <p>Mantén tu zona base y especialidades actualizadas para mejorar tus coincidencias.</p>
+    <p>
+      {{ mostrarEspecialidades
+        ? 'Mantén tu zona base y especialidades actualizadas para mejorar tus coincidencias.'
+        : 'Mantén tu información actualizada para mejorar tu experiencia.' }}
+    </p>
   </div>
 </section>
 
-<div class="profile-editor-grid">
+<div class="profile-editor-grid" [class.profile-editor-grid--user]="!mostrarEspecialidades">
   <!-- DATOS DEL PERFIL -->
   <form class="profile-form panel" (submit)="guardar($event, alias, zona, biografia)">
     <div class="editor-avatar">
@@ -40,7 +44,7 @@
   </form>
 
   <!-- ESPECIALIDADES -->
-  <section class="specialty-editor panel">
+  <section class="specialty-editor panel" *ngIf="mostrarEspecialidades">
     <div class="panel-heading">
       <div>
         <p class="eyebrow">CAPACIDADES</p>
@@ -69,7 +73,7 @@
 </div>
 
 <!-- MODAL: AÑADIR ESPECIALIDAD DEL CATÁLOGO -->
-<div class="modal-backdrop" *ngIf="selectorAbierto" (click)="cerrarSelector()">
+<div class="modal-backdrop" *ngIf="mostrarEspecialidades && selectorAbierto" (click)="cerrarSelector()">
   <section class="confirm-modal" (click)="$event.stopPropagation()">
     <p class="eyebrow">CATÁLOGO DEL SISTEMA</p>
     <h2>Añadir especialidad</h2>

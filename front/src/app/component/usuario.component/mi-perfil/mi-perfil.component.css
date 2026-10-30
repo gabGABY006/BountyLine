@@ -40,6 +40,7 @@ svg { display: block; }
 
 /* ---------- Layout ---------- */
 .profile-editor-grid { margin-bottom: 30px; display: grid; grid-template-columns: 500px 1fr; gap: 28px; align-items: start; }
+.profile-editor-grid--user { grid-template-columns: minmax(0, 760px); }
 
 /* ---------- Formulario ---------- */
 .profile-form { padding: 28px; display: flex; flex-direction: column; gap: 20px; border-top: 2px solid var(--amber); }

@@ -26,19 +26,34 @@
           (ngSubmit)="iniciarSesion(loginForm)">
 
       <p class="eyebrow">ACCESO AL SISTEMA / NB-001</p>
-      <h2>Identifícate, usuario</h2>
+      <h2>Identifícate, {{ etiquetaPerfil }}</h2>
       <p class="description">Introduce tus credenciales para continuar.</p>
 
-      <!-- Selector de rol (temporal, mientras no hay back) -->
-      <div class="role-switch">
-        <button type="button" [class.active]="rol === 'usuario'" (click)="rol = 'usuario'">USUARIO</button>
-        <button type="button" [class.active]="rol === 'admin'" (click)="rol = 'admin'">ADMINISTRADOR</button>
+      <span class="role-label">TIPO DE CUENTA</span>
+      <div class="role-selector" role="group" aria-label="Tipo de cuenta">
+        <button type="button" [class.active]="rol === 'usuario'" [attr.aria-pressed]="rol === 'usuario'" (click)="seleccionarRol('usuario')">
+          <span>USUARIO</span>
+          <small>Solicita contratos en la red</small>
+        </button>
+        <button type="button" [class.active]="rol === 'admin'" [attr.aria-pressed]="rol === 'admin'" (click)="seleccionarRol('admin')">
+          <span>ADMINISTRADOR</span>
+          <small>Gestiona las operaciones</small>
+        </button>
       </div>
 
-      <div class="role-switch" *ngIf="rol === 'usuario'">
-        <button type="button" [class.active]="modo === 'normal'" (click)="modo = 'normal'">NORMAL</button>
-        <button type="button" [class.active]="modo === 'cazarrecompensas'" (click)="modo = 'cazarrecompensas'">CAZARRECOMPENSAS</button>
-      </div>
+      <ng-container *ngIf="rol === 'usuario'">
+        <span class="role-label">PERFIL OPERATIVO</span>
+        <div class="role-selector" role="group" aria-label="Perfil operativo">
+          <button type="button" [class.active]="modo === 'normal'" [attr.aria-pressed]="modo === 'normal'" (click)="seleccionarModo('normal')">
+            <span>USUARIO</span>
+            <small>Publica y administra misiones</small>
+          </button>
+          <button type="button" [class.active]="modo === 'cazarrecompensas'" [attr.aria-pressed]="modo === 'cazarrecompensas'" (click)="seleccionarModo('cazarrecompensas')">
+            <span>CAZARRECOMPENSAS</span>
+            <small>Explora y completa contratos</small>
+          </button>
+        </div>
+      </ng-container>
 
       <label class="field">
         <span>CORREO ELECTRÓNICO</span>

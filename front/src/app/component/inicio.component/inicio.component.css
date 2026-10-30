@@ -225,6 +225,7 @@
   grid-template-columns: 1fr 1fr;
   gap: 14px;
   width: 100%;
+  margin-bottom: 16px;
 }
 
 .role-selector button {
@@ -241,6 +242,17 @@
   text-align: left;
   transition: all 0.2s ease;
   font-family: 'Chakra Petch', sans-serif;
+}
+
+.role-selector button:hover {
+  border-color: var(--cyan-dark);
+  color: var(--text);
+  background: rgba(90, 245, 214, 0.035);
+}
+
+.role-selector button:focus-visible {
+  outline: 2px solid var(--cyan);
+  outline-offset: 3px;
 }
 
 .role-selector button.active {

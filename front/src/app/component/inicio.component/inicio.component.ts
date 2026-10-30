@@ -21,6 +21,22 @@ export class InicioComponent {
 
   constructor(private router: Router) {}
 
+  get etiquetaPerfil(): string {
+    if (this.rol === 'admin') return 'administrador';
+    return this.modo === 'cazarrecompensas' ? 'cazarrecompensas' : 'usuario';
+  }
+
+  seleccionarRol(rol: 'usuario' | 'admin'): void {
+    this.rol = rol;
+    if (rol === 'admin') this.modo = 'normal';
+    this.mensaje = '';
+  }
+
+  seleccionarModo(modo: 'normal' | 'cazarrecompensas'): void {
+    this.modo = modo;
+    this.mensaje = '';
+  }
+
   iniciarSesion(form: NgForm): void {
     if (form.invalid) {
       form.control.markAllAsTouched();
