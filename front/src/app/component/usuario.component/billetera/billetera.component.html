@@ -1,0 +1,65 @@
+<section class="workspace-heading">
+  <div>
+    <p class="section-kicker"><span>///</span> CRÉDITOS Y CUSTODIA</p>
+    <h1>Billetera<span>.</span></h1>
+    <p>Consulta tu saldo, recarga créditos y revisa cada movimiento.</p>
+  </div>
+</section>
+
+<!-- TARJETA DE SALDO -->
+<section class="wallet-card">
+  <div>
+    <small>SALDO DISPONIBLE</small>
+    <strong>{{ formatear(saldoDisponible) }} <em>CR</em></strong>
+    <span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="square" stroke-linejoin="miter" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z" /></svg>
+      Saldo protegido
+    </span>
+  </div>
+  <div>
+    <small>SALDO RETENIDO</small>
+    <b>{{ formatear(saldoRetenido) }} CR</b>
+    <span>{{ textoMisionesActivas }}</span>
+  </div>
+</section>
+
+<!-- RECARGA SIMULADA -->
+<section class="quick-form panel">
+  <div>
+    <p class="eyebrow">RECARGA SIMULADA</p>
+    <h2>Añadir créditos</h2>
+  </div>
+  <form (submit)="recargar($event, monto, metodo)">
+    <input #monto name="monto" type="number" placeholder="Monto en créditos" />
+    <select #metodo name="metodo">
+      <option *ngFor="let m of metodos">{{ m }}</option>
+    </select>
+    <button type="submit">RECARGAR SALDO</button>
+    <p class="form-error" *ngIf="formError" role="alert">{{ formError }}</p>
+  </form>
+</section>
+
+<!-- HISTORIAL -->
+<section class="movement-panel panel">
+  <div class="panel-heading">
+    <div>
+      <p class="eyebrow">HISTORIAL</p>
+      <h2>Movimientos recientes</h2>
+    </div>
+    <span>ÚLTIMOS 30 DÍAS</span>
+  </div>
+
+  <div class="movement-table">
+    <div class="movement-head">
+      <span>CONCEPTO</span><span>MISIÓN</span><span>FECHA</span><span>MONTO</span>
+    </div>
+    <div class="movement-row" *ngFor="let mov of movimientos">
+      <span><i></i>{{ mov.concepto }}</span>
+      <span>{{ mov.mision }}</span>
+      <span>{{ mov.fecha }}</span>
+      <strong [class.positive]="mov.monto > cero">{{ textoMonto(mov.monto) }} CR</strong>
+    </div>
+  </div>
+</section>
+
+<div class="toast" *ngIf="toast">{{ toast }}</div>

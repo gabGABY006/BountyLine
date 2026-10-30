@@ -1,0 +1,120 @@
+<section class="workspace-heading">
+  <div>
+    <p class="section-kicker"><span>///</span> DIRECTORIO DE TALENTO</p>
+    <h1>Cazarrecompensas<span>.</span></h1>
+    <p>Encuentra al operador adecuado por zona, especialidad y reputación.</p>
+  </div>
+</section>
+
+<!-- BÚSQUEDA -->
+<form class="search-filters panel" (submit)="buscar($event, alias, zona, especialidad)">
+  <div>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="square" aria-hidden="true"><circle cx="11" cy="11" r="7" /><path d="m20 20-4-4" /></svg>
+    <input #alias name="alias" placeholder="Buscar por alias..." autocomplete="off" />
+  </div>
+  <select #zona name="zona">
+    <option value="">Todas las zonas</option>
+    <option *ngFor="let z of zonas" [value]="z">{{ z }}</option>
+  </select>
+  <select #especialidad name="especialidad">
+    <option value="">Todas las especialidades</option>
+    <option *ngFor="let e of especialidades" [value]="e">{{ e }}</option>
+  </select>
+  <button type="submit">BUSCAR</button>
+  <button type="button" class="clear" (click)="limpiar(alias, zona, especialidad)">LIMPIAR</button>
+</form>
+
+<div class="workspace-grid">
+  <!-- LISTA -->
+  <section class="panel compact-panel">
+    <div class="panel-heading">
+      <div>
+        <p class="eyebrow">MEJOR COINCIDENCIA</p>
+        <h2>Cazadores sugeridos</h2>
+      </div>
+      <span>{{ resultados.length }} RESULTADOS</span>
+    </div>
+
+    <div class="compact-list">
+      <button type="button" class="hunter-result" *ngFor="let hunter of resultados" [class.selected]="selected.alias === hunter.alias" (click)="seleccionar(hunter)">
+        <span class="avatar" [ngClass]="hunter.tone">{{ hunter.initials }}</span>
+        <span class="hunter-result-copy">
+          <b>{{ hunter.alias }}</b>
+          <small>{{ hunter.specialty }} · {{ hunter.zone }}</small>
+          <span>
+            <span class="stars">
+              <svg *ngFor="let star of stars" [class.off]="star > redondear(hunter.rating)" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="m12 3 2.7 5.6 6.1.9-4.4 4.3 1 6.1-5.4-2.9-5.4 2.9 1-6.1-4.4-4.3 6.1-.9Z" /></svg>
+            </span>
+            {{ hunter.rating }} · {{ hunter.jobs }} misiones
+          </span>
+        </span>
+        <span class="match-score" [ngClass]="hunter.tone"><b>{{ hunter.match }}%</b><small>MATCH</small></span>
+        <svg class="go" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="square" aria-hidden="true"><path d="M5 12h14m-5-5 5 5-5 5" /></svg>
+      </button>
+
+      <div class="empty-state" *ngIf="resultados.length === cero">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="square" aria-hidden="true"><circle cx="11" cy="11" r="7" /><path d="m20 20-4-4" /></svg>
+        <b>SIN RESULTADOS</b>
+        <span>No hay cazadores con esos filtros.</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- PERFIL PÚBLICO -->
+  <aside class="public-profile panel">
+    <div class="profile-cover">
+      <span class="profile-avatar" [ngClass]="selected.tone">{{ selected.initials }}</span>
+      <div>
+        <small>PERFIL PÚBLICO</small>
+        <h2>{{ selected.alias }}</h2>
+        <span><i></i> DISPONIBLE AHORA</span>
+      </div>
+      <button type="button" (click)="abrirReporte()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="square" stroke-linejoin="miter" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z" /></svg>
+        REPORTAR
+      </button>
+    </div>
+
+    <div class="profile-score">
+      <strong>{{ selected.rating }}</strong>
+      <div>
+        <span class="stars">
+          <svg *ngFor="let star of stars" [class.off]="star > redondear(selected.rating)" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="m12 3 2.7 5.6 6.1.9-4.4 4.3 1 6.1-5.4-2.9-5.4 2.9 1-6.1-4.4-4.3 6.1-.9Z" /></svg>
+        </span>
+        <span>{{ selected.jobs }} misiones completadas</span>
+      </div>
+    </div>
+
+    <div class="profile-facts">
+      <div><small>ZONA BASE</small><b>{{ selected.zone }}</b></div>
+      <div><small>ESPECIALIDAD</small><b>{{ selected.specialty }}</b></div>
+      <div><small>NIVEL</small><b>{{ selected.level }}</b></div>
+      <div><small>ÉXITO</small><b>{{ selected.success }}</b></div>
+    </div>
+
+    <p>{{ selected.bio }}</p>
+
+    <button type="button" class="profile-cta" (click)="invitar()">INVITAR A UNA MISIÓN</button>
+  </aside>
+</div>
+
+<!-- MODAL: REPORTAR CAZADOR -->
+<div class="modal-backdrop" *ngIf="reportOpen" (click)="cerrarReporte()">
+  <form class="report-modal" (click)="$event.stopPropagation()" (submit)="enviarReporte($event)">
+    <span class="modal-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="square" stroke-linejoin="miter" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z" /></svg>
+    </span>
+    <p class="eyebrow">REPORTE DE CONTENIDO</p>
+    <h2>¿Qué ocurrió?</h2>
+    <select name="motivo">
+      <option *ngFor="let motivo of motivos">{{ motivo }}</option>
+    </select>
+    <textarea name="detalle" placeholder="Añade contexto para moderación..."></textarea>
+    <div class="modal-actions">
+      <button type="button" (click)="cerrarReporte()">CANCELAR</button>
+      <button type="submit" class="primary">ENVIAR REPORTE</button>
+    </div>
+  </form>
+</div>
+
+<div class="toast" *ngIf="toast">{{ toast }}</div>

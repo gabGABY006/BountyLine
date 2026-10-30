@@ -1,0 +1,107 @@
+@import url("https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Rajdhani:wght@500;600;700&display=swap");
+
+:host {
+  display: block;
+  --bg: #080b0e;
+  --surface: #0d1216;
+  --line: #222c32;
+  --muted: #8a9aa1;
+  --text: #e9f1f2;
+  --cyan: #5af5d6;
+  --pink: #ff3d8d;
+  --amber: #ffb547;
+  color: var(--text);
+  font-family: "DM Sans", sans-serif;
+  font-size: 16px;
+}
+
+* { box-sizing: border-box; }
+button, input, textarea, select { font: inherit; }
+button { color: inherit; cursor: pointer; }
+button:disabled { cursor: default; }
+button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible { outline: 2px solid var(--cyan); outline-offset: 2px; }
+h1, h2, p { margin: 0; }
+svg { display: block; }
+
+.eyebrow { color: #7f909a; font: 600 12px "Rajdhani"; letter-spacing: .18em; margin: 0 0 12px; }
+.section-kicker { color: #8c9ba2; font: 600 13px "Rajdhani"; letter-spacing: .2em; margin: 0 0 14px; }
+.section-kicker span { color: var(--amber); }
+
+.panel { border: 1px solid var(--line); background: var(--surface); }
+.panel-heading { padding: 22px 24px 18px; display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; border-bottom: 1px solid var(--line); }
+.panel-heading .eyebrow { margin-bottom: 4px; }
+.panel h2 { font: 700 26px "Rajdhani"; letter-spacing: -.01em; }
+
+/* ---------- Encabezado ---------- */
+.workspace-heading { min-height: 220px; margin-bottom: 28px; display: flex; align-items: center; justify-content: space-between; gap: 30px; border-bottom: 1px solid var(--line); background: linear-gradient(105deg, transparent 62%, rgba(255,61,141,.035), rgba(255,181,71,.025)); }
+.workspace-heading h1 { font: 700 clamp(54px, 5.5vw, 82px)/.9 "Rajdhani"; letter-spacing: -.04em; }
+.workspace-heading h1 span { color: var(--pink); text-shadow: 0 0 24px rgba(255,61,141,.16); }
+.workspace-heading > div > p:last-child { max-width: 760px; margin: 18px 0 0; color: var(--muted); font-size: 16px; }
+
+/* ---------- Layout ---------- */
+.profile-editor-grid { margin-bottom: 30px; display: grid; grid-template-columns: 500px 1fr; gap: 28px; align-items: start; }
+
+/* ---------- Formulario ---------- */
+.profile-form { padding: 28px; display: flex; flex-direction: column; gap: 20px; border-top: 2px solid var(--amber); }
+.editor-avatar { padding-bottom: 22px; display: flex; align-items: center; gap: 18px; border-bottom: 1px solid var(--line); }
+.editor-avatar > div { display: flex; flex-direction: column; }
+.editor-avatar h2 { font: 700 30px "Rajdhani"; }
+.editor-avatar span { color: var(--cyan); font: 600 13px "Rajdhani"; letter-spacing: .08em; }
+.profile-avatar { width: 78px; height: 78px; flex: 0 0 auto; display: grid; place-items: center; position: relative; color: #07110f; background: var(--cyan); font: 700 26px "Rajdhani"; clip-path: polygon(15% 0, 100% 0, 100% 85%, 85% 100%, 0 100%, 0 15%); }
+.editor-avatar span i { display: inline-block; width: 8px; height: 8px; margin-right: 6px; border-radius: 50%; background: var(--cyan); box-shadow: 0 0 8px var(--cyan); }
+
+.profile-form label { display: flex; flex-direction: column; gap: 10px; color: var(--muted); font: 600 13px "Rajdhani"; letter-spacing: .1em; }
+.profile-form input, .profile-form select, .profile-form textarea { min-width: 0; min-height: 52px; padding: 0 14px; border: 1px solid var(--line); outline: 0; background: #090e11; color: #c4cfd2; font: 400 16px "DM Sans", sans-serif; letter-spacing: 0; }
+.profile-form textarea { min-height: 130px; padding-top: 12px; resize: vertical; line-height: 1.5; }
+.profile-form input:focus, .profile-form select:focus, .profile-form textarea:focus { border-color: var(--cyan); }
+.form-error { padding: 10px 14px; color: var(--pink); font-size: 14px; border: 1px solid #6a2944; background: rgba(255,61,141,.07); }
+.profile-form > button { min-height: 54px; padding: 0 22px; display: flex; align-items: center; justify-content: center; border: 1px solid var(--cyan); background: var(--cyan); color: #07110f; font: 700 15px "Rajdhani"; letter-spacing: .08em; }
+.profile-form > button:hover { filter: brightness(1.1); }
+
+/* ---------- Especialidades ---------- */
+.specialty-editor { overflow: hidden; border-top: 2px solid var(--pink); }
+.specialty-editor .panel-heading button { min-height: 42px; padding: 0 16px; display: flex; align-items: center; gap: 8px; border: 1px solid var(--cyan); background: transparent; color: var(--cyan); font: 700 13px "Rajdhani"; letter-spacing: .08em; }
+.specialty-editor .panel-heading button:hover { background: var(--cyan); color: #07110f; }
+.specialty-editor .panel-heading button svg { width: 18px; height: 18px; }
+
+.skill-row { min-height: 96px; padding: 16px 24px; display: grid; grid-template-columns: 190px 1fr 64px 32px; align-items: center; gap: 20px; border-bottom: 1px solid var(--line); }
+.skill-row > div:first-child { display: flex; flex-direction: column; }
+.skill-row b { font: 700 19px "Rajdhani"; }
+.skill-row span { margin-top: 4px; color: var(--muted); font: 600 12px "Rajdhani"; letter-spacing: .1em; }
+.skill-row > div:nth-child(2) { height: 8px; background: #253137; }
+.skill-row > div:nth-child(2) i { display: block; height: 100%; background: var(--cyan); box-shadow: 0 0 8px var(--cyan); }
+.skill-row strong { color: var(--cyan); font: 700 20px "Rajdhani"; text-align: right; }
+.skill-row button { padding: 4px; border: 0; background: transparent; color: var(--muted); }
+.skill-row button:hover { color: var(--pink); }
+.skill-row button svg { width: 22px; height: 22px; }
+.skills-empty { padding: 28px 24px; color: var(--muted); font-size: 15px; }
+
+/* ---------- Modal ---------- */
+.modal-backdrop { position: fixed; inset: 0; z-index: 200; padding: 20px; display: grid; place-items: center; background: rgba(2,5,7,.82); backdrop-filter: blur(4px); }
+.confirm-modal { width: min(520px, 100%); padding: 32px; border: 1px solid #34524e; background: #0d1216; box-shadow: 0 24px 80px rgba(0,0,0,.55); }
+.confirm-modal .eyebrow { margin-bottom: 8px; }
+.confirm-modal h2 { font: 700 32px "Rajdhani"; }
+.modal-copy { margin: 10px 0 22px; color: var(--muted); font-size: 15px; line-height: 1.55; }
+.picker-list { display: flex; flex-direction: column; gap: 8px; }
+.picker-list button { min-height: 56px; padding: 0 16px; display: flex; align-items: center; justify-content: space-between; border: 1px solid #293b40; background: transparent; color: var(--cyan); font: 700 13px "Rajdhani"; letter-spacing: .08em; text-align: left; }
+.picker-list button:not(:disabled):hover { background: #11191e; border-color: var(--cyan); }
+.picker-list button span { display: flex; align-items: center; gap: 12px; color: #c9d3d6; font: 700 17px "Rajdhani"; letter-spacing: 0; margin: 0; }
+.picker-list button span svg { width: 20px; height: 20px; color: var(--cyan); }
+.picker-list button:disabled { opacity: .4; }
+.picker-close { width: 100%; min-height: 50px; margin-top: 16px; border: 1px solid #344147; background: transparent; color: #9aa8ad; font: 700 14px "Rajdhani"; letter-spacing: .08em; }
+.picker-close:hover { color: var(--text); }
+
+/* ---------- Toast ---------- */
+.toast { position: fixed; right: 24px; bottom: 24px; z-index: 300; padding: 16px 22px; background: #0d1216; border: 1px solid #34524e; color: var(--cyan); font: 700 15px "Rajdhani"; letter-spacing: .06em; box-shadow: 0 12px 40px rgba(0,0,0,.5); }
+
+/* ---------- Responsive ---------- */
+@media (max-width: 1100px) {
+  .profile-editor-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 600px) {
+  .workspace-heading { min-height: 190px; align-items: flex-start; flex-direction: column; justify-content: center; }
+  .workspace-heading h1 { font-size: 52px; }
+  .profile-form { padding: 20px; }
+  .skill-row { grid-template-columns: 130px 1fr 52px 28px; gap: 12px; padding: 14px 16px; }
+  .confirm-modal { padding: 24px; }
+}

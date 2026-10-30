@@ -1,0 +1,83 @@
+<section class="workspace-heading">
+  <div>
+    <p class="section-kicker"><span>///</span> MERCADO DE MISIONES</p>
+    <h1>Encuentra trabajo<span>.</span></h1>
+    <p>Filtra operaciones, revisa la recompensa y postúlate en segundos.</p>
+  </div>
+</section>
+
+<!-- BÚSQUEDA -->
+<form class="search-filters panel" (submit)="filtrar($event, texto, zona, especialidad)">
+  <div>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="square" aria-hidden="true"><circle cx="11" cy="11" r="7" /><path d="m20 20-4-4" /></svg>
+    <input #texto name="texto" placeholder="Buscar misión..." autocomplete="off" />
+  </div>
+  <select #zona name="zona">
+    <option value="">Todas las zonas</option>
+    <option *ngFor="let z of zonas" [value]="z">{{ z }}</option>
+  </select>
+  <select #especialidad name="especialidad">
+    <option value="">Todas las especialidades</option>
+    <option *ngFor="let e of especialidades" [value]="e">{{ e }}</option>
+  </select>
+  <button type="submit">FILTRAR</button>
+  <button type="button" class="clear" (click)="limpiar(texto, zona, especialidad)">LIMPIAR</button>
+</form>
+
+<!-- MISIONES DISPONIBLES -->
+<div class="market-grid">
+  <article class="simple-mission-card" *ngFor="let mission of resultados" [ngClass]="mission.tone">
+    <div class="simple-mission-image"><img [src]="mission.image" alt="" /><span>{{ mission.id }}</span></div>
+    <div class="simple-mission-body">
+      <div class="mission-card-top">
+        <span>{{ mission.id }}</span>
+        <span class="mission-status"><i></i>{{ mission.status }}</span>
+      </div>
+      <h3>{{ mission.title }}</h3>
+      <div class="mission-tags">
+        <span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="square" aria-hidden="true"><path d="m3 6 6-3 6 3 6-3v15l-6 3-6-3-6 3Z" /><path d="M9 3v15m6-12v15" /></svg>
+          {{ mission.zone }}
+        </span>
+        <span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="7" /><path d="M12 2v5m0 10v5M2 12h5m10 0h5" /></svg>
+          {{ mission.specialty }}
+        </span>
+      </div>
+      <div class="mission-card-foot">
+        <div><small>RECOMPENSA</small><strong>{{ formatear(mission.reward) }} <em>CR</em></strong></div>
+        <button type="button" class="compact-primary" [disabled]="yaPostulado(mission)" (click)="pedirPostulacion(mission)">
+          {{ yaPostulado(mission) ? 'POSTULADO' : 'POSTULARME' }}
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="square" aria-hidden="true">
+            <path *ngIf="!yaPostulado(mission)" d="M5 12h14m-5-5 5 5-5 5" />
+            <path *ngIf="yaPostulado(mission)" d="m5 12 4 4L19 6" />
+          </svg>
+        </button>
+      </div>
+    </div>
+  </article>
+
+  <div class="empty-state" *ngIf="resultados.length === cero">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="square" aria-hidden="true"><circle cx="12" cy="12" r="8" /><circle cx="12" cy="12" r="3" /><path d="M12 2v3m0 14v3M2 12h3m14 0h3" /></svg>
+    <b>SIN MISIONES</b>
+    <span>No hay misiones disponibles con esos filtros.</span>
+  </div>
+</div>
+
+<!-- MODAL DE CONFIRMACIÓN -->
+<div class="modal-backdrop" *ngIf="pendiente" (click)="cancelarPostulacion()">
+  <section class="confirm-modal" (click)="$event.stopPropagation()">
+    <span class="modal-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="square" stroke-linejoin="miter" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z" /></svg>
+    </span>
+    <p class="eyebrow">CONFIRMACIÓN REQUERIDA</p>
+    <h2>¿Postularte a {{ pendiente.id }}?</h2>
+    <p class="modal-copy">Enviarás tu postulación a «{{ pendiente.title }}». El cliente podrá asignarte la misión.</p>
+    <div class="modal-actions">
+      <button type="button" (click)="cancelarPostulacion()">VOLVER</button>
+      <button type="button" class="primary" (click)="confirmarPostulacion()">CONFIRMAR</button>
+    </div>
+  </section>
+</div>
+
+<div class="toast" *ngIf="toast">{{ toast }}</div>

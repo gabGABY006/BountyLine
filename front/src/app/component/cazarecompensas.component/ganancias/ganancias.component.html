@@ -1,0 +1,67 @@
+<section class="workspace-heading">
+  <div>
+    <p class="section-kicker"><span>///</span> BALANCE OPERATIVO</p>
+    <h1>Ganancias<span>.</span></h1>
+    <p>Consulta tus créditos, rendimiento y reputación reciente.</p>
+  </div>
+</section>
+
+<!-- RESUMEN -->
+<section class="earnings-cards">
+  <article *ngFor="let card of resumen" [ngClass]="card.tone">
+    <span>
+      <svg *ngIf="card.icono === 'wallet'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="square" aria-hidden="true"><path d="M4 6h15a2 2 0 0 1 2 2v11H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h13" /><path d="M16 11h5v4h-5a2 2 0 0 1 0-4Z" /></svg>
+      <svg *ngIf="card.icono === 'target'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="square" aria-hidden="true"><circle cx="12" cy="12" r="8" /><circle cx="12" cy="12" r="3" /><path d="M12 2v3m0 14v3M2 12h3m14 0h3" /></svg>
+      <svg *ngIf="card.icono === 'star'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="square" aria-hidden="true"><path d="m12 3 2.7 5.6 6.1.9-4.4 4.3 1 6.1-5.4-2.9-5.4 2.9 1-6.1-4.4-4.3 6.1-.9Z" /></svg>
+    </span>
+    <div>
+      <small>{{ card.titulo }}</small>
+      <strong>{{ card.valor }}</strong>
+      <em>{{ card.nota }}</em>
+    </div>
+  </article>
+</section>
+
+<div class="workspace-grid">
+  <!-- PAGOS RECIBIDOS -->
+  <section class="movement-panel panel">
+    <div class="panel-heading">
+      <div>
+        <p class="eyebrow">PAGOS RECIBIDOS</p>
+        <h2>Últimas ganancias</h2>
+      </div>
+    </div>
+
+    <div class="movement-table">
+      <div class="movement-head">
+        <span>MISIÓN</span><span>REFERENCIA</span><span>ZONA</span><span>MONTO</span>
+      </div>
+      <div class="movement-row" *ngFor="let pago of pagos">
+        <span><i></i>{{ pago.titulo }}</span>
+        <span>{{ pago.id }}</span>
+        <span>{{ pago.zona }}</span>
+        <strong>+{{ formatear(pago.monto) }} CR</strong>
+      </div>
+    </div>
+  </section>
+
+  <!-- CALIFICACIONES -->
+  <section class="reviews panel">
+    <div class="panel-heading">
+      <div>
+        <p class="eyebrow">REPUTACIÓN</p>
+        <h2>Calificaciones recibidas</h2>
+      </div>
+    </div>
+
+    <article *ngFor="let review of calificaciones" [ngClass]="review.tone">
+      <div>
+        <b>{{ review.alias }}</b>
+        <span class="stars" [attr.aria-label]="review.estrellas + ' de ' + estrellas.length + ' estrellas'">
+          <svg *ngFor="let star of estrellas" [class.off]="star > review.estrellas" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="m12 3 2.7 5.6 6.1.9-4.4 4.3 1 6.1-5.4-2.9-5.4 2.9 1-6.1-4.4-4.3 6.1-.9Z" /></svg>
+        </span>
+      </div>
+      <p>{{ review.texto }}</p>
+    </article>
+  </section>
+</div>

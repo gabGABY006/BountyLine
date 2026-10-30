@@ -9,7 +9,7 @@ import { RegistroComponent } from './component/registro.component/registro.compo
 import { UsuarioComponent } from './component/usuario.component/usuario.component';
 import { CazarecompensasComponent } from './component/cazarecompensas.component/cazarecompensas.component';
 import { AdminComponent } from './component/admin.component/admin.component';
-import { BilleteraComponent } from './component/usuario.component/billetera.component/billetera.component';
+import { BilleteraComponent } from './component/usuario.component/billetera/billetera.component';
 import { MiPerfilComponent } from './component/usuario.component/mi-perfil/mi-perfil.component';
 import { FeedAdminComponent } from './component/admin.component/feed-admin.component/feed-admin.component';
 import { ReportesComponent } from './component/admin.component/reportes/reportes.component';
@@ -20,11 +20,11 @@ import { NotificacionComponent } from './component/navbar/notificacion/notificac
 import { LayoutComponent } from './component/layout/layout.component';
 import { CatalogosComponent } from './component/admin.component/catalogos/catalogos.component';
 import { BitacoraComponent } from './component/admin.component/bitacora/bitacora.component';
-import { CazadoresComponent } from './component/usuario.component/cazadores.component/cazadores.component';
-import { MercadoCazaComponent } from './component/cazarecompensas.component/mercado-caza.component/mercado-caza.component';
-import { GananciasComponent } from './component/cazarecompensas.component/ganancias.component/ganancias.component';
+import { CazadoresComponent } from './component/usuario.component/cazadores/cazadores.component';
+import { MercadoCazaComponent } from './component/cazarecompensas.component/mercado-caza/mercado-caza.component';
+import { GananciasComponent } from './component/cazarecompensas.component/ganancias/ganancias.component';
 import { MisionesComponent } from './component/usuario.component/misiones/misiones.component';
-import { MisTrabajosComponent } from './component/cazarecompensas.component/mis-trabajos.component/mis-trabajos.component';
+import { MisTrabajosComponent } from './component/cazarecompensas.component/mis-trabajos/mis-trabajos.component';
 
 @NgModule({
   declarations: [

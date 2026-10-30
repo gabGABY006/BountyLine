@@ -1,1 +1,90 @@
-<p>mi-perfil.component works!</p>
+<section class="workspace-heading">
+  <div>
+    <p class="section-kicker"><span>///</span> IDENTIDAD OPERATIVA</p>
+    <h1>Mi perfil<span>.</span></h1>
+    <p>Mantén tu zona base y especialidades actualizadas para mejorar tus coincidencias.</p>
+  </div>
+</section>
+
+<div class="profile-editor-grid">
+  <!-- DATOS DEL PERFIL -->
+  <form class="profile-form panel" (submit)="guardar($event, alias, zona, biografia)">
+    <div class="editor-avatar">
+      <span class="profile-avatar cyan">{{ iniciales }}</span>
+      <div>
+        <h2>{{ perfil.alias }}</h2>
+        <span><i></i> PERFIL VERIFICADO</span>
+      </div>
+    </div>
+
+    <label>
+      ALIAS
+      <input #alias name="alias" [value]="perfil.alias" autocomplete="off" />
+    </label>
+
+    <label>
+      ZONA BASE
+      <select #zona name="zona">
+        <option *ngFor="let z of zonas" [value]="z" [selected]="z === perfil.zona">{{ z }}</option>
+      </select>
+    </label>
+
+    <label>
+      BIOGRAFÍA
+      <textarea #biografia name="biografia" [value]="perfil.bio"></textarea>
+    </label>
+
+    <p class="form-error" *ngIf="formError" role="alert">{{ formError }}</p>
+
+    <button type="submit">GUARDAR CAMBIOS</button>
+  </form>
+
+  <!-- ESPECIALIDADES -->
+  <section class="specialty-editor panel">
+    <div class="panel-heading">
+      <div>
+        <p class="eyebrow">CAPACIDADES</p>
+        <h2>Especialidades y nivel</h2>
+      </div>
+      <button type="button" (click)="abrirSelector()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="square" aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg>
+        AÑADIR
+      </button>
+    </div>
+
+    <div class="skill-row" *ngFor="let skill of habilidades">
+      <div>
+        <b>{{ skill.nombre }}</b>
+        <span>{{ etiquetaNivel(skill.nivel) }}</span>
+      </div>
+      <div><i [style.width.%]="skill.nivel"></i></div>
+      <strong>{{ skill.nivel }}%</strong>
+      <button type="button" [attr.aria-label]="'Quitar ' + skill.nombre" (click)="quitar(skill)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="square" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" /></svg>
+      </button>
+    </div>
+
+    <p class="skills-empty" *ngIf="habilidades.length === cero">Aún no tienes especialidades. Añade la primera desde el catálogo.</p>
+  </section>
+</div>
+
+<!-- MODAL: AÑADIR ESPECIALIDAD DEL CATÁLOGO -->
+<div class="modal-backdrop" *ngIf="selectorAbierto" (click)="cerrarSelector()">
+  <section class="confirm-modal" (click)="$event.stopPropagation()">
+    <p class="eyebrow">CATÁLOGO DEL SISTEMA</p>
+    <h2>Añadir especialidad</h2>
+    <p class="modal-copy">Solo puedes elegir especialidades creadas por administración.</p>
+    <div class="picker-list">
+      <button type="button" *ngFor="let e of especialidades" [disabled]="yaAnadida(e)" (click)="anadir(e)">
+        <span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="7" /><path d="M12 2v5m0 10v5M2 12h5m10 0h5" /></svg>
+          {{ e }}
+        </span>
+        {{ yaAnadida(e) ? 'AÑADIDA' : 'SELECCIONAR' }}
+      </button>
+    </div>
+    <button type="button" class="picker-close" (click)="cerrarSelector()">CERRAR</button>
+  </section>
+</div>
+
+<div class="toast" *ngIf="toast">{{ toast }}</div>

@@ -11,7 +11,12 @@
   <!-- Buscador Central -->
   <div class="nav-search">
     <i class="pi pi-search search-icon"></i>
-    <input type="text" placeholder="Buscar contrato, alias o zona..." />
+    <input
+      #buscador
+      type="text"
+      placeholder="Buscar contrato, alias o zona..."
+      [(ngModel)]="termino"
+      (keyup.enter)="buscar()" />
     <span class="shortcut">⌘ K</span>
   </div>
 
@@ -20,8 +25,9 @@
     <button
       class="notif-btn"
       type="button"
-      routerLink="/notificaciones"
-      routerLinkActive="active">
+      [routerLink]="[rutaBase, 'notificaciones']"
+      routerLinkActive="active"
+      [attr.aria-label]="'Notificaciones' + (notificaciones > 0 ? ': ' + notificaciones + ' nuevas' : '')">
       <i class="pi pi-bell" style="font-size: 1.2rem"></i>
       <span class="notif-badge" *ngIf="notificaciones > 0">{{ notificaciones }}</span>
     </button>
@@ -29,8 +35,9 @@
     <button
       class="user-profile-btn"
       type="button"
-      routerLink="/perfil"
-      routerLinkActive="active">
+      [routerLink]="[rutaBase, 'mi-perfil']"
+      routerLinkActive="active"
+      [attr.aria-label]="'Mi perfil: ' + alias">
       <div class="user-avatar">
         <i class="pi pi-user" style="font-size: 1.2rem"></i>
       </div>
