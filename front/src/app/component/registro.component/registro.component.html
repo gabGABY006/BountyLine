@@ -181,10 +181,21 @@
 
       </ng-container>
 
+      <div class="terms-acceptance">
+        <label class="terms-checkbox">
+          <input type="checkbox" name="aceptaTerminos"
+                 [(ngModel)]="aceptaTerminos" required>
+          <span>Acepto los términos y condiciones.</span>
+        </label>
+        <button class="terms-link" type="button" (click)="terminosAbiertos = true">
+          Leer términos
+        </button>
+      </div>
+
       <p class="feedback" *ngIf="mensaje">{{ mensaje }}</p>
 
       <button class="auth-submit" type="submit"
-              [disabled]="registroForm.invalid || (confirmacion !== contrasenia)">
+              [disabled]="registroForm.invalid || (rol === 'usuario' && !contraseniasCoinciden)">
         CREAR CUENTA →
       </button>
 
@@ -196,4 +207,30 @@
       <p class="security text-center">◈ REGISTRO PROTEGIDO</p>
     </form>
   </section>
+
+  <div class="terms-backdrop" *ngIf="terminosAbiertos"
+       (click)="terminosAbiertos = false">
+    <section class="terms-dialog" role="dialog" aria-modal="true"
+             aria-labelledby="terms-title" (click)="$event.stopPropagation()"
+             (keydown.escape)="terminosAbiertos = false">
+      <header class="terms-header">
+        <div>
+          <p class="eyebrow">BOUNTYLINE / CONDICIONES DE USO</p>
+          <h2 id="terms-title">Términos y condiciones</h2>
+        </div>
+        <button class="terms-close" type="button" aria-label="Cerrar términos y condiciones"
+                (click)="terminosAbiertos = false">×</button>
+      </header>
+
+      <ol class="terms-list">
+        <li *ngFor="let termino of terminos">{{ termino }}</li>
+      </ol>
+
+      <footer class="terms-footer">
+        <button class="auth-submit" type="button" (click)="terminosAbiertos = false">
+          CERRAR
+        </button>
+      </footer>
+    </section>
+  </div>
 </main>

@@ -24,8 +24,28 @@ export class RegistroComponent {
   codigoAdmin = '';
   avatar = '';
   descripcion = '';
+  aceptaTerminos = false;
+  terminosAbiertos = false;
   zonaId: number | null = null;
   mensaje = '';
+
+  readonly terminos = [
+    'Aceptación: Al registrarte, aceptas estas condiciones de uso.',
+    'Uso de la plataforma: BountyLine permite publicar misiones, participar en ellas e interactuar con otros usuarios.',
+    'Registro: Debes proporcionar información verdadera y mantener segura tu cuenta.',
+    'Perfiles: Cada usuario debe utilizar su perfil de forma adecuada. El acceso de administrador es exclusivo para personas autorizadas.',
+    'Misiones: Las misiones deben tener información clara, respetar las normas y no promover actividades ilegales o peligrosas.',
+    'Recompensas: Las recompensas son virtuales y no representan dinero real ni pueden retirarse.',
+    'Comunicación: Las publicaciones, comentarios y chats deben ser respetuosos y no vulnerar la privacidad de otras personas.',
+    'Calificaciones: Las valoraciones deben ser honestas y estar relacionadas con las experiencias reales.',
+    'Reportes: Puedes reportar comportamientos o contenidos inadecuados cuando esta función esté disponible.',
+    'Uso responsable: No está permitido manipular la plataforma, acceder a cuentas ajenas ni afectar su funcionamiento.',
+    'Datos personales: Tu información debe tratarse conforme a las condiciones de privacidad y las normas aplicables.',
+    'Prototipo académico: Algunas funciones pueden ser demostrativas y no guardar información permanentemente.',
+    'Actualizaciones: Las condiciones pueden cambiar cuando se actualice la plataforma.',
+    'Incumplimiento: El uso inadecuado puede ocasionar restricciones según las reglas de la plataforma.',
+    'Aceptación final: Al marcar la casilla, confirmas que leíste y aceptas estas condiciones.',
+  ];
 
   // Catálogos simulados (sección 14 de la guía)
   zonas: Catalogo[] = [
@@ -57,6 +77,11 @@ export class RegistroComponent {
 
   registrar(form: NgForm): void {
     this.mensaje = '';
+
+    if (!this.aceptaTerminos) {
+      this.mensaje = 'Debes aceptar los términos y condiciones para crear una cuenta.';
+      return;
+    }
 
     if (form.invalid) {
       form.control.markAllAsTouched();
