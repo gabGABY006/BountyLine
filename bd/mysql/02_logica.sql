@@ -574,6 +574,160 @@ BEGIN
 END $$
 
 -- =====================================================================
+-- PROCEDIMIENTOS: ACTUALIZACIÓN DE PERFILES, CUENTAS Y CATÁLOGOS
+-- =====================================================================
+
+-- El usuario actualiza su biografía (S19)
+DROP PROCEDURE IF EXISTS sp_actualizar_usuario $$
+CREATE PROCEDURE sp_actualizar_usuario(
+    IN p_id_usuario INT UNSIGNED,
+    IN p_biografia  VARCHAR(500))
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM usuario WHERE id_usuario = p_id_usuario) THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'El usuario no existe.';
+    END IF;
+    UPDATE usuario SET biografia = p_biografia WHERE id_usuario = p_id_usuario;
+END $$
+
+-- El cazarrecompensas actualiza su zona base, biografía y disponibilidad (S23 a S25)
+DROP PROCEDURE IF EXISTS sp_actualizar_cazarrecompensas $$
+CREATE PROCEDURE sp_actualizar_cazarrecompensas(
+    IN p_id_cazarrecompensas INT UNSIGNED,
+    IN p_id_zona             INT UNSIGNED,
+    IN p_biografia           VARCHAR(500),
+    IN p_disponibilidad      VARCHAR(15))
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM cazarrecompensas WHERE id_cazarrecompensas = p_id_cazarrecompensas) THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'El cazarrecompensas no existe.';
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM zona WHERE id_zona = p_id_zona) THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'La zona no existe.';
+    END IF;
+    IF p_disponibilidad NOT IN ('DISPONIBLE', 'NO_DISPONIBLE') THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'La disponibilidad debe ser DISPONIBLE o NO_DISPONIBLE.';
+    END IF;
+    UPDATE cazarrecompensas
+       SET id_zona = p_id_zona, biografia = p_biografia, disponibilidad = p_disponibilidad
+     WHERE id_cazarrecompensas = p_id_cazarrecompensas;
+END $$
+
+-- Agrega una especialidad al cazarrecompensas o cambia su nivel (S26)
+DROP PROCEDURE IF EXISTS sp_guardar_especialidad_caz $$
+CREATE PROCEDURE sp_guardar_especialidad_caz(
+    IN p_id_cazarrecompensas INT UNSIGNED,
+    IN p_id_especialidad     INT UNSIGNED,
+    IN p_nivel               TINYINT UNSIGNED)
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM cazarrecompensas WHERE id_cazarrecompensas = p_id_cazarrecompensas) THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'El cazarrecompensas no existe.';
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM especialidad WHERE id_especialidad = p_id_especialidad) THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'La especialidad no existe.';
+    END IF;
+    IF p_nivel IS NULL OR p_nivel NOT BETWEEN 1 AND 5 THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'El nivel debe estar entre 1 y 5.';
+    END IF;
+    INSERT INTO cazarrecompensas_especialidad (id_cazarrecompensas, id_especialidad, nivel)
+    VALUES (p_id_cazarrecompensas, p_id_especialidad, p_nivel)
+    ON DUPLICATE KEY UPDATE nivel = p_nivel;
+END $$
+
+-- Quita una especialidad; el cazarrecompensas debe conservar al menos una (S26)
+DROP PROCEDURE IF EXISTS sp_quitar_especialidad_caz $$
+CREATE PROCEDURE sp_quitar_especialidad_caz(
+    IN p_id_cazarrecompensas INT UNSIGNED,
+    IN p_id_especialidad     INT UNSIGNED)
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM cazarrecompensas_especialidad
+                    WHERE id_cazarrecompensas = p_id_cazarrecompensas AND id_especialidad = p_id_especialidad) THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'El cazarrecompensas no tiene esa especialidad.';
+    END IF;
+    IF (SELECT COUNT(*) FROM cazarrecompensas_especialidad WHERE id_cazarrecompensas = p_id_cazarrecompensas) <= 1 THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'El cazarrecompensas debe conservar al menos una especialidad.';
+    END IF;
+    DELETE FROM cazarrecompensas_especialidad
+     WHERE id_cazarrecompensas = p_id_cazarrecompensas AND id_especialidad = p_id_especialidad;
+END $$
+
+-- Cambia el correo de una cuenta; queda en la auditoría (S9, S76)
+DROP PROCEDURE IF EXISTS sp_cambiar_correo $$
+CREATE PROCEDURE sp_cambiar_correo(
+    IN p_id_cuenta INT UNSIGNED,
+    IN p_correo    VARCHAR(120))
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM cuenta WHERE id_cuenta = p_id_cuenta) THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'La cuenta no existe.';
+    END IF;
+    IF EXISTS (SELECT 1 FROM cuenta WHERE correo = p_correo AND id_cuenta <> p_id_cuenta) THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'El correo ya está registrado.';
+    END IF;
+    UPDATE cuenta SET correo = p_correo WHERE id_cuenta = p_id_cuenta;
+END $$
+
+-- Un administrador suspende o reactiva una cuenta; queda en la auditoría (S14, S35)
+DROP PROCEDURE IF EXISTS sp_cambiar_estado_cuenta $$
+CREATE PROCEDURE sp_cambiar_estado_cuenta(
+    IN p_id_administrador INT UNSIGNED,
+    IN p_id_cuenta        INT UNSIGNED,
+    IN p_estado           VARCHAR(15))
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM administrador WHERE id_administrador = p_id_administrador) THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Solo un administrador puede cambiar el estado de una cuenta.';
+    END IF;
+    IF p_estado NOT IN ('ACTIVA', 'SUSPENDIDA') THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'El estado debe ser ACTIVA o SUSPENDIDA.';
+    END IF;
+    IF p_id_cuenta = p_id_administrador THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Un administrador no puede cambiar el estado de su propia cuenta.';
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM cuenta WHERE id_cuenta = p_id_cuenta) THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'La cuenta no existe.';
+    END IF;
+    UPDATE cuenta SET estado = p_estado WHERE id_cuenta = p_id_cuenta;
+END $$
+
+DROP PROCEDURE IF EXISTS sp_actualizar_zona $$
+CREATE PROCEDURE sp_actualizar_zona(
+    IN p_id_administrador INT UNSIGNED,
+    IN p_id_zona          INT UNSIGNED,
+    IN p_nombre           VARCHAR(60),
+    IN p_descripcion      VARCHAR(300),
+    IN p_nivel_peligro    TINYINT UNSIGNED)
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM administrador WHERE id_administrador = p_id_administrador) THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Solo un administrador puede modificar zonas.';
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM zona WHERE id_zona = p_id_zona) THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'La zona no existe.';
+    END IF;
+    IF EXISTS (SELECT 1 FROM zona WHERE nombre = p_nombre AND id_zona <> p_id_zona) THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Ya existe una zona con ese nombre.';
+    END IF;
+    UPDATE zona SET nombre = p_nombre, descripcion = p_descripcion, nivel_peligro = p_nivel_peligro
+     WHERE id_zona = p_id_zona;
+END $$
+
+DROP PROCEDURE IF EXISTS sp_actualizar_especialidad $$
+CREATE PROCEDURE sp_actualizar_especialidad(
+    IN p_id_administrador INT UNSIGNED,
+    IN p_id_especialidad  INT UNSIGNED,
+    IN p_nombre           VARCHAR(60),
+    IN p_descripcion      VARCHAR(300))
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM administrador WHERE id_administrador = p_id_administrador) THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Solo un administrador puede modificar especialidades.';
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM especialidad WHERE id_especialidad = p_id_especialidad) THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'La especialidad no existe.';
+    END IF;
+    IF EXISTS (SELECT 1 FROM especialidad WHERE nombre = p_nombre AND id_especialidad <> p_id_especialidad) THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Ya existe una especialidad con ese nombre.';
+    END IF;
+    UPDATE especialidad SET nombre = p_nombre, descripcion = p_descripcion
+     WHERE id_especialidad = p_id_especialidad;
+END $$
+
+-- =====================================================================
 -- TRIGGERS
 -- =====================================================================
 
