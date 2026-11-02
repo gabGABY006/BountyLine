@@ -17,7 +17,7 @@ cd back
 
 En Spring Tool Suite: *File > Import > Existing Maven Projects*, elegir la carpeta `back` y ejecutar `BountylineApplication` como *Spring Boot App*.
 
-La conexión se puede cambiar con variables de entorno: `DB_URL`, `DB_USER`, `DB_PASSWORD`, `PORT` y `CORS_ORIGEN`.
+La configuración se puede cambiar con variables de entorno: `DB_URL`, `DB_USER`, `DB_PASSWORD`, `PORT`, `CORS_ORIGEN`, `JWT_SECRETO` (mínimo 32 caracteres) y `JWT_HORAS` (duración del token, 8 por defecto).
 
 Prueba rápida: <http://localhost:8080/api/salud>
 
@@ -30,55 +30,88 @@ Cada clase del modelo tiene su DTO, repositorio, servicio y controlador.
 | `model` | Una clase por cada tabla de la base de datos |
 | `dto` | Objetos de respuesta y de entrada de la API (records) |
 | `repository` | Consultas a tablas y vistas, y llamadas a los procedimientos almacenados |
-| `service` | Reglas de la aplicación (hash de contraseñas, inicio de sesión, validaciones) y conversión a DTO |
+| `service` | Reglas de la aplicación (registro, inicio de sesión, validaciones) y conversión a DTO |
 | `controller` | Endpoints REST |
+| `config` | Seguridad (Spring Security con JWT), CORS y codificador BCrypt |
+| `security` | Generación del token y lectura de la cuenta que hace la petición |
 | `exception` | Manejo de errores: los `SIGNAL SQLSTATE '45000'` de MySQL llegan al cliente como 400 con su mensaje |
 
 El usuario de base de datos `bountyline_app` solo puede consultar y ejecutar procedimientos, así que toda escritura pasa por la lógica de la base.
 
+## Seguridad
+
+- El registro (`POST /api/auth/registro`) y el inicio de sesión (`POST /api/auth/login`) devuelven un token JWT firmado (HS256) con el id de la cuenta, su alias y su rol.
+- Todas las demás peticiones llevan el encabezado `Authorization: Bearer <token>`. Sin token responden 401.
+- Son públicos: `/api/auth/registro`, `/api/auth/login`, `/api/salud` y la consulta de zonas y especialidades (el formulario de registro las necesita).
+- Los permisos van por rol (`USUARIO`, `CAZARRECOMPENSAS`, `ADMINISTRADOR`). Un rol que no corresponde recibe 403.
+- Quién hace cada acción sale del token, no del cuerpo de la petición. Las rutas con `/yo` trabajan sobre la cuenta autenticada.
+- El registro solo crea usuarios y cazarrecompensas. Los administradores se crean por script (S30).
+- Las contraseñas se guardan como hash BCrypt (S11).
+
 ## Endpoints
 
-| Entidad | Método y ruta | Procedimiento o vista |
-| :--- | :--- | :--- |
-| Cuenta | `GET /api/cuentas?rol=&estado=` · `GET /api/cuentas/{id}` | |
-| | `POST /api/cuentas/registro` | `sp_registrar_cuenta` |
-| | `POST /api/cuentas/login` | |
-| | `PUT /api/cuentas/{id}/correo` | `sp_cambiar_correo` |
-| | `PUT /api/cuentas/{id}/estado` | `sp_cambiar_estado_cuenta` |
-| Usuario | `GET /api/usuarios` · `GET /api/usuarios/{id}` | |
-| | `PUT /api/usuarios/{id}` | `sp_actualizar_usuario` |
-| Cazarrecompensas | `GET /api/cazarrecompensas?idZona=&disponibilidad=` · `GET /api/cazarrecompensas/{id}` | `v_cazarrecompensas_perfil` |
-| | `PUT /api/cazarrecompensas/{id}` | `sp_actualizar_cazarrecompensas` |
-| CazarrecompensasEspecialidad | `GET /api/cazarrecompensas/{id}/especialidades` | |
-| | `POST /api/cazarrecompensas/{id}/especialidades` | `sp_guardar_especialidad_caz` |
-| | `DELETE /api/cazarrecompensas/{id}/especialidades/{idEspecialidad}` | `sp_quitar_especialidad_caz` |
-| Administrador | `GET /api/administradores` · `GET /api/administradores/{id}` | |
-| Billetera | `GET /api/billeteras/{idCuenta}` | |
-| | `POST /api/billeteras/{idCuenta}/recargas` | `sp_recargar_saldo` |
-| Movimiento | `GET /api/movimientos?idCuenta=&idMision=&limite=` | |
-| Zona | `GET /api/zonas` · `GET /api/zonas/{id}` | |
-| | `POST /api/zonas` · `PUT /api/zonas/{id}` | `sp_crear_zona` · `sp_actualizar_zona` |
-| Especialidad | `GET /api/especialidades` · `GET /api/especialidades/{id}` | |
-| | `POST /api/especialidades` · `PUT /api/especialidades/{id}` | `sp_crear_especialidad` · `sp_actualizar_especialidad` |
-| Misión | `GET /api/misiones?estado=&idUsuario=&idCazarrecompensas=` · `GET /api/misiones/{id}` | `v_mision_detalle` |
-| | `POST /api/misiones` | `sp_publicar_mision` |
-| | `GET /api/misiones/{id}/sugerencias?limite=5` | `sp_sugerir_cazarrecompensas` |
-| | `POST /api/misiones/{id}/asignacion` | `sp_asignar_cazarrecompensas` |
-| | `POST /api/misiones/{id}/inicio` | `sp_iniciar_mision` |
-| | `POST /api/misiones/{id}/cierre` | `sp_cerrar_mision` |
-| | `POST /api/misiones/{id}/cancelacion` | `sp_cancelar_mision` |
-| Postulación | `GET /api/postulaciones?idMision=&idCazarrecompensas=` | `fn_puntaje_match` |
-| | `POST /api/postulaciones` | `sp_postular` |
-| Calificación | `GET /api/calificaciones?idMision=&idCazarrecompensas=` | |
-| | `POST /api/calificaciones` | `sp_calificar_mision` |
-| Reporte | `GET /api/reportes?estado=` · `GET /api/reportes/{id}` | |
-| | `POST /api/reportes` | `sp_crear_reporte` |
-| | `POST /api/reportes/{id}/resolucion` | `sp_resolver_reporte` |
-| AuditoriaCuenta | `GET /api/auditoria-cuentas?idCuenta=` | |
-| | `GET /api/salud` | Prueba de conexión |
+Roles: U = usuario, C = cazarrecompensas, A = administrador, todos = cualquier cuenta autenticada.
+
+| Entidad | Método y ruta | Rol | Procedimiento o vista |
+| :--- | :--- | :--- | :--- |
+| Autenticación | `POST /api/auth/registro` | público | `sp_registrar_cuenta` |
+| | `POST /api/auth/login` | público | |
+| | `GET /api/auth/yo` | todos | |
+| Cuenta | `GET /api/cuentas?rol=&estado=` | A | |
+| | `GET /api/cuentas/{id}` | la propia o A | |
+| | `PUT /api/cuentas/yo/correo` | todos | `sp_cambiar_correo` |
+| | `PUT /api/cuentas/{id}/estado` | A | `sp_cambiar_estado_cuenta` |
+| Usuario | `GET /api/usuarios` | A | |
+| | `GET /api/usuarios/yo` · `PUT /api/usuarios/yo` | U | `sp_actualizar_usuario` |
+| | `GET /api/usuarios/{id}` | todos | |
+| Cazarrecompensas | `GET /api/cazarrecompensas?idZona=&disponibilidad=` · `GET /api/cazarrecompensas/{id}` | todos | `v_cazarrecompensas_perfil` |
+| | `GET /api/cazarrecompensas/yo` · `PUT /api/cazarrecompensas/yo` | C | `sp_actualizar_cazarrecompensas` |
+| CazarrecompensasEspecialidad | `GET /api/cazarrecompensas/{id}/especialidades` | todos | |
+| | `POST /api/cazarrecompensas/yo/especialidades` | C | `sp_guardar_especialidad_caz` |
+| | `DELETE /api/cazarrecompensas/yo/especialidades/{idEspecialidad}` | C | `sp_quitar_especialidad_caz` |
+| Administrador | `GET /api/administradores` · `GET /api/administradores/yo` · `GET /api/administradores/{id}` | A | |
+| Billetera | `GET /api/billeteras/yo` | todos | |
+| | `GET /api/billeteras/{idCuenta}` | la propia o A | |
+| | `POST /api/billeteras/yo/recargas` | U, C | `sp_recargar_saldo` |
+| Movimiento | `GET /api/movimientos?idCuenta=&idMision=&limite=` | todos (solo A filtra por otra cuenta) | |
+| Zona | `GET /api/zonas` · `GET /api/zonas/{id}` | público | |
+| | `POST /api/zonas` · `PUT /api/zonas/{id}` | A | `sp_crear_zona` · `sp_actualizar_zona` |
+| Especialidad | `GET /api/especialidades` · `GET /api/especialidades/{id}` | público | |
+| | `POST /api/especialidades` · `PUT /api/especialidades/{id}` | A | `sp_crear_especialidad` · `sp_actualizar_especialidad` |
+| Misión | `GET /api/misiones?estado=&idUsuario=&idCazarrecompensas=` · `GET /api/misiones/{id}` | todos | `v_mision_detalle` |
+| | `GET /api/misiones/mias?estado=` | U, C | `v_mision_detalle` |
+| | `POST /api/misiones` | U | `sp_publicar_mision` |
+| | `GET /api/misiones/{id}/sugerencias?limite=5` | U, A | `sp_sugerir_cazarrecompensas` |
+| | `POST /api/misiones/{id}/asignacion` | U | `sp_asignar_cazarrecompensas` |
+| | `POST /api/misiones/{id}/inicio` | C | `sp_iniciar_mision` |
+| | `POST /api/misiones/{id}/cierre` | U | `sp_cerrar_mision` |
+| | `POST /api/misiones/{id}/cancelacion` | U, A | `sp_cancelar_mision` |
+| Postulación | `GET /api/postulaciones?idMision=&idCazarrecompensas=` | todos | `fn_puntaje_match` |
+| | `GET /api/postulaciones/mias` | C | |
+| | `POST /api/postulaciones` | C | `sp_postular` |
+| Calificación | `GET /api/calificaciones?idMision=&idCazarrecompensas=` | todos | |
+| | `POST /api/calificaciones` | U | `sp_calificar_mision` |
+| Reporte | `GET /api/reportes?estado=` · `GET /api/reportes/{id}` | A | |
+| | `POST /api/reportes` | U, C | `sp_crear_reporte` |
+| | `POST /api/reportes/{id}/resolucion` | A | `sp_resolver_reporte` |
+| AuditoriaCuenta | `GET /api/auditoria-cuentas?idCuenta=` | A | |
+| | `GET /api/salud` | público | Prueba de conexión |
 
 Los movimientos y la auditoría solo se consultan: los crean los procedimientos y los triggers, y la base no deja modificarlos.
 
-Cuentas de prueba (contraseña `BountyLine2026*`): `axiom_47@bountyline.gg` (usuario), `vanta_k@bountyline.gg` (cazarrecompensas), `admin@bountyline.gg` (administrador).
+## Ejemplo
 
-Por ahora la identidad viaja en el cuerpo de cada petición (`idUsuario`, `idCazarrecompensas`, `idAdministrador`) a partir de lo que devuelve `/login`.
+```http
+POST /api/auth/login
+Content-Type: application/json
+
+{ "correo": "axiom_47@bountyline.gg", "contrasena": "BountyLine2026*" }
+```
+
+Respuesta:
+
+```json
+{ "token": "eyJ...", "tipo": "Bearer", "expira": "2026-11-03T06:00:00Z", "idCuenta": 3, "alias": "AXIOM_47", "rol": "USUARIO" }
+```
+
+Cuentas de prueba (contraseña `BountyLine2026*`): `axiom_47@bountyline.gg` (usuario), `vanta_k@bountyline.gg` (cazarrecompensas), `admin@bountyline.gg` (administrador).

@@ -9,6 +9,8 @@ import java.util.stream.Collectors;
 import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -46,6 +48,21 @@ public class ApiExceptionHandler {
     @ExceptionHandler(NoEncontradoException.class)
     public ResponseEntity<Map<String, Object>> noEncontrado(NoEncontradoException ex) {
         return respuesta(HttpStatus.NOT_FOUND, ex.getMessage());
+    }
+
+    @ExceptionHandler(NoAutorizadoException.class)
+    public ResponseEntity<Map<String, Object>> noAutorizado(NoAutorizadoException ex) {
+        return respuesta(HttpStatus.UNAUTHORIZED, ex.getMessage());
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<Map<String, Object>> accesoDenegado(AccessDeniedException ex) {
+        return respuesta(HttpStatus.FORBIDDEN, "No tiene permiso para esta acción.");
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<Map<String, Object>> cuerpoInvalido(HttpMessageNotReadableException ex) {
+        return respuesta(HttpStatus.BAD_REQUEST, "El cuerpo de la petición no es un JSON válido.");
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

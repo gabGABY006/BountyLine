@@ -83,9 +83,9 @@ public class MisionRepository {
                 idMision, limite);
     }
 
-    public Long publicar(MisionDto.Nueva m) {
+    public Long publicar(Long idUsuario, MisionDto.Nueva m) {
         return procedimientos.llamarConSalida("sp_publicar_mision",
-                m.idUsuario(), m.idZona(), m.idEspecialidad(), m.titulo(), m.descripcion(), m.monto());
+                idUsuario, m.idZona(), m.idEspecialidad(), m.titulo(), m.descripcion(), m.monto());
     }
 
     public void asignar(Long idMision, Long idUsuario, Long idCazarrecompensas) {

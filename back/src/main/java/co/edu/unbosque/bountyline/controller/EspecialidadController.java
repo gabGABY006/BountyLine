@@ -3,6 +3,9 @@ package co.edu.unbosque.bountyline.controller;
 import java.util.List;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -13,9 +16,11 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import co.edu.unbosque.bountyline.dto.EspecialidadDto;
+import co.edu.unbosque.bountyline.security.Sesion;
 import co.edu.unbosque.bountyline.service.EspecialidadService;
 import jakarta.validation.Valid;
 
+/** Catálogo de especialidades: la consulta es pública (la usa el registro); solo los administradores lo modifican (S32). */
 @RestController
 @RequestMapping("/api/especialidades")
 public class EspecialidadController {
@@ -38,12 +43,15 @@ public class EspecialidadController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public EspecialidadDto crear(@Valid @RequestBody EspecialidadDto.Guardar especialidad) {
-        return servicio.crear(especialidad);
+    @PreAuthorize("hasRole('ADMINISTRADOR')")
+    public EspecialidadDto crear(@AuthenticationPrincipal Jwt jwt, @Valid @RequestBody EspecialidadDto.Guardar especialidad) {
+        return servicio.crear(Sesion.id(jwt), especialidad);
     }
 
     @PutMapping("/{id}")
-    public EspecialidadDto actualizar(@PathVariable Long id, @Valid @RequestBody EspecialidadDto.Guardar especialidad) {
-        return servicio.actualizar(id, especialidad);
+    @PreAuthorize("hasRole('ADMINISTRADOR')")
+    public EspecialidadDto actualizar(@AuthenticationPrincipal Jwt jwt, @PathVariable Long id,
+                              @Valid @RequestBody EspecialidadDto.Guardar especialidad) {
+        return servicio.actualizar(Sesion.id(jwt), id, especialidad);
     }
 }

@@ -20,8 +20,8 @@ public class PostulacionService {
         return postulaciones.listar(idMision, idCazarrecompensas);
     }
 
-    public List<PostulacionDto> postular(PostulacionDto.Nueva p) {
-        postulaciones.postular(p.idMision(), p.idCazarrecompensas(), p.mensaje());
+    public List<PostulacionDto> postular(Long idCazarrecompensas, PostulacionDto.Nueva p) {
+        postulaciones.postular(p.idMision(), idCazarrecompensas, p.mensaje());
         return postulaciones.listar(p.idMision(), null);
     }
 }

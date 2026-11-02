@@ -2,6 +2,9 @@ package co.edu.unbosque.bountyline.controller;
 
 import java.util.List;
 
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -11,12 +14,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import co.edu.unbosque.bountyline.dto.CazarrecompensasEspecialidadDto;
+import co.edu.unbosque.bountyline.security.Sesion;
 import co.edu.unbosque.bountyline.service.CazarrecompensasEspecialidadService;
 import jakarta.validation.Valid;
 
-/** Especialidades de un cazarrecompensas con su nivel. */
+/** Especialidades de un cazarrecompensas con su nivel. Solo el propio cazarrecompensas las modifica. */
 @RestController
-@RequestMapping("/api/cazarrecompensas/{idCazarrecompensas}/especialidades")
+@RequestMapping("/api/cazarrecompensas")
 public class CazarrecompensasEspecialidadController {
 
     private final CazarrecompensasEspecialidadService servicio;
@@ -25,21 +29,23 @@ public class CazarrecompensasEspecialidadController {
         this.servicio = servicio;
     }
 
-    @GetMapping
+    @GetMapping("/{idCazarrecompensas}/especialidades")
     public List<CazarrecompensasEspecialidadDto> listar(@PathVariable Long idCazarrecompensas) {
         return servicio.listar(idCazarrecompensas);
     }
 
     /** Agrega la especialidad o cambia su nivel. */
-    @PostMapping
-    public List<CazarrecompensasEspecialidadDto> guardar(@PathVariable Long idCazarrecompensas,
+    @PostMapping("/yo/especialidades")
+    @PreAuthorize("hasRole('CAZARRECOMPENSAS')")
+    public List<CazarrecompensasEspecialidadDto> guardar(@AuthenticationPrincipal Jwt jwt,
                                                          @Valid @RequestBody CazarrecompensasEspecialidadDto.Guardar g) {
-        return servicio.guardar(idCazarrecompensas, g);
+        return servicio.guardar(Sesion.id(jwt), g);
     }
 
-    @DeleteMapping("/{idEspecialidad}")
-    public List<CazarrecompensasEspecialidadDto> quitar(@PathVariable Long idCazarrecompensas,
+    @DeleteMapping("/yo/especialidades/{idEspecialidad}")
+    @PreAuthorize("hasRole('CAZARRECOMPENSAS')")
+    public List<CazarrecompensasEspecialidadDto> quitar(@AuthenticationPrincipal Jwt jwt,
                                                         @PathVariable Long idEspecialidad) {
-        return servicio.quitar(idCazarrecompensas, idEspecialidad);
+        return servicio.quitar(Sesion.id(jwt), idEspecialidad);
     }
 }

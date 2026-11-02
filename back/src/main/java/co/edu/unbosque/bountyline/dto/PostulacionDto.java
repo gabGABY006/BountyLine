@@ -9,6 +9,6 @@ import jakarta.validation.constraints.Size;
 public record PostulacionDto(Long idMision, Long idCazarrecompensas, String alias, LocalDateTime fechaPostulacion,
                              String mensaje, String estadoPostulacion, Integer puntaje) {
 
-    public record Nueva(@NotNull Long idMision, @NotNull Long idCazarrecompensas, @Size(max = 500) String mensaje) {
+    public record Nueva(@NotNull Long idMision, @Size(max = 500) String mensaje) {
     }
 }

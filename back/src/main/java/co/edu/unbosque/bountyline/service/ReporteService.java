@@ -25,12 +25,12 @@ public class ReporteService {
         return reportes.buscar(idReporte).orElseThrow(() -> new NoEncontradoException("El reporte no existe."));
     }
 
-    public ReporteDto crear(ReporteDto.Nuevo nuevo) {
-        return buscar(reportes.crear(nuevo));
+    public ReporteDto crear(Long idCuentaReporta, ReporteDto.Nuevo nuevo) {
+        return buscar(reportes.crear(idCuentaReporta, nuevo));
     }
 
-    public ReporteDto resolver(Long idReporte, ReporteDto.Resolucion r) {
-        reportes.resolver(idReporte, r.idAdministrador(), r.estado(), Boolean.TRUE.equals(r.suspender()));
+    public ReporteDto resolver(Long idAdministrador, Long idReporte, ReporteDto.Resolucion r) {
+        reportes.resolver(idReporte, idAdministrador, r.estado(), Boolean.TRUE.equals(r.suspender()));
         return buscar(idReporte);
     }
 }

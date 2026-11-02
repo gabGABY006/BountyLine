@@ -20,8 +20,8 @@ public class CalificacionService {
         return calificaciones.listar(idMision, idCazarrecompensas);
     }
 
-    public List<CalificacionDto> calificar(CalificacionDto.Nueva c) {
-        calificaciones.calificar(c.idMision(), c.idUsuario(), c.puntaje(), c.comentario());
+    public List<CalificacionDto> calificar(Long idUsuario, CalificacionDto.Nueva c) {
+        calificaciones.calificar(c.idMision(), idUsuario, c.puntaje(), c.comentario());
         return calificaciones.listar(c.idMision(), null);
     }
 }

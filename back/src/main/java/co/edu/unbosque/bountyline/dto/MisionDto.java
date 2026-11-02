@@ -15,22 +15,13 @@ public record MisionDto(Long idMision, String titulo, String descripcion, BigDec
                         Long idEspecialidad, String especialidad,
                         Long idCazarrecompensas, String aliasCazarrecompensas, Integer postulaciones) {
 
-    public record Nueva(@NotNull Long idUsuario, @NotNull Long idZona, @NotNull Long idEspecialidad,
+    /** El usuario que publica se toma del token. */
+    public record Nueva(@NotNull Long idZona, @NotNull Long idEspecialidad,
                         @NotBlank @Size(max = 120) String titulo, @NotBlank String descripcion,
                         @NotNull @Positive BigDecimal monto) {
     }
 
-    public record Asignacion(@NotNull Long idUsuario, @NotNull Long idCazarrecompensas) {
-    }
-
-    public record Inicio(@NotNull Long idCazarrecompensas) {
-    }
-
-    public record Cierre(@NotNull Long idUsuario) {
-    }
-
-    /** La cancela su usuario (idUsuario) o un administrador (idAdministrador). */
-    public record Cancelacion(Long idUsuario, Long idAdministrador) {
+    public record Asignacion(@NotNull Long idCazarrecompensas) {
     }
 
     /** Resultado de sp_sugerir_cazarrecompensas. */

@@ -26,13 +26,13 @@ public class EspecialidadService {
                 .orElseThrow(() -> new NoEncontradoException("La especialidad no existe."));
     }
 
-    public EspecialidadDto crear(EspecialidadDto.Guardar e) {
-        Long id = especialidades.crear(e.idAdministrador(), e.nombre().trim(), e.descripcion());
+    public EspecialidadDto crear(Long idAdministrador, EspecialidadDto.Guardar e) {
+        Long id = especialidades.crear(idAdministrador, e.nombre().trim(), e.descripcion());
         return buscar(id);
     }
 
-    public EspecialidadDto actualizar(Long idEspecialidad, EspecialidadDto.Guardar e) {
-        especialidades.actualizar(e.idAdministrador(), idEspecialidad, e.nombre().trim(), e.descripcion());
+    public EspecialidadDto actualizar(Long idAdministrador, Long idEspecialidad, EspecialidadDto.Guardar e) {
+        especialidades.actualizar(idAdministrador, idEspecialidad, e.nombre().trim(), e.descripcion());
         return buscar(idEspecialidad);
     }
 }

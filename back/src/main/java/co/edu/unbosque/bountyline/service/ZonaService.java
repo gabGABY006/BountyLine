@@ -26,13 +26,13 @@ public class ZonaService {
                 .orElseThrow(() -> new NoEncontradoException("La zona no existe."));
     }
 
-    public ZonaDto crear(ZonaDto.Guardar z) {
-        Long id = zonas.crear(z.idAdministrador(), z.nombre().trim(), z.descripcion(), z.nivelPeligro());
+    public ZonaDto crear(Long idAdministrador, ZonaDto.Guardar z) {
+        Long id = zonas.crear(idAdministrador, z.nombre().trim(), z.descripcion(), z.nivelPeligro());
         return buscar(id);
     }
 
-    public ZonaDto actualizar(Long idZona, ZonaDto.Guardar z) {
-        zonas.actualizar(z.idAdministrador(), idZona, z.nombre().trim(), z.descripcion(), z.nivelPeligro());
+    public ZonaDto actualizar(Long idAdministrador, Long idZona, ZonaDto.Guardar z) {
+        zonas.actualizar(idAdministrador, idZona, z.nombre().trim(), z.descripcion(), z.nivelPeligro());
         return buscar(idZona);
     }
 }

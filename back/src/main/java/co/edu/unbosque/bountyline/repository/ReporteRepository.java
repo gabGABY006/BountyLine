@@ -51,9 +51,9 @@ public class ReporteRepository {
                 .stream().findFirst();
     }
 
-    public Long crear(ReporteDto.Nuevo r) {
+    public Long crear(Long idCuentaReporta, ReporteDto.Nuevo r) {
         return procedimientos.llamarConSalida("sp_crear_reporte",
-                r.idCuentaReporta(), r.idCuentaReportada(), r.idContenido(), r.motivo());
+                idCuentaReporta, r.idCuentaReportada(), r.idContenido(), r.motivo());
     }
 
     public void resolver(Long idReporte, Long idAdministrador, String estado, boolean suspender) {
