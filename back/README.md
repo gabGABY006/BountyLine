@@ -21,6 +21,8 @@ La configuración se puede cambiar con variables de entorno: `DB_URL`, `DB_USER`
 
 Prueba rápida: <http://localhost:8080/api/salud>
 
+Documentación interactiva (Swagger): <http://localhost:8080/swagger-ui.html>. Para probar rutas protegidas, inicie sesión en `/api/auth/login`, copie el `token` y péguelo en el botón *Authorize*.
+
 ## Estructura
 
 Cada clase del modelo tiene su DTO, repositorio, servicio y controlador.
@@ -42,7 +44,7 @@ El usuario de base de datos `bountyline_app` solo puede consultar y ejecutar pro
 
 - El registro (`POST /api/auth/registro`) y el inicio de sesión (`POST /api/auth/login`) devuelven un token JWT firmado (HS256) con el id de la cuenta, su alias y su rol.
 - Todas las demás peticiones llevan el encabezado `Authorization: Bearer <token>`. Sin token responden 401.
-- Son públicos: `/api/auth/registro`, `/api/auth/login`, `/api/salud` y la consulta de zonas y especialidades (el formulario de registro las necesita).
+- Son públicos: `/api/auth/registro`, `/api/auth/login`, `/api/salud`, Swagger y la consulta de zonas y especialidades (el formulario de registro las necesita).
 - Los permisos van por rol (`USUARIO`, `CAZARRECOMPENSAS`, `ADMINISTRADOR`). Un rol que no corresponde recibe 403.
 - Quién hace cada acción sale del token, no del cuerpo de la petición. Las rutas con `/yo` trabajan sobre la cuenta autenticada.
 - El registro solo crea usuarios y cazarrecompensas. Los administradores se crean por script (S30).
