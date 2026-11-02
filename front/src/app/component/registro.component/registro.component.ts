@@ -111,7 +111,7 @@ export class RegistroComponent implements OnInit {
       }
     }
 
-    // Armamos exactamente lo que espera CuentaDto.Registro en el back
+    // Armamos exactamente lo que espera AuthDto.Registro en el back
     const datos: RegistroPeticion = {
       correo: this.correo.trim(),
       alias: this.alias.trim(),

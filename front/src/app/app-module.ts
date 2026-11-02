@@ -1,6 +1,7 @@
 import { NgModule, provideBrowserGlobalErrorListeners } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
-import { provideHttpClient, withFetch } from '@angular/common/http';
+import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
+import { authInterceptor } from './service/auth.interceptor';
 import { AppRoutingModule } from './app-routing-module';
 import { AppComponent } from './app';
 import { CommonModule } from '@angular/common';
@@ -53,7 +54,7 @@ import { MisTrabajosComponent } from './component/cazarecompensas.component/mis-
     MisTrabajosComponent,
   ],
   imports: [BrowserModule, AppRoutingModule, CommonModule, FormsModule],
-  providers: [provideBrowserGlobalErrorListeners(), provideHttpClient(withFetch())],
+  providers: [provideBrowserGlobalErrorListeners(), provideHttpClient(withFetch(), withInterceptors([authInterceptor]))],
   bootstrap: [AppComponent],
 })
 export class AppModule {}

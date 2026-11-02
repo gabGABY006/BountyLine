@@ -5,7 +5,11 @@ import { API_URL } from '../config/api';
 
 export type Rol = 'USUARIO' | 'CAZARRECOMPENSAS' | 'ADMINISTRADOR';
 
+/** Respuesta de /api/auth/login y /api/auth/registro. */
 export interface Sesion {
+  token: string;
+  tipo: string;
+  expira: string;
   idCuenta: number;
   alias: string;
   rol: Rol;
@@ -34,27 +38,43 @@ export class AuthService {
 
   login(correo: string, contrasena: string): Observable<Sesion> {
     return this.http
-      .post<Sesion>(`${API_URL}/cuentas/login`, { correo, contrasena })
+      .post<Sesion>(`${API_URL}/auth/login`, { correo, contrasena })
       .pipe(tap((s) => this.guardar(s)));
   }
 
   registrar(datos: RegistroPeticion): Observable<Sesion> {
     return this.http
-      .post<Sesion>(`${API_URL}/cuentas/registro`, datos)
+      .post<Sesion>(`${API_URL}/auth/registro`, datos)
       .pipe(tap((s) => this.guardar(s)));
   }
 
   cerrarSesion(): void {
-    localStorage.removeItem(CLAVE);
+    try {
+      localStorage.removeItem(CLAVE);
+    } catch {
+      /* almacenamiento no disponible */
+    }
   }
 
   get sesion(): Sesion | null {
     try {
       const texto = localStorage.getItem(CLAVE);
-      return texto ? (JSON.parse(texto) as Sesion) : null;
+      if (!texto) return null;
+      const s = JSON.parse(texto) as Sesion;
+      // Sesión vieja (sin token) o token vencido: hay que volver a iniciar sesión
+      if (!s.token || new Date(s.expira).getTime() <= Date.now()) {
+        this.cerrarSesion();
+        return null;
+      }
+      return s;
     } catch {
       return null;
     }
+  }
+
+  /** Token JWT que se envía en el encabezado Authorization. */
+  get token(): string | null {
+    return this.sesion?.token ?? null;
   }
 
   get autenticado(): boolean {
@@ -85,6 +105,10 @@ export class AuthService {
   }
 
   private guardar(s: Sesion): void {
-    localStorage.setItem(CLAVE, JSON.stringify(s));
+    try {
+      localStorage.setItem(CLAVE, JSON.stringify(s));
+    } catch {
+      /* almacenamiento no disponible */
+    }
   }
 }
