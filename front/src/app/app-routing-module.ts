@@ -1,5 +1,6 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
+import { authGuard } from './guard/auth.guard';
 import { InicioComponent } from './component/inicio.component/inicio.component';
 import { RegistroComponent } from './component/registro.component/registro.component';
 import { LayoutComponent } from './component/layout/layout.component';
@@ -25,6 +26,7 @@ const routes: Routes = [
   {
     path: 'admin',
     component: LayoutComponent,
+    canActivate: [authGuard],
     data: { modo: 'ADMIN' },
     children: [
       { path: '', redirectTo: 'panel', pathMatch: 'full' },
@@ -40,6 +42,7 @@ const routes: Routes = [
   {
     path: 'usuario',
     component: LayoutComponent,
+    canActivate: [authGuard],
     data: { modo: 'NORMAL' },
     children: [
       { path: 'feed', redirectTo: 'misiones', pathMatch: 'full' },
@@ -53,6 +56,7 @@ const routes: Routes = [
   {
     path: 'cazarrecompensas',
     component: LayoutComponent,
+    canActivate: [authGuard],
     data: { modo: 'CAZARRECOMPENSAS' },
     children: [
       { path: '', redirectTo: 'mercado', pathMatch: 'full' },

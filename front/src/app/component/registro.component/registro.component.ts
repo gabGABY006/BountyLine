@@ -1,10 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { NgForm } from '@angular/forms';
-
-interface Catalogo {
-  id: number;
-  nombre: string;
-}
+import { Router } from '@angular/router';
+import { AuthService, RegistroPeticion } from '../../service/auth.service';
+import { Catalogo, CatalogoService } from '../../service/catalogo.service';
 
 @Component({
   selector: 'app-registro',
@@ -12,22 +10,19 @@ interface Catalogo {
   styleUrl: './registro.component.css',
   templateUrl: './registro.component.html',
 })
-export class RegistroComponent {
-  rol: 'usuario' | 'admin' = 'usuario';
+export class RegistroComponent implements OnInit {
   rolInicial: 'NORMAL' | 'CAZARRECOMPENSAS' = 'NORMAL';
 
-  nombre = '';
   alias = '';
   correo = '';
   contrasenia = '';
   confirmacion = '';
-  codigoAdmin = '';
-  avatar = '';
   descripcion = '';
   aceptaTerminos = false;
   terminosAbiertos = false;
   zonaId: number | null = null;
   mensaje = '';
+  cargando = false;
 
   readonly terminos = [
     'Aceptación: Al registrarte, aceptas estas condiciones de uso.',
@@ -47,32 +42,36 @@ export class RegistroComponent {
     'Aceptación final: Al marcar la casilla, confirmas que leíste y aceptas estas condiciones.',
   ];
 
-  // Catálogos simulados (sección 14 de la guía)
-  zonas: Catalogo[] = [
-    { id: 1, nombre: 'Centro' },
-    { id: 2, nombre: 'Distrito industrial' },
-    { id: 3, nombre: 'Suburbios' },
-    { id: 4, nombre: 'Puerto' },
-    { id: 5, nombre: 'Orbital' },
-  ];
+  // Catálogos: se cargan desde el back (GET /api/zonas y /api/especialidades)
+  zonas: Catalogo[] = [];
+  especialidades: Catalogo[] = [];
 
-  especialidades: Catalogo[] = [
-    { id: 1, nombre: 'Robo' },
-    { id: 2, nombre: 'Venganza' },
-    { id: 3, nombre: 'Protección' },
-    { id: 4, nombre: 'Sabotaje' },
-  ];
-
+  readonly niveles = [1, 2, 3, 4, 5];
   especialidadesMarcadas: Record<number, boolean> = {};
-  zonasMarcadas: Record<number, boolean> = {};
+  nivelesEspecialidad: Record<number, number> = {};
+
+  constructor(
+    private auth: AuthService,
+    private catalogos: CatalogoService,
+    private router: Router,
+  ) {}
+
+  ngOnInit(): void {
+    this.catalogos.zonas().subscribe({
+      next: (z) => (this.zonas = z),
+      error: (err) => (this.mensaje = this.auth.mensajeDeError(err)),
+    });
+    this.catalogos.especialidades().subscribe({
+      next: (e) => {
+        this.especialidades = e;
+        e.forEach((x) => (this.nivelesEspecialidad[x.id] = 1));
+      },
+      error: (err) => (this.mensaje = this.auth.mensajeDeError(err)),
+    });
+  }
 
   get contraseniasCoinciden(): boolean {
     return this.contrasenia === this.confirmacion;
-  }
-
-  cambiarRol(nuevoRol: 'usuario' | 'admin'): void {
-    this.rol = nuevoRol;
-    this.mensaje = '';
   }
 
   registrar(form: NgForm): void {
@@ -89,37 +88,52 @@ export class RegistroComponent {
       return;
     }
 
-    if (this.rol === 'usuario') {
-      if (!this.contraseniasCoinciden) {
-        this.mensaje = 'Las contraseñas no coinciden.';
-        return;
-      }
-
-      if (this.rolInicial === 'CAZARRECOMPENSAS') {
-        if (!this.descripcion.trim()) {
-          this.mensaje = 'La descripción es obligatoria para cazarrecompensas.';
-          return;
-        }
-
-        const especialidades = this.especialidades.filter(e => this.especialidadesMarcadas[e.id]);
-        if (especialidades.length === 0) {
-          this.mensaje = 'Selecciona al menos una especialidad.';
-          return;
-        }
-
-        const zonasOperacion = this.zonas.filter(z => this.zonasMarcadas[z.id]);
-        if (zonasOperacion.length === 0) {
-          this.mensaje = 'Selecciona al menos una zona de operación.';
-          return;
-        }
-      }
-    }
-
-    if (this.rol === 'admin' && !this.codigoAdmin.trim()) {
-      this.mensaje = 'Se requiere un código de autorización.';
+    if (!this.contraseniasCoinciden) {
+      this.mensaje = 'Las contraseñas no coinciden.';
       return;
     }
 
-    this.mensaje = 'Formulario válido. Falta conectar el registro con el servicio.';
+    const esCazador = this.rolInicial === 'CAZARRECOMPENSAS';
+    const seleccionadas = this.especialidades.filter((e) => this.especialidadesMarcadas[e.id]);
+
+    if (esCazador) {
+      if (!this.descripcion.trim()) {
+        this.mensaje = 'La descripción es obligatoria para cazarrecompensas.';
+        return;
+      }
+      if (this.zonaId === null) {
+        this.mensaje = 'Selecciona tu zona base.';
+        return;
+      }
+      if (seleccionadas.length === 0) {
+        this.mensaje = 'Selecciona al menos una especialidad.';
+        return;
+      }
+    }
+
+    // Armamos exactamente lo que espera CuentaDto.Registro en el back
+    const datos: RegistroPeticion = {
+      correo: this.correo.trim(),
+      alias: this.alias.trim(),
+      contrasena: this.contrasenia,
+      rol: esCazador ? 'CAZARRECOMPENSAS' : 'USUARIO',
+      biografia: this.descripcion.trim() || null,
+      idZona: esCazador ? this.zonaId : null,
+      especialidades: esCazador
+        ? seleccionadas.map((e) => ({ id: e.id, nivel: this.nivelesEspecialidad[e.id] }))
+        : null,
+    };
+
+    this.cargando = true;
+    this.auth.registrar(datos).subscribe({
+      next: (sesion) => {
+        this.cargando = false;
+        void this.router.navigate([this.auth.rutaInicio(sesion.rol)]);
+      },
+      error: (err) => {
+        this.cargando = false;
+        this.mensaje = this.auth.mensajeDeError(err);
+      },
+    });
   }
 }

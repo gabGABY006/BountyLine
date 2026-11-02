@@ -29,28 +29,8 @@
       <h2>Crear nueva identidad</h2>
       <p class="description">Completa los datos para crear tu cuenta.</p>
 
-      <span class="role-label">TIPO DE CUENTA</span>
-
-      <div class="role-selector">
-        <button type="button"
-                [class.active]="rol === 'usuario'"
-                (click)="rol = 'usuario'">
-          <span>♙</span>
-          <strong>USUARIO</strong>
-          <small>Cuenta de jugador</small>
-        </button>
-
-        <button type="button"
-                [class.active]="rol === 'admin'"
-                (click)="rol = 'admin'">
-          <span>⬡</span>
-          <strong>ADMINISTRADOR</strong>
-          <small>Gestión de la plataforma</small>
-        </button>
-      </div>
-
       <!-- ===== USUARIO ===== -->
-      <ng-container *ngIf="rol === 'usuario'">
+      <ng-container>
 
         <label class="field">
           <span>ALIAS DE OPERADOR</span>
@@ -69,35 +49,20 @@
         <label class="field">
           <span>CONTRASEÑA</span>
           <input type="password" name="password" [(ngModel)]="contrasenia"
-                 required minlength="6"
-                 placeholder="Mínimo 6 caracteres">
+                 required minlength="8" maxlength="72"
+                 placeholder="Mínimo 8 caracteres">
         </label>
 
         <label class="field">
           <span>CONFIRMAR CONTRASEÑA</span>
           <input type="password" name="confirmacion" [(ngModel)]="confirmacion"
-                 required minlength="6"
+                 required minlength="8" maxlength="72"
                  placeholder="Repite tu contraseña">
         </label>
 
         <p class="feedback error" *ngIf="confirmacion && contrasenia !== confirmacion">
           Las contraseñas no coinciden.
         </p>
-
-        <label class="field">
-          <span>ZONA DE RESIDENCIA</span>
-          <select name="zona" [(ngModel)]="zonaId">
-            <option [ngValue]="null">Sin zona (opcional)</option>
-            <option *ngFor="let z of zonas" [ngValue]="z.id">{{ z.nombre }}</option>
-          </select>
-        </label>
-
-        <label class="field">
-          <span>AVATAR (URL, OPCIONAL)</span>
-          <input name="avatar" [(ngModel)]="avatar"
-                 maxlength="255"
-                 placeholder="https://...">
-        </label>
 
         <span class="role-label">ROL INICIAL</span>
         <div class="role-selector">
@@ -129,56 +94,28 @@
 
           <div class="field">
             <span>ESPECIALIDADES (MÍN. 1)</span>
-            <label class="check" *ngFor="let e of especialidades">
-              <input type="checkbox" name="esp{{ e.id }}"
-                     [(ngModel)]="especialidadesMarcadas[e.id]">
-              {{ e.nombre }}
-            </label>
+            <div class="check" *ngFor="let e of especialidades">
+              <label>
+                <input type="checkbox" name="esp{{ e.id }}"
+                       [(ngModel)]="especialidadesMarcadas[e.id]">
+                {{ e.nombre }}
+              </label>
+              <select *ngIf="especialidadesMarcadas[e.id]" name="nivel{{ e.id }}"
+                      [(ngModel)]="nivelesEspecialidad[e.id]" aria-label="Nivel de {{ e.nombre }}">
+                <option *ngFor="let n of niveles" [ngValue]="n">Nivel {{ n }}</option>
+              </select>
+            </div>
           </div>
 
-          <div class="field">
-            <span>ZONAS DE OPERACIÓN (MÍN. 1)</span>
-            <label class="check" *ngFor="let z of zonas">
-              <input type="checkbox" name="zop{{ z.id }}"
-                     [(ngModel)]="zonasMarcadas[z.id]">
-              {{ z.nombre }}
-            </label>
-          </div>
+          <label class="field">
+            <span>ZONA BASE</span>
+            <select name="zona" [(ngModel)]="zonaId" required>
+              <option [ngValue]="null" disabled>Selecciona tu zona base</option>
+              <option *ngFor="let z of zonas" [ngValue]="z.id">{{ z.nombre }}</option>
+            </select>
+          </label>
 
         </ng-container>
-      </ng-container>
-
-      <!-- ===== ADMINISTRADOR ===== -->
-      <ng-container *ngIf="rol === 'admin'">
-
-        <label class="field">
-          <span>NOMBRE COMPLETO</span>
-          <input name="nombre" [(ngModel)]="nombre"
-                 required maxlength="120"
-                 placeholder="Tu nombre completo">
-        </label>
-
-        <label class="field">
-          <span>CORREO ELECTRÓNICO</span>
-          <input type="email" name="correoAdmin" [(ngModel)]="correo"
-                 required email maxlength="120"
-                 placeholder="admin@neonbounty.net">
-        </label>
-
-        <label class="field">
-          <span>CONTRASEÑA</span>
-          <input type="password" name="passwordAdmin" [(ngModel)]="contrasenia"
-                 required minlength="6"
-                 placeholder="Mínimo 6 caracteres">
-        </label>
-
-        <label class="field">
-          <span>CÓDIGO DE AUTORIZACIÓN</span>
-          <input type="password" name="codigoAdmin" [(ngModel)]="codigoAdmin"
-                 required
-                 placeholder="Código proporcionado por el sistema">
-        </label>
-
       </ng-container>
 
       <div class="terms-acceptance">
@@ -195,8 +132,8 @@
       <p class="feedback" *ngIf="mensaje">{{ mensaje }}</p>
 
       <button class="auth-submit" type="submit"
-              [disabled]="registroForm.invalid || (rol === 'usuario' && !contraseniasCoinciden)">
-        CREAR CUENTA →
+              [disabled]="registroForm.invalid || !contraseniasCoinciden || cargando">
+        {{ cargando ? 'CREANDO...' : 'CREAR CUENTA →' }}
       </button>
 
       <p class="switch-link">

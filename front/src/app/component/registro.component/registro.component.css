@@ -1149,3 +1149,19 @@
     flex-direction: column;
   }
 }
+
+/* Especialidad + selector de nivel en la misma fila */
+.field .check > label {
+  display: flex;
+  flex: 1;
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  cursor: pointer;
+}
+
+.field .check > select {
+  width: auto;
+  margin-left: auto;
+}
