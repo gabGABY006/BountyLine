@@ -10,7 +10,7 @@
 <section class="wallet-card">
   <div>
     <small>SALDO DISPONIBLE</small>
-    <strong>{{ formatear(saldoDisponible) }} <em>CR</em></strong>
+    <strong>{{ cargando ? '···' : formatear(saldoDisponible) }} <em>CR</em></strong>
     <span>
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="square" stroke-linejoin="miter" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z" /></svg>
       Saldo protegido
@@ -18,8 +18,8 @@
   </div>
   <div>
     <small>SALDO RETENIDO</small>
-    <b>{{ formatear(saldoRetenido) }} CR</b>
-    <span>{{ textoMisionesActivas }}</span>
+    <b>{{ cargando ? '···' : formatear(saldoRetenido) + ' CR' }}</b>
+    <span>{{ cargando ? '···' : textoMisionesActivas }}</span>
   </div>
 </section>
 

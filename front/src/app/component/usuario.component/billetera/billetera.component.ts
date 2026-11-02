@@ -1,5 +1,5 @@
-import { Component, OnInit } from '@angular/core';
-import { forkJoin } from 'rxjs';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { catchError, forkJoin, of } from 'rxjs';
 import { AuthService } from '../../../service/auth.service';
 import { BilleteraService, MovimientoApi, TipoMovimiento } from '../../../service/billetera.service';
 
@@ -45,6 +45,7 @@ export class BilleteraComponent implements OnInit {
   constructor(
     private billeteraApi: BilleteraService,
     private auth: AuthService,
+    private cdr: ChangeDetectorRef,
   ) {}
 
   ngOnInit(): void {
@@ -56,7 +57,7 @@ export class BilleteraComponent implements OnInit {
     forkJoin({
       billetera: this.billeteraApi.miBilletera(),
       movimientos: this.billeteraApi.movimientos(),
-      activas: this.billeteraApi.misionesActivas(),
+      activas: this.billeteraApi.misionesActivas().pipe(catchError(() => of(0))),
     }).subscribe({
       next: ({ billetera, movimientos, activas }) => {
         this.saldoDisponible = billetera.saldoDisponible;
@@ -64,10 +65,25 @@ export class BilleteraComponent implements OnInit {
         this.misionesActivas = activas;
         this.movimientos = movimientos.map((m) => this.aMovimiento(m));
         this.cargando = false;
+        this.cdr.markForCheck();
       },
       error: (err) => {
         this.cargando = false;
         this.formError = this.auth.mensajeDeError(err);
+        this.cdr.markForCheck();
+      },
+    });
+  }
+
+  private refrescarMovimientos(): void {
+    this.billeteraApi.movimientos().subscribe({
+      next: (lista) => {
+        this.movimientos = lista.map((m) => this.aMovimiento(m));
+        this.cdr.markForCheck();
+      },
+      error: (err) => {
+        this.formError = this.auth.mensajeDeError(err);
+        this.cdr.markForCheck();
       },
     });
   }
@@ -97,15 +113,20 @@ export class BilleteraComponent implements OnInit {
     this.formError = '';
     this.enviando = true;
     this.billeteraApi.recargar(cantidad).subscribe({
-      next: () => {
+      next: (billetera) => {
         this.enviando = false;
         input.value = '';
-        this.cargar(); // el saldo y el historial salen de la base de datos
+        // El back ya responde con la billetera actualizada: no hace falta pedirla otra vez
+        this.saldoDisponible = billetera.saldoDisponible;
+        this.saldoRetenido = billetera.saldoRetenido;
+        this.refrescarMovimientos();
         this.notify('Recarga acreditada correctamente');
+        this.cdr.markForCheck();
       },
       error: (err) => {
         this.enviando = false;
         this.formError = this.auth.mensajeDeError(err);
+        this.cdr.markForCheck();
       },
     });
   }
@@ -135,6 +156,10 @@ export class BilleteraComponent implements OnInit {
 
   private notify(message: string): void {
     this.toast = message;
-    setTimeout(() => (this.toast = ''), 2800);
+    this.cdr.markForCheck();
+    setTimeout(() => {
+      this.toast = '';
+      this.cdr.markForCheck();
+    }, 2800);
   }
 }

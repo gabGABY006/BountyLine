@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { ChangeDetectorRef, Component } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService, Rol } from '../../service/auth.service';
@@ -23,6 +23,7 @@ export class InicioComponent {
   constructor(
     private router: Router,
     private auth: AuthService,
+    private cdr: ChangeDetectorRef,
   ) {}
 
   get etiquetaPerfil(): string {
@@ -60,6 +61,7 @@ export class InicioComponent {
     this.auth.login(this.correo, this.contrasenia).subscribe({
       next: (sesion) => {
         this.cargando = false;
+        this.cdr.markForCheck();
         if (sesion.rol !== this.rolEsperado) {
           // Credenciales válidas, pero el perfil elegido no es el de la cuenta
           this.auth.cerrarSesion();
@@ -71,6 +73,7 @@ export class InicioComponent {
       error: (err) => {
         this.cargando = false;
         this.mensaje = this.auth.mensajeDeError(err);
+        this.cdr.markForCheck();
       },
     });
   }
