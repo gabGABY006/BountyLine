@@ -12,37 +12,38 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import co.edu.unbosque.bountyline.dto.CuentaDtos;
-import co.edu.unbosque.bountyline.dto.ReporteDtos;
-import co.edu.unbosque.bountyline.repository.ReporteRepository;
-
+import co.edu.unbosque.bountyline.dto.ReporteDto;
+import co.edu.unbosque.bountyline.service.ReporteService;
 import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/reportes")
 public class ReporteController {
 
-    private final ReporteRepository reportes;
+    private final ReporteService servicio;
 
-    public ReporteController(ReporteRepository reportes) {
-        this.reportes = reportes;
+    public ReporteController(ReporteService servicio) {
+        this.servicio = servicio;
     }
 
     @GetMapping
-    public List<ReporteDtos.Reporte> listar(@RequestParam(required = false) String estado) {
-        return reportes.listar(estado);
+    public List<ReporteDto> listar(@RequestParam(required = false) String estado) {
+        return servicio.listar(estado);
+    }
+
+    @GetMapping("/{id}")
+    public ReporteDto buscar(@PathVariable Long id) {
+        return servicio.buscar(id);
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public CuentaDtos.Id crear(@Valid @RequestBody ReporteDtos.NuevoReporte reporte) {
-        return new CuentaDtos.Id(reportes.crear(reporte));
+    public ReporteDto crear(@Valid @RequestBody ReporteDto.Nuevo reporte) {
+        return servicio.crear(reporte);
     }
 
     @PostMapping("/{id}/resolucion")
-    public List<ReporteDtos.Reporte> resolver(@PathVariable Long id,
-                                              @Valid @RequestBody ReporteDtos.Resolucion resolucion) {
-        reportes.resolver(id, resolucion);
-        return reportes.listar(null);
+    public ReporteDto resolver(@PathVariable Long id, @Valid @RequestBody ReporteDto.Resolucion resolucion) {
+        return servicio.resolver(id, resolucion);
     }
 }

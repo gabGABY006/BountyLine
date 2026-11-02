@@ -5,40 +5,30 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import co.edu.unbosque.bountyline.dto.BilleteraDtos;
-import co.edu.unbosque.bountyline.exception.NoEncontradoException;
-import co.edu.unbosque.bountyline.model.Billetera;
-import co.edu.unbosque.bountyline.repository.BilleteraRepository;
-
+import co.edu.unbosque.bountyline.dto.BilleteraDto;
+import co.edu.unbosque.bountyline.service.BilleteraService;
 import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/billeteras")
 public class BilleteraController {
 
-    private final BilleteraRepository billeteras;
+    private final BilleteraService servicio;
 
-    public BilleteraController(BilleteraRepository billeteras) {
-        this.billeteras = billeteras;
+    public BilleteraController(BilleteraService servicio) {
+        this.servicio = servicio;
     }
 
-    /** Saldo y últimos movimientos de la billetera de una cuenta. */
     @GetMapping("/{idCuenta}")
-    public BilleteraDtos.Resumen ver(@PathVariable Long idCuenta,
-                                     @RequestParam(defaultValue = "50") int movimientos) {
-        Billetera billetera = billeteras.porCuenta(idCuenta)
-                .orElseThrow(() -> new NoEncontradoException("La cuenta no tiene billetera."));
-        return new BilleteraDtos.Resumen(billetera, billeteras.movimientos(billetera.getIdBilletera(), movimientos));
+    public BilleteraDto buscar(@PathVariable Long idCuenta) {
+        return servicio.buscarPorCuenta(idCuenta);
     }
 
-    /** Recarga simulada de créditos (sp_recargar_saldo). */
+    /** Recarga simulada de créditos. */
     @PostMapping("/{idCuenta}/recargas")
-    public BilleteraDtos.Resumen recargar(@PathVariable Long idCuenta,
-                                            @Valid @RequestBody BilleteraDtos.Recarga recarga) {
-        billeteras.recargar(idCuenta, recarga.monto());
-        return ver(idCuenta, 50);
+    public BilleteraDto recargar(@PathVariable Long idCuenta, @Valid @RequestBody BilleteraDto.Recarga recarga) {
+        return servicio.recargar(idCuenta, recarga);
     }
 }

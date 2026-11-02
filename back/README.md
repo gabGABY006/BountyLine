@@ -23,42 +23,62 @@ Prueba rápida: <http://localhost:8080/api/salud>
 
 ## Estructura
 
+Cada clase del modelo tiene su DTO, repositorio, servicio y controlador.
+
 | Paquete | Contenido |
 | :--- | :--- |
 | `model` | Una clase por cada tabla de la base de datos |
+| `dto` | Objetos de respuesta y de entrada de la API (records) |
+| `repository` | Consultas a tablas y vistas, y llamadas a los procedimientos almacenados |
+| `service` | Reglas de la aplicación (hash de contraseñas, inicio de sesión, validaciones) y conversión a DTO |
 | `controller` | Endpoints REST |
-| `service` | Reglas que se resuelven en la aplicación (hash de contraseñas, inicio de sesión) |
-| `repository` | Consultas a vistas y tablas, y llamadas a procedimientos almacenados |
-| `dto` | Objetos de entrada y salida de la API (records), incluidas las filas de las vistas |
 | `exception` | Manejo de errores: los `SIGNAL SQLSTATE '45000'` de MySQL llegan al cliente como 400 con su mensaje |
 
 El usuario de base de datos `bountyline_app` solo puede consultar y ejecutar procedimientos, así que toda escritura pasa por la lógica de la base.
 
 ## Endpoints
 
-| Método | Ruta | Procedimiento o vista |
+| Entidad | Método y ruta | Procedimiento o vista |
 | :--- | :--- | :--- |
-| GET | `/api/salud` | |
-| POST | `/api/cuentas/registro` | `sp_registrar_cuenta` |
-| POST | `/api/cuentas/login` | |
-| GET | `/api/catalogos/zonas` · `/api/catalogos/especialidades` | |
-| POST | `/api/catalogos/zonas` · `/api/catalogos/especialidades` | `sp_crear_zona` · `sp_crear_especialidad` |
-| GET | `/api/billeteras/{idCuenta}` | |
-| POST | `/api/billeteras/{idCuenta}/recargas` | `sp_recargar_saldo` |
-| GET | `/api/misiones?estado=&idUsuario=&idCazarrecompensas=` | `v_mision_detalle` |
-| GET | `/api/misiones/{id}` | `v_mision_detalle` |
-| POST | `/api/misiones` | `sp_publicar_mision` |
-| GET / POST | `/api/misiones/{id}/postulaciones` | `sp_postular`, `fn_puntaje_match` |
-| GET | `/api/misiones/{id}/sugerencias?limite=5` | `sp_sugerir_cazarrecompensas` |
-| POST | `/api/misiones/{id}/asignacion` | `sp_asignar_cazarrecompensas` |
-| POST | `/api/misiones/{id}/inicio` | `sp_iniciar_mision` |
-| POST | `/api/misiones/{id}/cierre` | `sp_cerrar_mision` |
-| POST | `/api/misiones/{id}/cancelacion` | `sp_cancelar_mision` |
-| POST | `/api/misiones/{id}/calificacion` | `sp_calificar_mision` |
-| GET | `/api/cazarrecompensas?idZona=&disponibilidad=` | `v_cazarrecompensas_perfil` |
-| GET / POST | `/api/reportes` | `sp_crear_reporte` |
-| POST | `/api/reportes/{id}/resolucion` | `sp_resolver_reporte` |
+| Cuenta | `GET /api/cuentas?rol=&estado=` · `GET /api/cuentas/{id}` | |
+| | `POST /api/cuentas/registro` | `sp_registrar_cuenta` |
+| | `POST /api/cuentas/login` | |
+| | `PUT /api/cuentas/{id}/correo` | `sp_cambiar_correo` |
+| | `PUT /api/cuentas/{id}/estado` | `sp_cambiar_estado_cuenta` |
+| Usuario | `GET /api/usuarios` · `GET /api/usuarios/{id}` | |
+| | `PUT /api/usuarios/{id}` | `sp_actualizar_usuario` |
+| Cazarrecompensas | `GET /api/cazarrecompensas?idZona=&disponibilidad=` · `GET /api/cazarrecompensas/{id}` | `v_cazarrecompensas_perfil` |
+| | `PUT /api/cazarrecompensas/{id}` | `sp_actualizar_cazarrecompensas` |
+| CazarrecompensasEspecialidad | `GET /api/cazarrecompensas/{id}/especialidades` | |
+| | `POST /api/cazarrecompensas/{id}/especialidades` | `sp_guardar_especialidad_caz` |
+| | `DELETE /api/cazarrecompensas/{id}/especialidades/{idEspecialidad}` | `sp_quitar_especialidad_caz` |
+| Administrador | `GET /api/administradores` · `GET /api/administradores/{id}` | |
+| Billetera | `GET /api/billeteras/{idCuenta}` | |
+| | `POST /api/billeteras/{idCuenta}/recargas` | `sp_recargar_saldo` |
+| Movimiento | `GET /api/movimientos?idCuenta=&idMision=&limite=` | |
+| Zona | `GET /api/zonas` · `GET /api/zonas/{id}` | |
+| | `POST /api/zonas` · `PUT /api/zonas/{id}` | `sp_crear_zona` · `sp_actualizar_zona` |
+| Especialidad | `GET /api/especialidades` · `GET /api/especialidades/{id}` | |
+| | `POST /api/especialidades` · `PUT /api/especialidades/{id}` | `sp_crear_especialidad` · `sp_actualizar_especialidad` |
+| Misión | `GET /api/misiones?estado=&idUsuario=&idCazarrecompensas=` · `GET /api/misiones/{id}` | `v_mision_detalle` |
+| | `POST /api/misiones` | `sp_publicar_mision` |
+| | `GET /api/misiones/{id}/sugerencias?limite=5` | `sp_sugerir_cazarrecompensas` |
+| | `POST /api/misiones/{id}/asignacion` | `sp_asignar_cazarrecompensas` |
+| | `POST /api/misiones/{id}/inicio` | `sp_iniciar_mision` |
+| | `POST /api/misiones/{id}/cierre` | `sp_cerrar_mision` |
+| | `POST /api/misiones/{id}/cancelacion` | `sp_cancelar_mision` |
+| Postulación | `GET /api/postulaciones?idMision=&idCazarrecompensas=` | `fn_puntaje_match` |
+| | `POST /api/postulaciones` | `sp_postular` |
+| Calificación | `GET /api/calificaciones?idMision=&idCazarrecompensas=` | |
+| | `POST /api/calificaciones` | `sp_calificar_mision` |
+| Reporte | `GET /api/reportes?estado=` · `GET /api/reportes/{id}` | |
+| | `POST /api/reportes` | `sp_crear_reporte` |
+| | `POST /api/reportes/{id}/resolucion` | `sp_resolver_reporte` |
+| AuditoriaCuenta | `GET /api/auditoria-cuentas?idCuenta=` | |
+| | `GET /api/salud` | Prueba de conexión |
+
+Los movimientos y la auditoría solo se consultan: los crean los procedimientos y los triggers, y la base no deja modificarlos.
 
 Cuentas de prueba (contraseña `BountyLine2026*`): `axiom_47@bountyline.gg` (usuario), `vanta_k@bountyline.gg` (cazarrecompensas), `admin@bountyline.gg` (administrador).
 
-Por ahora la identidad viaja en el cuerpo de cada petición (`idUsuario`, `idCazarrecompensas`, `idAdministrador`) a partir de lo que devuelve `/login`. La protección con token queda para una etapa posterior.
+Por ahora la identidad viaja en el cuerpo de cada petición (`idUsuario`, `idCazarrecompensas`, `idAdministrador`) a partir de lo que devuelve `/login`.
