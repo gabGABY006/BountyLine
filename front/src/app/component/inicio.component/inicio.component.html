@@ -69,8 +69,8 @@
           <input [type]="mostrarContrasenia ? 'text' : 'password'"
                  name="password"
                  [(ngModel)]="contrasenia"
-                 required minlength="6"
-                 placeholder="Mínimo 6 caracteres">
+                 required
+                 placeholder="Tu contraseña">
           <button type="button"
                   (click)="mostrarContrasenia = !mostrarContrasenia">
             {{ mostrarContrasenia ? 'OCULTAR' : 'VER' }}
@@ -80,8 +80,8 @@
 
       <p class="feedback" *ngIf="mensaje">{{ mensaje }}</p>
 
-      <button class="auth-submit" type="submit">
-        ACCEDER A LA RED →
+      <button class="auth-submit" type="submit" [disabled]="cargando">
+        {{ cargando ? 'VERIFICANDO...' : 'ACCEDER A LA RED →' }}
       </button>
 
       <p class="switch-link">

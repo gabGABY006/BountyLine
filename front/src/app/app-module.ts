@@ -1,5 +1,6 @@
 import { NgModule, provideBrowserGlobalErrorListeners } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
+import { provideHttpClient, withFetch } from '@angular/common/http';
 import { AppRoutingModule } from './app-routing-module';
 import { AppComponent } from './app';
 import { CommonModule } from '@angular/common';
@@ -52,7 +53,7 @@ import { MisTrabajosComponent } from './component/cazarecompensas.component/mis-
     MisTrabajosComponent,
   ],
   imports: [BrowserModule, AppRoutingModule, CommonModule, FormsModule],
-  providers: [provideBrowserGlobalErrorListeners()],
+  providers: [provideBrowserGlobalErrorListeners(), provideHttpClient(withFetch())],
   bootstrap: [AppComponent],
 })
 export class AppModule {}
