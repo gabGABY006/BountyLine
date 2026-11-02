@@ -29,12 +29,12 @@
     <p class="eyebrow">RECARGA SIMULADA</p>
     <h2>Añadir créditos</h2>
   </div>
-  <form (submit)="recargar($event, monto, metodo)">
+  <form (submit)="recargar($event, monto)">
     <input #monto name="monto" type="number" placeholder="Monto en créditos" />
     <select #metodo name="metodo">
       <option *ngFor="let m of metodos">{{ m }}</option>
     </select>
-    <button type="submit">RECARGAR SALDO</button>
+    <button type="submit" [disabled]="enviando">{{ enviando ? 'PROCESANDO...' : 'RECARGAR SALDO' }}</button>
     <p class="form-error" *ngIf="formError" role="alert">{{ formError }}</p>
   </form>
 </section>
@@ -46,7 +46,7 @@
       <p class="eyebrow">HISTORIAL</p>
       <h2>Movimientos recientes</h2>
     </div>
-    <span>ÚLTIMOS 30 DÍAS</span>
+    <span>ÚLTIMOS MOVIMIENTOS</span>
   </div>
 
   <div class="movement-table">
