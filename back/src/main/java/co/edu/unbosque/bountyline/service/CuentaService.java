@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import co.edu.unbosque.bountyline.dto.CuentaDtos;
 import co.edu.unbosque.bountyline.exception.ReglaNegocioException;
+import co.edu.unbosque.bountyline.model.Cuenta;
 import co.edu.unbosque.bountyline.repository.CuentaRepository;
 
 @Service
@@ -51,14 +52,14 @@ public class CuentaService {
 
     /** Inicio de sesión básico con correo y contraseña (S16). */
     public CuentaDtos.Sesion iniciarSesion(CuentaDtos.Login login) {
-        CuentaRepository.Credenciales c = cuentas.buscarPorCorreo(login.correo().trim().toLowerCase())
+        Cuenta c = cuentas.buscarPorCorreo(login.correo().trim().toLowerCase())
                 .orElseThrow(() -> new ReglaNegocioException("Correo o contraseña incorrectos."));
-        if (!encoder.matches(login.contrasena(), c.contrasenaHash())) {
+        if (!encoder.matches(login.contrasena(), c.getContrasenaHash())) {
             throw new ReglaNegocioException("Correo o contraseña incorrectos.");
         }
-        if ("SUSPENDIDA".equals(c.estado())) {
+        if ("SUSPENDIDA".equals(c.getEstado())) {
             throw new ReglaNegocioException("La cuenta está suspendida.");
         }
-        return new CuentaDtos.Sesion(c.idCuenta(), c.alias(), c.rol());
+        return new CuentaDtos.Sesion(c.getIdCuenta(), c.getAlias(), c.getRol());
     }
 }

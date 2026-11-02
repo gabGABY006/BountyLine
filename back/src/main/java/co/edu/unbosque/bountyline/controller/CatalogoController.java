@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import co.edu.unbosque.bountyline.dto.CatalogoDtos;
 import co.edu.unbosque.bountyline.dto.CuentaDtos;
+import co.edu.unbosque.bountyline.model.Especialidad;
+import co.edu.unbosque.bountyline.model.Zona;
 import co.edu.unbosque.bountyline.repository.CatalogoRepository;
 
 import jakarta.validation.Valid;
@@ -27,12 +29,12 @@ public class CatalogoController {
     }
 
     @GetMapping("/zonas")
-    public List<CatalogoDtos.Zona> zonas() {
+    public List<Zona> zonas() {
         return catalogos.zonas();
     }
 
     @GetMapping("/especialidades")
-    public List<CatalogoDtos.Especialidad> especialidades() {
+    public List<Especialidad> especialidades() {
         return catalogos.especialidades();
     }
 

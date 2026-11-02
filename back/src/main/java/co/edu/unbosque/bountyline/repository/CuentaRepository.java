@@ -6,12 +6,10 @@ import java.util.Optional;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
+import co.edu.unbosque.bountyline.model.Cuenta;
+
 @Repository
 public class CuentaRepository {
-
-    /** Datos mínimos para validar el inicio de sesión. */
-    public record Credenciales(Long idCuenta, String alias, String rol, String estado, String contrasenaHash) {
-    }
 
     private final JdbcTemplate jdbc;
     private final Procedimientos procedimientos;
@@ -21,11 +19,12 @@ public class CuentaRepository {
         this.procedimientos = procedimientos;
     }
 
-    public Optional<Credenciales> buscarPorCorreo(String correo) {
-        List<Credenciales> filas = jdbc.query(
-                "SELECT id_cuenta, alias, rol, estado, contrasena_hash FROM cuenta WHERE correo = ?",
-                (rs, i) -> new Credenciales(rs.getLong("id_cuenta"), rs.getString("alias"), rs.getString("rol"),
-                        rs.getString("estado"), rs.getString("contrasena_hash")),
+    public Optional<Cuenta> buscarPorCorreo(String correo) {
+        List<Cuenta> filas = jdbc.query(
+                "SELECT id_cuenta, correo, alias, contrasena_hash, rol, estado, fecha_registro FROM cuenta WHERE correo = ?",
+                (rs, i) -> new Cuenta(rs.getLong("id_cuenta"), rs.getString("correo"), rs.getString("alias"),
+                        rs.getString("contrasena_hash"), rs.getString("rol"), rs.getString("estado"),
+                        Filas.fecha(rs, "fecha_registro")),
                 correo);
         return filas.stream().findFirst();
     }

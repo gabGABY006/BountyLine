@@ -25,10 +25,11 @@ Prueba rápida: <http://localhost:8080/api/salud>
 
 | Paquete | Contenido |
 | :--- | :--- |
+| `model` | Una clase por cada tabla de la base de datos |
 | `controller` | Endpoints REST |
 | `service` | Reglas que se resuelven en la aplicación (hash de contraseñas, inicio de sesión) |
 | `repository` | Consultas a vistas y tablas, y llamadas a procedimientos almacenados |
-| `dto` | Objetos de entrada y salida (records) |
+| `dto` | Objetos de entrada y salida de la API (records), incluidas las filas de las vistas |
 | `exception` | Manejo de errores: los `SIGNAL SQLSTATE '45000'` de MySQL llegan al cliente como 400 con su mensaje |
 
 El usuario de base de datos `bountyline_app` solo puede consultar y ejecutar procedimientos, así que toda escritura pasa por la lógica de la base.

@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import co.edu.unbosque.bountyline.dto.BilleteraDtos;
 import co.edu.unbosque.bountyline.exception.NoEncontradoException;
+import co.edu.unbosque.bountyline.model.Billetera;
 import co.edu.unbosque.bountyline.repository.BilleteraRepository;
 
 import jakarta.validation.Valid;
@@ -26,15 +27,16 @@ public class BilleteraController {
 
     /** Saldo y últimos movimientos de la billetera de una cuenta. */
     @GetMapping("/{idCuenta}")
-    public BilleteraDtos.Billetera ver(@PathVariable Long idCuenta,
-                                       @RequestParam(defaultValue = "50") int movimientos) {
-        return billeteras.porCuenta(idCuenta, movimientos)
+    public BilleteraDtos.Resumen ver(@PathVariable Long idCuenta,
+                                     @RequestParam(defaultValue = "50") int movimientos) {
+        Billetera billetera = billeteras.porCuenta(idCuenta)
                 .orElseThrow(() -> new NoEncontradoException("La cuenta no tiene billetera."));
+        return new BilleteraDtos.Resumen(billetera, billeteras.movimientos(billetera.getIdBilletera(), movimientos));
     }
 
     /** Recarga simulada de créditos (sp_recargar_saldo). */
     @PostMapping("/{idCuenta}/recargas")
-    public BilleteraDtos.Billetera recargar(@PathVariable Long idCuenta,
+    public BilleteraDtos.Resumen recargar(@PathVariable Long idCuenta,
                                             @Valid @RequestBody BilleteraDtos.Recarga recarga) {
         billeteras.recargar(idCuenta, recarga.monto());
         return ver(idCuenta, 50);

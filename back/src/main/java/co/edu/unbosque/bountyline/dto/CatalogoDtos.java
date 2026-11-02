@@ -6,16 +6,10 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
-/** Zonas y especialidades (catálogos administrados, supuesto S32). */
+/** Datos de entrada para crear zonas y especialidades (supuesto S32). */
 public final class CatalogoDtos {
 
     private CatalogoDtos() {
-    }
-
-    public record Zona(Long idZona, String nombre, String descripcion, Integer nivelPeligro) {
-    }
-
-    public record Especialidad(Long idEspecialidad, String nombre, String descripcion) {
     }
 
     public record NuevaZona(

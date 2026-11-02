@@ -7,7 +7,8 @@ import java.util.Optional;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
-import co.edu.unbosque.bountyline.dto.BilleteraDtos;
+import co.edu.unbosque.bountyline.model.Billetera;
+import co.edu.unbosque.bountyline.model.Movimiento;
 
 @Repository
 public class BilleteraRepository {
@@ -20,27 +21,23 @@ public class BilleteraRepository {
         this.procedimientos = procedimientos;
     }
 
-    public Optional<BilleteraDtos.Billetera> porCuenta(Long idCuenta, int limiteMovimientos) {
-        List<BilleteraDtos.Billetera> filas = jdbc.query(
+    public Optional<Billetera> porCuenta(Long idCuenta) {
+        return jdbc.query(
                 "SELECT id_billetera, id_cuenta, saldo_disponible, saldo_retenido, fecha_actualizacion "
                         + "FROM billetera WHERE id_cuenta = ?",
-                (rs, i) -> {
-                    Long idBilletera = rs.getLong("id_billetera");
-                    return new BilleteraDtos.Billetera(idBilletera, rs.getLong("id_cuenta"),
-                            rs.getBigDecimal("saldo_disponible"), rs.getBigDecimal("saldo_retenido"),
-                            Filas.fecha(rs, "fecha_actualizacion"), movimientos(idBilletera, limiteMovimientos));
-                },
-                idCuenta);
-        return filas.stream().findFirst();
+                (rs, i) -> new Billetera(rs.getLong("id_billetera"), rs.getLong("id_cuenta"),
+                        rs.getBigDecimal("saldo_disponible"), rs.getBigDecimal("saldo_retenido"),
+                        Filas.fecha(rs, "fecha_actualizacion")),
+                idCuenta).stream().findFirst();
     }
 
-    private List<BilleteraDtos.Movimiento> movimientos(Long idBilletera, int limite) {
+    public List<Movimiento> movimientos(Long idBilletera, int limite) {
         return jdbc.query(
-                "SELECT id_movimiento, tipo, monto, fecha, descripcion, id_mision FROM movimiento "
+                "SELECT id_movimiento, id_billetera, id_mision, tipo, monto, fecha, descripcion FROM movimiento "
                         + "WHERE id_billetera = ? ORDER BY fecha DESC, id_movimiento DESC LIMIT ?",
-                (rs, i) -> new BilleteraDtos.Movimiento(rs.getLong("id_movimiento"), rs.getString("tipo"),
-                        rs.getBigDecimal("monto"), Filas.fecha(rs, "fecha"), rs.getString("descripcion"),
-                        Filas.largo(rs, "id_mision")),
+                (rs, i) -> new Movimiento(rs.getLong("id_movimiento"), rs.getLong("id_billetera"),
+                        Filas.largo(rs, "id_mision"), rs.getString("tipo"), rs.getBigDecimal("monto"),
+                        Filas.fecha(rs, "fecha"), rs.getString("descripcion")),
                 idBilletera, limite);
     }
 

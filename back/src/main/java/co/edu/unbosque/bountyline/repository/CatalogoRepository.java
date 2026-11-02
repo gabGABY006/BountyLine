@@ -6,6 +6,8 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import co.edu.unbosque.bountyline.dto.CatalogoDtos;
+import co.edu.unbosque.bountyline.model.Especialidad;
+import co.edu.unbosque.bountyline.model.Zona;
 
 @Repository
 public class CatalogoRepository {
@@ -18,16 +20,16 @@ public class CatalogoRepository {
         this.procedimientos = procedimientos;
     }
 
-    public List<CatalogoDtos.Zona> zonas() {
-        return jdbc.query("SELECT id_zona, nombre, descripcion, nivel_peligro FROM zona ORDER BY nombre",
-                (rs, i) -> new CatalogoDtos.Zona(rs.getLong("id_zona"), rs.getString("nombre"),
-                        rs.getString("descripcion"), rs.getInt("nivel_peligro")));
+    public List<Zona> zonas() {
+        return jdbc.query("SELECT id_zona, nombre, descripcion, nivel_peligro, id_administrador FROM zona ORDER BY nombre",
+                (rs, i) -> new Zona(rs.getLong("id_zona"), rs.getString("nombre"), rs.getString("descripcion"),
+                        rs.getInt("nivel_peligro"), rs.getLong("id_administrador")));
     }
 
-    public List<CatalogoDtos.Especialidad> especialidades() {
-        return jdbc.query("SELECT id_especialidad, nombre, descripcion FROM especialidad ORDER BY nombre",
-                (rs, i) -> new CatalogoDtos.Especialidad(rs.getLong("id_especialidad"), rs.getString("nombre"),
-                        rs.getString("descripcion")));
+    public List<Especialidad> especialidades() {
+        return jdbc.query("SELECT id_especialidad, nombre, descripcion, id_administrador FROM especialidad ORDER BY nombre",
+                (rs, i) -> new Especialidad(rs.getLong("id_especialidad"), rs.getString("nombre"),
+                        rs.getString("descripcion"), rs.getLong("id_administrador")));
     }
 
     public Long crearZona(CatalogoDtos.NuevaZona z) {
