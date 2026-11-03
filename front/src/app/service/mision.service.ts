@@ -46,9 +46,11 @@ export interface SugerenciaApi {
 export interface PostulacionApi {
   idMision: number;
   idCazarrecompensas: number;
-  aliasCazarrecompensas: string;
+  alias: string;
+  fechaPostulacion: string;
   mensaje: string | null;
-  fecha: string;
+  estadoPostulacion: string;
+  puntaje: number | null;
 }
 
 @Injectable({ providedIn: 'root' })
