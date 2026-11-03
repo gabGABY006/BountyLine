@@ -14,11 +14,11 @@
   </div>
   <select #zona name="zona">
     <option value="">Todas las zonas</option>
-    <option *ngFor="let z of zonas" [value]="z">{{ z }}</option>
+    <option *ngFor="let z of zonas" [value]="z.nombre">{{ z.nombre }}</option>
   </select>
   <select #especialidad name="especialidad">
     <option value="">Todas las especialidades</option>
-    <option *ngFor="let e of especialidades" [value]="e">{{ e }}</option>
+    <option *ngFor="let e of especialidades" [value]="e.nombre">{{ e.nombre }}</option>
   </select>
   <button type="submit">FILTRAR</button>
   <button type="button" class="clear" (click)="limpiar(texto, zona, especialidad)">LIMPIAR</button>
@@ -26,11 +26,13 @@
 
 <!-- MISIONES DISPONIBLES -->
 <div class="market-grid">
+  <div class="empty-state" *ngIf="cargando">Cargando misiones…</div>
+  <div class="empty-state" *ngIf="error">{{ error }}</div>
   <article class="simple-mission-card" *ngFor="let mission of resultados" [ngClass]="mission.tone">
-    <div class="simple-mission-image"><img [src]="mission.image" alt="" /><span>{{ mission.id }}</span></div>
+    <div class="simple-mission-image"><img [src]="mission.image" alt="" /><span>BL-{{ mission.id }}</span></div>
     <div class="simple-mission-body">
       <div class="mission-card-top">
-        <span>{{ mission.id }}</span>
+        <span>BL-{{ mission.id }}</span>
         <span class="mission-status"><i></i>{{ mission.status }}</span>
       </div>
       <h3>{{ mission.title }}</h3>
@@ -57,7 +59,7 @@
     </div>
   </article>
 
-  <div class="empty-state" *ngIf="resultados.length === cero">
+  <div class="empty-state" *ngIf="!cargando && !error && resultados.length === cero">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="square" aria-hidden="true"><circle cx="12" cy="12" r="8" /><circle cx="12" cy="12" r="3" /><path d="M12 2v3m0 14v3M2 12h3m14 0h3" /></svg>
     <b>SIN MISIONES</b>
     <span>No hay misiones disponibles con esos filtros.</span>
@@ -71,7 +73,7 @@
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="square" stroke-linejoin="miter" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z" /></svg>
     </span>
     <p class="eyebrow">CONFIRMACIÓN REQUERIDA</p>
-    <h2>¿Postularte a {{ pendiente.id }}?</h2>
+    <h2>¿Postularte a BL-{{ pendiente.id }}?</h2>
     <p class="modal-copy">Enviarás tu postulación a «{{ pendiente.title }}». El cliente podrá asignarte la misión.</p>
     <div class="modal-actions">
       <button type="button" (click)="cancelarPostulacion()">VOLVER</button>

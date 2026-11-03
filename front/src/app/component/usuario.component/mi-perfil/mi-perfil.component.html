@@ -2,45 +2,41 @@
   <div>
     <p class="section-kicker"><span>///</span> IDENTIDAD OPERATIVA</p>
     <h1>Mi perfil<span>.</span></h1>
-    <p>
-      {{ mostrarEspecialidades
-        ? 'Mantén tu zona base y especialidades actualizadas para mejorar tus coincidencias.'
-        : 'Mantén tu información actualizada para mejorar tu experiencia.' }}
-    </p>
+    <p>{{ esAdministrador ? 'Consulta tu cuenta de administrador y actualiza tu correo.' : mostrarEspecialidades ? 'Actualiza tu correo, zona base, biografía y especialidades.' : 'Actualiza tu correo y biografía. Tu alias identifica tu cuenta.' }}</p>
   </div>
 </section>
 
 <div class="profile-editor-grid" [class.profile-editor-grid--user]="!mostrarEspecialidades">
   <!-- DATOS DEL PERFIL -->
-  <form class="profile-form panel" (submit)="guardar($event, alias, zona, biografia)">
+  <form class="profile-form panel" (submit)="guardar($event)">
     <div class="editor-avatar">
       <span class="profile-avatar cyan">{{ iniciales }}</span>
       <div>
         <h2>{{ perfil.alias }}</h2>
-        <span><i></i> PERFIL VERIFICADO</span>
+        <span><i></i> IDENTIDAD REGISTRADA</span>
       </div>
     </div>
 
     <label>
-      ALIAS
-      <input #alias name="alias" [value]="perfil.alias" autocomplete="off" />
+      CORREO ELECTRÓNICO
+      <input type="email" name="correo" [(ngModel)]="perfil.correo" autocomplete="email" required maxlength="120" />
     </label>
 
-    <label>
+    <label *ngIf="mostrarEspecialidades">
       ZONA BASE
-      <select #zona name="zona">
-        <option *ngFor="let z of zonas" [value]="z" [selected]="z === perfil.zona">{{ z }}</option>
+      <select name="zona" [(ngModel)]="perfil.idZona" required>
+        <option *ngFor="let z of zonas" [ngValue]="z.idZona">{{ z.nombre }}</option>
       </select>
     </label>
 
-    <label>
+    <label *ngIf="!esAdministrador">
       BIOGRAFÍA
-      <textarea #biografia name="biografia" [value]="perfil.bio"></textarea>
+      <textarea name="biografia" [(ngModel)]="perfil.bio" maxlength="500" placeholder="Cuéntale a la red un poco sobre ti..."></textarea>
     </label>
 
     <p class="form-error" *ngIf="formError" role="alert">{{ formError }}</p>
 
-    <button type="submit">GUARDAR CAMBIOS</button>
+    <button type="submit">{{ esAdministrador ? 'GUARDAR CORREO' : 'GUARDAR CAMBIOS' }}</button>
   </form>
 
   <!-- ESPECIALIDADES -->
@@ -79,12 +75,12 @@
     <h2>Añadir especialidad</h2>
     <p class="modal-copy">Solo puedes elegir especialidades creadas por administración.</p>
     <div class="picker-list">
-      <button type="button" *ngFor="let e of especialidades" [disabled]="yaAnadida(e)" (click)="anadir(e)">
+      <button type="button" *ngFor="let e of especialidades" [disabled]="yaAnadida(e.nombre)" (click)="anadir(e.nombre)">
         <span>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="7" /><path d="M12 2v5m0 10v5M2 12h5m10 0h5" /></svg>
-          {{ e }}
+          {{ e.nombre }}
         </span>
-        {{ yaAnadida(e) ? 'AÑADIDA' : 'SELECCIONAR' }}
+        {{ yaAnadida(e.nombre) ? 'AÑADIDA' : 'SELECCIONAR' }}
       </button>
     </div>
     <button type="button" class="picker-close" (click)="cerrarSelector()">CERRAR</button>

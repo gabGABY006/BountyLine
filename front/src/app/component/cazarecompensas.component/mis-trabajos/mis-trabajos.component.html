@@ -16,6 +16,8 @@
 <div class="workspace-grid">
   <!-- LISTA DE TRABAJOS -->
   <section class="mission-stack">
+    <div class="empty-state" *ngIf="cargando">Cargando tus trabajos…</div>
+    <div class="empty-state" *ngIf="error">{{ error }}</div>
     <div *ngFor="let job of lista" (click)="seleccionar(job)">
       <article class="simple-mission-card" [ngClass]="job.tone" [class.selected]="job.id === selected.id">
         <div class="simple-mission-image"><img [src]="job.image" alt="" /><span>{{ job.id }}</span></div>
@@ -37,7 +39,7 @@
           </div>
           <div class="mission-card-foot">
             <div><small>RECOMPENSA</small><strong>{{ formatear(job.reward) }} <em>CR</em></strong></div>
-            <button type="button" class="compact-primary" (click)="accion($event, job, mensaje)">
+            <button type="button" class="compact-primary" [disabled]="job.status !== 'ASIGNADA'" (click)="accion($event, job)">
               {{ textoAccion(job) }}
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="square" aria-hidden="true"><path d="M5 12h14m-5-5 5 5-5 5" /></svg>
             </button>
@@ -46,7 +48,7 @@
       </article>
     </div>
 
-    <div class="empty-state" *ngIf="lista.length === cero">
+    <div class="empty-state" *ngIf="!cargando && !error && lista.length === cero">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="square" aria-hidden="true"><circle cx="12" cy="12" r="8" /><circle cx="12" cy="12" r="3" /><path d="M12 2v3m0 14v3M2 12h3m14 0h3" /></svg>
       <b>SIN TRABAJOS</b>
       <span>No tienes trabajos en esta pestaña.</span>
@@ -75,20 +77,7 @@
 
     <div class="mini-chat">
       <p class="eyebrow">CANAL DE MISIÓN</p>
-
-      <p class="chat-empty" *ngIf="!tieneCanal">El chat se habilita cuando el cliente te asigna la misión.</p>
-
-      <div class="chat-message" *ngFor="let msg of selected.messages">
-        <span class="avatar" [ngClass]="msg.tono">{{ msg.iniciales }}</span>
-        <p><b>{{ msg.autor }}</b><span>{{ msg.texto }}</span></p>
-      </div>
-
-      <form (submit)="enviarMensaje($event, mensaje)">
-        <input #mensaje placeholder="Escribe un mensaje..." [disabled]="!chatActivo" />
-        <button type="submit" aria-label="Enviar mensaje" [disabled]="!chatActivo">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="square" stroke-linejoin="miter" aria-hidden="true"><path d="m22 2-7 20-4-9-9-4Z" /><path d="M22 2 11 13" /></svg>
-        </button>
-      </form>
+      <p class="chat-empty">El canal privado estará disponible cuando se integre MongoDB.</p>
     </div>
   </aside>
 </div>

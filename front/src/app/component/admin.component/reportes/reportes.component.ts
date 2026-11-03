@@ -1,8 +1,9 @@
-import { Component } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { ApiService, ReporteApi } from '../../../service/api.service';
 
-type Estado = 'PENDIENTE' | 'EN REVISIÓN' | 'RESUELTO';
+type Estado = 'PENDIENTE' | 'DESCARTADO' | 'RESUELTO';
 type Tipo = 'POST' | 'USUARIO';
-type Accion = 'NINGUNA' | 'ELIMINAR_POST' | 'SUSPENDER_USUARIO';
+type Accion = 'NINGUNA' | 'SUSPENDER_USUARIO';
 
 interface Reporte {
   id: string;
@@ -21,59 +22,48 @@ interface Reporte {
   styleUrl: './reportes.component.css',
   templateUrl: './reportes.component.html',
 })
-export class ReportesComponent {
-  reportes: Reporte[] = [
-    { id: 'RPT-2084', tipo: 'POST', objetivo: '65a1f3c2e4b0a1d2c3e4f501', motivo: 'Red de perfiles publicando contratos duplicados para capturar depósitos de garantía.', reportadoPor: 'VANTA_K', hace: '04 MIN', estado: 'PENDIENTE', accion: null },
-    { id: 'RPT-2079', tipo: 'USUARIO', objetivo: 'OPERATOR_19', motivo: 'Seis intentos de autenticación simultáneos con la misma firma desde ubicaciones incompatibles.', reportadoPor: 'SENTINEL_AI', hace: '18 MIN', estado: 'EN REVISIÓN', accion: null },
-    { id: 'RPT-2071', tipo: 'POST', objetivo: '65a1f3c2e4b0a1d2c3e4f502', motivo: 'La entidad contratante rechaza la prueba de entrega del operador en esta publicación.', reportadoPor: 'RØNIN_X', hace: '42 MIN', estado: 'PENDIENTE', accion: null },
-    { id: 'RPT-2066', tipo: 'USUARIO', objetivo: 'KIRA_09', motivo: 'Identidad no verificada usando variaciones del alias y material visual del operador afectado.', reportadoPor: 'NYX', hace: '1 H', estado: 'PENDIENTE', accion: null },
-    { id: 'RPT-2058', tipo: 'POST', objetivo: '65a1f3c2e4b0a1d2c3e4f503', motivo: 'Publicación con datos personales no autorizados en el canal público.', reportadoPor: 'AKIRA_V', hace: '3 H', estado: 'RESUELTO', accion: 'ELIMINAR_POST' },
-  ];
+export class ReportesComponent implements OnInit {
+  constructor(private api: ApiService, private cdr: ChangeDetectorRef) {}
+  reportes: Reporte[] = [];
+  private ids = new Map<string, number>();
+  ngOnInit(): void { this.cargar(); }
+  private cargar(): void { this.api.reportes().subscribe({ next: (xs) => { this.reportes = xs.map((x) => this.adaptar(x)); if (!this.reportes.some((r) => r.id === this.seleccionadoId)) this.seleccionadoId = this.reportes[0]?.id ?? ''; this.cdr.markForCheck(); }, error: () => { this.avisar('No se pudieron cargar los reportes.', 'error'); this.cdr.markForCheck(); } }); }
+  private adaptar(x: ReporteApi): Reporte { const id = `RPT-${x.idReporte}`; this.ids.set(id, x.idReporte); return { id, tipo: x.idContenido ? 'POST' : 'USUARIO', objetivo: x.idContenido ?? x.aliasReportada ?? String(x.idCuentaReportada ?? ''), motivo: x.motivo, reportadoPor: x.aliasReporta, hace: this.hace(x.fechaReporte), estado: x.estado as Estado, accion: x.fechaResolucion ? (x.idCuentaReportada ? 'SUSPENDER_USUARIO' : 'NINGUNA') : null }; }
+  private hace(fecha: string): string { const n = Math.max(0, Math.floor((Date.now() - new Date(fecha).getTime()) / 60000)); return n < 60 ? `${n} MIN` : `${Math.floor(n / 60)} H`; }
 
   filtrosEstado: { valor: 'TODOS' | Estado; texto: string }[] = [
     { valor: 'TODOS', texto: 'TODOS' },
     { valor: 'PENDIENTE', texto: 'PENDIENTE' },
-    { valor: 'EN REVISIÓN', texto: 'EN REVISIÓN' },
+    { valor: 'DESCARTADO', texto: 'DESCARTADOS' },
     { valor: 'RESUELTO', texto: 'RESUELTO' },
   ];
 
   readonly acciones: { valor: Accion; detalle: string }[] = [
     { valor: 'NINGUNA', detalle: 'Cerrar el reporte sin sanción.' },
-    { valor: 'ELIMINAR_POST', detalle: 'Quitar la publicación del feed. Solo para reportes de tipo POST.' },
     { valor: 'SUSPENDER_USUARIO', detalle: 'Suspender la cuenta reportada. Solo para reportes de tipo USUARIO.' },
   ];
 
   busqueda = '';
   filtroEstado: 'TODOS' | Estado = 'TODOS';
-  seleccionadoId = 'RPT-2084';
+  seleccionadoId = '';
 
   resolviendo = false;
   accionElegida: Accion = 'NINGUNA';
   mensaje = '';
   tipoMensaje: 'ok' | 'error' = 'ok';
 
-  // Nuevo reporte
-  creando = false;
-  intentoEnvio = false;
-  nuevo: { tipo: Tipo; objetivo: string; motivo: string } = { tipo: 'POST', objetivo: '', motivo: '' };
-  readonly maxMotivo = 300;
-  private siguienteNumero = 2085;
-  private readonly patronIdPost = /^[a-fA-F0-9]{24}$/;
-
   get total(): number {
     return this.reportes.length;
   }
 
-  get seleccionado(): Reporte {
-    return this.reportes.find(r => r.id === this.seleccionadoId) ?? this.reportes[0];
-  }
+  get seleccionado(): Reporte { return this.reportes.find(r => r.id === this.seleccionadoId) ?? this.reportes[0] ?? { id: '', tipo: 'USUARIO', objetivo: '', motivo: '', reportadoPor: '', hace: '', estado: 'RESUELTO', accion: null }; }
 
   get puedeResolver(): boolean {
-    return this.seleccionado.estado !== 'RESUELTO';
+    return this.seleccionado.estado === 'PENDIENTE';
   }
 
   get abiertos(): number {
-    return this.reportes.filter(r => r.estado !== 'RESUELTO').length;
+    return this.reportes.filter(r => r.estado === 'PENDIENTE').length;
   }
 
   get nivelAmenaza(): string {
@@ -91,27 +81,6 @@ export class ReportesComponent {
     );
   }
 
-  get errorObjetivo(): string {
-    const valor = this.nuevo.objetivo.trim();
-    if (!valor) {
-      return this.nuevo.tipo === 'POST' ? 'Indica el ID del post.' : 'Indica el alias del usuario.';
-    }
-    if (this.nuevo.tipo === 'POST' && !this.patronIdPost.test(valor)) {
-      return 'El ID debe tener 24 caracteres hexadecimales.';
-    }
-    if (this.nuevo.tipo === 'USUARIO' && (valor.length < 3 || valor.length > 30)) {
-      return 'El alias debe tener entre 3 y 30 caracteres.';
-    }
-    return '';
-  }
-
-  get errorMotivo(): string {
-    const motivo = this.nuevo.motivo.trim();
-    if (!motivo) return 'El motivo es obligatorio.';
-    if (motivo.length > this.maxMotivo) return `Máximo ${this.maxMotivo} caracteres.`;
-    return '';
-  }
-
   contar(estado: Estado): number {
     return this.reportes.filter(r => r.estado === estado).length;
   }
@@ -123,28 +92,19 @@ export class ReportesComponent {
   claseEstado(estado: Estado): string {
     const clases: Record<Estado, string> = {
       'PENDIENTE': 'pendiente',
-      'EN REVISIÓN': 'revision',
+      'DESCARTADO': 'revision',
       'RESUELTO': 'resuelto',
     };
     return clases[estado];
   }
 
   accionDisponible(accion: Accion, reporte: Reporte): boolean {
-    if (accion === 'ELIMINAR_POST') return reporte.tipo === 'POST';
     if (accion === 'SUSPENDER_USUARIO') return reporte.tipo === 'USUARIO';
     return true;
   }
 
   seleccionar(reporte: Reporte): void {
     this.seleccionadoId = reporte.id;
-  }
-
-  marcarEnRevision(): void {
-    const reporte = this.seleccionado;
-    if (reporte.estado !== 'PENDIENTE') return;
-
-    this.actualizar(reporte.id, { estado: 'EN REVISIÓN' });
-    this.avisar(`${reporte.id} pasó a revisión.`, 'ok');
   }
 
   abrirResolucion(): void {
@@ -160,55 +120,13 @@ export class ReportesComponent {
       return;
     }
 
-    this.actualizar(reporte.id, { estado: 'RESUELTO', accion: this.accionElegida });
-    this.resolviendo = false;
-    this.avisar(`${reporte.id} resuelto con acción ${this.accionElegida}.`, 'ok');
+    const id = this.ids.get(reporte.id);
+    if (id == null) return;
+    this.api.resolverReporte(id, this.accionElegida === 'NINGUNA' ? 'DESCARTADO' : 'RESUELTO', this.accionElegida === 'SUSPENDER_USUARIO').subscribe({ next: (x) => { this.actualizar(reporte.id, this.adaptar(x)); this.resolviendo = false; this.cargar(); this.avisar(`${reporte.id} resuelto.`, 'ok'); this.cdr.markForCheck(); }, error: () => { this.avisar('No se pudo resolver el reporte.', 'error'); this.cdr.markForCheck(); } });
   }
 
   cancelarResolucion(): void {
     this.resolviendo = false;
-  }
-
-  // NUEVO REPORTE
-
-  abrirNuevo(): void {
-    this.nuevo = { tipo: 'POST', objetivo: '', motivo: '' };
-    this.intentoEnvio = false;
-    this.creando = true;
-  }
-
-  cerrarNuevo(): void {
-    this.creando = false;
-  }
-
-  cambiarTipoNuevo(tipo: Tipo): void {
-    this.nuevo.tipo = tipo;
-    this.nuevo.objetivo = '';
-    this.intentoEnvio = false;
-  }
-
-  crearReporte(): void {
-    this.intentoEnvio = true;
-    if (this.errorObjetivo || this.errorMotivo) return;
-
-    const id = `RPT-${this.siguienteNumero++}`;
-    const nuevoReporte: Reporte = {
-      id,
-      tipo: this.nuevo.tipo,
-      objetivo: this.nuevo.objetivo.trim(),
-      motivo: this.nuevo.motivo.trim(),
-      reportadoPor: 'ADMIN_CORE',
-      hace: 'AHORA',
-      estado: 'PENDIENTE',
-      accion: null,
-    };
-
-    this.reportes = [nuevoReporte, ...this.reportes];
-    this.seleccionadoId = id;
-    this.filtroEstado = 'TODOS';
-    this.busqueda = '';
-    this.creando = false;
-    this.avisar(`${id} creado y en cola de moderación.`, 'ok');
   }
 
   private actualizar(id: string, cambios: Partial<Reporte>): void {
@@ -219,4 +137,5 @@ export class ReportesComponent {
     this.mensaje = texto;
     this.tipoMensaje = tipo;
   }
+
 }

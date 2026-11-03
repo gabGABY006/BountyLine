@@ -9,9 +9,9 @@
       <rect x="5" y="10" width="14" height="11" rx="1" /><path d="M8 10V7a4 4 0 0 1 8 0v3m-4 4v3" />
     </svg>
     <div>
-      <small>REGISTRO INMUTABLE</small>
-      <b>HASH 8F:2A:91</b>
-      <span><i></i> SIN ALTERACIONES</span>
+      <small>BITÁCORA CENTRAL</small>
+      <b>{{ events.length }} EVENTOS</b>
+      <span><i></i> {{ cargando ? 'CARGANDO REGISTROS' : 'ACTUALIZADO AL ENTRAR' }}</span>
     </div>
   </div>
 </section>
@@ -23,6 +23,11 @@
     <span>{{ metric.note }}</span>
   </article>
 </section>
+
+<p class="audit-status" *ngIf="cargando" role="status">Cargando automáticamente la bitácora…</p>
+<p class="audit-status warning" *ngIf="!cargando && fuentesConError.length">
+  No se pudieron consultar: {{ fuentesConError.join(', ') }}. Los demás registros sí están disponibles.
+</p>
 
 <section class="admin-panel audit-panel">
   <div class="report-toolbar">
@@ -51,7 +56,7 @@
     <div class="report-empty" *ngIf="visible.length === 0">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="square" aria-hidden="true"><circle cx="11" cy="11" r="7" /><path d="m20 20-4-4" /></svg>
       <b>SIN MOVIMIENTOS</b>
-      <span>No hay eventos para este filtro.</span>
+      <span>{{ cargando ? 'Cargando registros…' : error || 'No hay eventos para este filtro.' }}</span>
     </div>
   </div>
 </section>

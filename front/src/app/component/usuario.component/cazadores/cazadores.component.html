@@ -14,17 +14,19 @@
   </div>
   <select #zona name="zona">
     <option value="">Todas las zonas</option>
-    <option *ngFor="let z of zonas" [value]="z">{{ z }}</option>
+    <option *ngFor="let z of zonas" [value]="z.nombre">{{ z.nombre }}</option>
   </select>
   <select #especialidad name="especialidad">
     <option value="">Todas las especialidades</option>
-    <option *ngFor="let e of especialidades" [value]="e">{{ e }}</option>
+    <option *ngFor="let e of especialidades" [value]="e.nombre">{{ e.nombre }}</option>
   </select>
   <button type="submit">BUSCAR</button>
   <button type="button" class="clear" (click)="limpiar(alias, zona, especialidad)">LIMPIAR</button>
 </form>
 
 <div class="workspace-grid">
+  <div class="empty-state" *ngIf="cargando">Cargando cazarrecompensas…</div>
+  <div class="empty-state" *ngIf="error">{{ error }}</div>
   <!-- LISTA -->
   <section class="panel compact-panel">
     <div class="panel-heading">

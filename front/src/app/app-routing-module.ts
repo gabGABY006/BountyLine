@@ -36,6 +36,7 @@ const routes: Routes = [
       { path: 'feed', component: FeedAdminComponent },
       { path: 'catalogos', component: CatalogosComponent },
       { path: 'bitacora', component: BitacoraComponent },
+      { path: 'mi-perfil', component: MiPerfilComponent, data: { esAdministrador: true } },
     ],
   },
 

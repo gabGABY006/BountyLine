@@ -1,6 +1,10 @@
-import { Component, Input } from '@angular/core';
+import { ChangeDetectorRef, Component, Input, OnInit } from '@angular/core';
+import { forkJoin, of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
+import { ApiService } from '../../../service/api.service';
 
 interface AuditEvent {
+  timestamp: number;
   time: string;
   type: string;
   operator: string;
@@ -9,51 +13,67 @@ interface AuditEvent {
   detail: string;
   tone: 'cyan' | 'pink' | 'amber';
 }
+interface AuditMetric { label: string; value: string; note: string; }
 
-interface AuditMetric {
-  label: string;
-  value: string;
-  note: string;
-}
-
-@Component({
-  selector: 'app-bitacora',
-  standalone: false,
-  styleUrl: './bitacora.component.css',
-  templateUrl: './bitacora.component.html',
-})
-export class BitacoraComponent {
-  /** Texto de búsqueda (opcional): si tu topbar tiene buscador, pásalo con [query]="..." */
+@Component({ selector: 'app-bitacora', standalone: false, styleUrl: './bitacora.component.css', templateUrl: './bitacora.component.html' })
+export class BitacoraComponent implements OnInit {
+  constructor(private api: ApiService, private cdr: ChangeDetectorRef) {}
   @Input() query = '';
-
   type = 'TODOS';
-  readonly filters: string[] = ['TODOS', 'PAGO', 'MISIÓN', 'CUENTA', 'REPORTE'];
+  readonly filters = ['TODOS', 'PAGO', 'MISIÓN', 'CUENTA', 'REPORTE', 'MOVIMIENTO'];
+  metrics: AuditMetric[] = [];
+  events: AuditEvent[] = [];
+  cargando = true;
+  error = '';
+  fuentesConError: string[] = [];
 
-  metrics: AuditMetric[] = [
-    { label: 'EVENTOS HOY', value: '184', note: '+18 desde las 12:00' },
-    { label: 'MOVIMIENTOS DE CRÉDITO', value: '62', note: 'Todos conciliados' },
-    { label: 'ACCIONES ADMIN', value: '14', note: '2 requieren revisión' },
-  ];
+  ngOnInit(): void { this.cargar(); }
 
-  events: AuditEvent[] = [
-    { time: '14:32:08', type: 'PAGO', operator: 'KIRA_09', action: 'Pago liberado al cazarrecompensas VANTA_K', reference: 'BL-2014', detail: '5.900 CR', tone: 'cyan' },
-    { time: '14:18:44', type: 'CUENTA', operator: 'ADMIN_CORE', action: 'Cuenta suspendida por revisión de seguridad', reference: 'NULL_SPECTRE', detail: 'RPT-2084', tone: 'pink' },
-    { time: '13:56:12', type: 'MISIÓN', operator: 'AXIOM_47', action: 'Misión publicada y recompensa retenida', reference: 'BL-2048', detail: '12.800 CR', tone: 'amber' },
-    { time: '12:41:03', type: 'CATÁLOGO', operator: 'ADMIN_CORE', action: 'Nueva zona habilitada para toda la red', reference: 'Zona libre', detail: 'Z-05', tone: 'cyan' },
-    { time: '11:27:36', type: 'REEMBOLSO', operator: 'MARA_V', action: 'Misión cancelada y créditos devueltos', reference: 'BL-1982', detail: '4.500 CR', tone: 'amber' },
-    { time: '10:09:51', type: 'REPORTE', operator: 'SENTINEL_AI', action: 'Reporte crítico escalado a moderación', reference: 'RPT-2079', detail: 'PRIORIDAD ALFA', tone: 'pink' },
-  ];
-
-  get visible(): AuditEvent[] {
-    const q = this.query.toLowerCase();
-    return this.events.filter(
-      (e) =>
-        (this.type === 'TODOS' || e.type === this.type) &&
-        `${e.operator} ${e.action} ${e.reference}`.toLowerCase().includes(q),
-    );
+  private cargar(): void {
+    this.cargando = true;
+    this.error = '';
+    this.fuentesConError = [];
+    forkJoin({
+      auditoria: this.api.auditoria().pipe(catchError(() => { this.fuentesConError.push('auditoría'); return of([]); })),
+      movimientos: this.api.movimientos(undefined, 500).pipe(catchError(() => { this.fuentesConError.push('movimientos'); return of([]); })),
+      reportes: this.api.reportes().pipe(catchError(() => { this.fuentesConError.push('reportes'); return of([]); })),
+      misiones: this.api.misiones().pipe(catchError(() => { this.fuentesConError.push('misiones'); return of([]); })),
+    }).subscribe({
+      next: ({ auditoria, movimientos, reportes, misiones }) => {
+      const eventosCuenta: AuditEvent[] = auditoria.map((a) => this.evento(a.fechaCambio, 'CUENTA', a.usuarioBd, `${a.campoModificado} actualizado`, `CUENTA-${a.idCuenta}`, `${a.valorAnterior ?? '—'} → ${a.valorNuevo ?? '—'}`, 'pink'));
+      const eventosMovimiento: AuditEvent[] = movimientos.map((m) => {
+        const tipo = m.tipo === 'PAGO' || m.tipo === 'COBRO' ? 'PAGO' : m.tipo === 'RETENCION' ? 'MISIÓN' : 'MOVIMIENTO';
+        return this.evento(m.fecha, tipo, `BILLETERA-${m.idBilletera}`, m.descripcion ?? m.tipo, m.idMision == null ? `MOV-${m.idMovimiento}` : `MISIÓN-${m.idMision}`, `${m.tipo} · ${Number(m.monto).toLocaleString('es-CO')} CR`, tipo === 'MOVIMIENTO' ? 'amber' : 'cyan');
+      });
+      const eventosReporte: AuditEvent[] = reportes.map((r) => this.evento(r.fechaResolucion ?? r.fechaReporte, 'REPORTE', r.aliasReporta, `Reporte ${r.estado.toLowerCase()}: ${r.motivo}`, `RPT-${r.idReporte}`, r.aliasReportada ?? r.idContenido ?? `CUENTA-${r.idCuentaReportada ?? '—'}`, r.estado === 'PENDIENTE' ? 'pink' : 'amber'));
+      const eventosMision: AuditEvent[] = misiones.map((m) => this.evento(m.fechaPublicacion, 'MISIÓN', m.aliasUsuario, `Misión ${m.estado.toLowerCase()}: ${m.titulo}`, `MISIÓN-${m.idMision}`, `${m.zona} · ${Number(m.montoRecompensa).toLocaleString('es-CO')} CR`, 'cyan'));
+      this.events = [...eventosCuenta, ...eventosMovimiento, ...eventosReporte, ...eventosMision].sort((a, b) => b.timestamp - a.timestamp);
+      this.metrics = [
+        { label: 'EVENTOS VISIBLES', value: String(this.events.length), note: 'Auditoría, operaciones y reportes' },
+        { label: 'MOVIMIENTOS DE CRÉDITO', value: String(movimientos.length), note: 'Hasta 500 registros recientes' },
+        { label: 'REPORTES PENDIENTES', value: String(reportes.filter((r) => r.estado === 'PENDIENTE').length), note: 'Estado actual de moderación' },
+      ];
+      this.cargando = false;
+      if (!auditoria.length && !movimientos.length && !reportes.length && !misiones.length) this.error = this.fuentesConError.length
+        ? 'No se pudieron cargar los registros. Revisa la conexión y los permisos de administrador.'
+        : 'Todavía no hay eventos registrados.';
+      this.cdr.markForCheck();
+      },
+      error: () => {
+        this.error = 'No se pudieron cargar los registros. Revisa la conexión con el backend.';
+        this.cargando = false;
+        this.cdr.markForCheck();
+      },
+    });
   }
 
-  setType(type: string): void {
-    this.type = type;
+  get visible(): AuditEvent[] {
+    const q = this.query.toLocaleLowerCase();
+    return this.events.filter((e) => (this.type === 'TODOS' || e.type === this.type) && `${e.operator} ${e.action} ${e.reference} ${e.detail}`.toLocaleLowerCase().includes(q));
+  }
+  setType(type: string): void { this.type = type; }
+  private evento(fecha: string, type: string, operator: string, action: string, reference: string, detail: string, tone: AuditEvent['tone']): AuditEvent {
+    const timestamp = new Date(fecha).getTime();
+    return { timestamp, time: Number.isFinite(timestamp) ? new Date(timestamp).toLocaleString('es-CO') : '—', type, operator: operator || '—', action, reference, detail, tone };
   }
 }

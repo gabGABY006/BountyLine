@@ -34,7 +34,7 @@
         <span class="catalog-index">Z-{{ pad(i + 1) }}</span>
         <span><b>{{ zone.nombre }}</b><small>{{ zone.descripcion || 'Disponible para perfiles y misiones' }}</small></span>
         <em>ACTIVA</em>
-        <button type="button" [attr.aria-label]="'Opciones de ' + zone.nombre">
+        <button type="button" [attr.aria-label]="'Editar ' + zone.nombre" (click)="editar(zone, 'zone')">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="5" cy="12" r="1" /><circle cx="12" cy="12" r="1" /><circle cx="19" cy="12" r="1" /></svg>
         </button>
       </div>
@@ -61,7 +61,7 @@
         <span class="catalog-index">E-{{ pad(i + 1) }}</span>
         <span><b>{{ specialty.nombre }}</b><small>{{ specialty.descripcion || 'Visible para todos los cazadores' }}</small></span>
         <em>ACTIVA</em>
-        <button type="button" [attr.aria-label]="'Opciones de ' + specialty.nombre">
+        <button type="button" [attr.aria-label]="'Editar ' + specialty.nombre" (click)="editar(specialty, 'specialty')">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="5" cy="12" r="1" /><circle cx="12" cy="12" r="1" /><circle cx="19" cy="12" r="1" /></svg>
         </button>
       </div>
@@ -99,7 +99,7 @@
 <div class="modal-backdrop" *ngIf="modal" (click)="cerrarModal()">
   <form class="form-modal" [class.is-zone]="modal === 'zone'" [class.is-specialty]="modal === 'specialty'" novalidate (click)="$event.stopPropagation()" (submit)="guardar($event)">
     <p class="eyebrow">{{ modal === 'zone' ? 'UBICACIONES OPERATIVAS' : 'TIPOS DE OPERACIÓN' }}</p>
-    <h2>{{ modal === 'zone' ? 'Nueva zona' : 'Nueva especialidad' }}</h2>
+    <h2>{{ editando ? (modal === 'zone' ? 'Editar zona' : 'Editar especialidad') : (modal === 'zone' ? 'Nueva zona' : 'Nueva especialidad') }}</h2>
     <p class="modal-copy">
       {{ modal === 'zone'
       ? 'Será un distrito disponible para perfiles de cazarrecompensas y para publicar misiones.'
@@ -134,7 +134,7 @@
 
     <div class="modal-actions">
       <button type="button" class="btn-secundario" (click)="cerrarModal()">CANCELAR</button>
-      <button type="submit" class="btn-primario">{{ modal === 'zone' ? 'CREAR ZONA' : 'CREAR ESPECIALIDAD' }}</button>
+      <button type="submit" class="btn-primario">{{ editando ? 'GUARDAR CAMBIOS' : (modal === 'zone' ? 'CREAR ZONA' : 'CREAR ESPECIALIDAD') }}</button>
     </div>
   </form>
 </div>
