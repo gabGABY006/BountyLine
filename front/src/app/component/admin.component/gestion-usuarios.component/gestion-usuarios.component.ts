@@ -1,143 +1,39 @@
-import { Component } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { ApiService, CuentaApi } from '../../../service/api.service';
+import { AuthService } from '../../../service/auth.service';
 
 type Estado = 'ACTIVA' | 'SUSPENDIDA' | 'ELIMINADA';
 type Rol = 'NORMAL' | 'CAZARRECOMPENSAS';
 type FiltroEstado = Estado | 'TODAS';
-
-interface Usuario {
-  id: number;
-  codigo: string;
-  alias: string;
-  iniciales: string;
-  correo: string;
-  rol: Rol;
-  estado: Estado;
-  registro: string;
-}
-
-@Component({
-  selector: 'app-gestion-usuarios',
-  standalone: false,
-  styleUrl: './gestion-usuarios.component.css',
-  templateUrl: './gestion-usuarios.component.html',
-})
-export class GestionUsuariosComponent {
-  // Cuenta de la sesión actual (simulada). No puede suspenderse a sí misma.
-  readonly idSesion = 1;
-
-  // Datos simulados con las cuentas semilla de la guía (sección 14).
-  usuarios: Usuario[] = [
-    { id: 1, codigo: 'OP-1001', alias: 'admin', iniciales: 'AD', correo: 'admin@bountyline.com', rol: 'NORMAL', estado: 'ACTIVA', registro: '12 ENE 2026' },
-    { id: 2, codigo: 'OP-1002', alias: 'kira', iniciales: 'KI', correo: 'kira@bountyline.com', rol: 'NORMAL', estado: 'ACTIVA', registro: '03 FEB 2026' },
-    { id: 3, codigo: 'OP-1003', alias: 'solano', iniciales: 'SO', correo: 'solano@bountyline.com', rol: 'NORMAL', estado: 'ACTIVA', registro: '20 FEB 2026' },
-    { id: 4, codigo: 'OP-1004', alias: 'nyx', iniciales: 'NY', correo: 'nyx@bountyline.com', rol: 'NORMAL', estado: 'SUSPENDIDA', registro: '08 MAR 2026' },
-    { id: 5, codigo: 'OP-1005', alias: 'jack', iniciales: 'JA', correo: 'jack@bountyline.com', rol: 'CAZARRECOMPENSAS', estado: 'ACTIVA', registro: '15 MAR 2026' },
-    { id: 6, codigo: 'OP-1006', alias: 'lady', iniciales: 'LA', correo: 'lady@bountyline.com', rol: 'CAZARRECOMPENSAS', estado: 'ACTIVA', registro: '02 ABR 2026' },
-    { id: 7, codigo: 'OP-1007', alias: 'mamba', iniciales: 'MA', correo: 'mamba@bountyline.com', rol: 'CAZARRECOMPENSAS', estado: 'ELIMINADA', registro: '19 ABR 2026' },
-  ];
-
-  filtrosEstado: { valor: FiltroEstado; texto: string }[] = [
-    { valor: 'TODAS', texto: 'TODOS' },
-    { valor: 'ACTIVA', texto: 'ACTIVAS' },
-    { valor: 'SUSPENDIDA', texto: 'SUSPENDIDAS' },
-    { valor: 'ELIMINADA', texto: 'ELIMINADAS' },
-  ];
-
+interface Usuario { id: number; codigo: string; alias: string; iniciales: string; correo: string; rol: Rol; estado: Estado; registro: string; }
+@Component({ selector: 'app-gestion-usuarios', standalone: false, styleUrl: './gestion-usuarios.component.css', templateUrl: './gestion-usuarios.component.html' })
+export class GestionUsuariosComponent implements OnInit {
+  get idSesion(): number { return this.auth.sesion?.idCuenta ?? -1; }
+  usuarios: Usuario[] = [];
+  filtrosEstado: { valor: FiltroEstado; texto: string }[] = [{ valor: 'TODAS', texto: 'TODOS' }, { valor: 'ACTIVA', texto: 'ACTIVAS' }, { valor: 'SUSPENDIDA', texto: 'SUSPENDIDAS' }, { valor: 'ELIMINADA', texto: 'ELIMINADAS' }];
   busqueda = '';
   filtroEstado: FiltroEstado = 'TODAS';
   filtroRol: Rol | 'TODOS' = 'TODOS';
-
-  seleccionadoId = 1;
+  seleccionadoId = -1;
   pendiente: Usuario | null = null;
   mensaje = '';
   tipoMensaje: 'ok' | 'error' = 'ok';
-
-  get total(): number {
-    return this.usuarios.length;
-  }
-
-  get totalCazadores(): number {
-    return this.usuarios.filter(u => u.rol === 'CAZARRECOMPENSAS').length;
-  }
-
-  get seleccionado(): Usuario {
-    return this.usuarios.find(u => u.id === this.seleccionadoId) ?? this.usuarios[0];
-  }
-
-  get usuariosFiltrados(): Usuario[] {
-    const texto = this.busqueda.trim().toLowerCase();
-    return this.usuarios.filter(u =>
-      (this.filtroEstado === 'TODAS' || u.estado === this.filtroEstado) &&
-      (this.filtroRol === 'TODOS' || u.rol === this.filtroRol) &&
-      (!texto || u.alias.toLowerCase().includes(texto) || u.correo.toLowerCase().includes(texto))
-    );
-  }
-
-  contar(estado: Estado): number {
-    return this.usuarios.filter(u => u.estado === estado).length;
-  }
-
-  contarFiltro(valor: FiltroEstado): number {
-    return valor === 'TODAS' ? this.total : this.contar(valor);
-  }
-
-  etiquetaRol(rol: Rol): string {
-    return rol === 'CAZARRECOMPENSAS' ? 'CAZADOR' : 'NORMAL';
-  }
-
-  iconoEstado(estado: Estado): string {
-    const iconos: Record<Estado, string> = {
-      ACTIVA: 'pi-check',
-      SUSPENDIDA: 'pi-ban',
-      ELIMINADA: 'pi-trash',
-    };
-    return iconos[estado];
-  }
-
-  descripcionEstado(estado: Estado): string {
-    const textos: Record<Estado, string> = {
-      ACTIVA: 'Acceso permitido a la red.',
-      SUSPENDIDA: 'Sin acceso a la red hasta que sea reactivada.',
-      ELIMINADA: 'Cuenta dada de baja. No admite cambios de estado.',
-    };
-    return textos[estado];
-  }
-
-  seleccionar(usuario: Usuario): void {
-    this.seleccionadoId = usuario.id;
-  }
-
-  pedirCambio(): void {
-    const cuenta = this.seleccionado;
-    if (cuenta.estado === 'ELIMINADA') return;
-
-    if (cuenta.id === this.idSesion) {
-      this.avisar('No puedes suspender tu propia cuenta.', 'error');
-      return;
-    }
-
-    this.pendiente = cuenta;
-  }
-
-  confirmar(): void {
-    const cuenta = this.pendiente;
-    if (!cuenta) return;
-
-    const nuevoEstado: Estado = cuenta.estado === 'ACTIVA' ? 'SUSPENDIDA' : 'ACTIVA';
-    this.usuarios = this.usuarios.map(u =>
-      u.id === cuenta.id ? { ...u, estado: nuevoEstado } : u
-    );
-
-    this.pendiente = null;
-    this.avisar(`La cuenta ${cuenta.alias} ahora está ${nuevoEstado.toLowerCase()}.`, 'ok');
-  }
-
-  cancelar(): void {
-    this.pendiente = null;
-  }
-
-  private avisar(texto: string, tipo: 'ok' | 'error'): void {
-    this.mensaje = texto;
-    this.tipoMensaje = tipo;
-  }
+  constructor(private api: ApiService, private auth: AuthService, private cdr: ChangeDetectorRef) {}
+  ngOnInit(): void { this.cargar(); }
+  private cargar(): void { this.api.cuentas().subscribe({ next: (xs) => { this.usuarios = xs.map((x) => this.adaptar(x)); if (!this.usuarios.some((x) => x.id === this.seleccionadoId)) this.seleccionadoId = this.usuarios[0]?.id ?? -1; this.cdr.markForCheck(); }, error: () => { this.avisar('No se pudieron cargar las cuentas.', 'error'); this.cdr.markForCheck(); } }); }
+  private adaptar(x: CuentaApi): Usuario { return { id: x.idCuenta, codigo: `OP-${String(x.idCuenta).padStart(4, '0')}`, alias: x.alias, iniciales: x.alias.replace(/[^A-Za-z0-9]/g, '').slice(0, 2).toUpperCase(), correo: x.correo, rol: x.rol === 'CAZARRECOMPENSAS' ? 'CAZARRECOMPENSAS' : 'NORMAL', estado: x.estado as Estado, registro: x.fechaRegistro ? new Date(x.fechaRegistro).toLocaleDateString('es-CO') : '—' }; }
+  get total(): number { return this.usuarios.length; }
+  get totalCazadores(): number { return this.usuarios.filter((u) => u.rol === 'CAZARRECOMPENSAS').length; }
+  get seleccionado(): Usuario { return this.usuarios.find((u) => u.id === this.seleccionadoId) ?? this.usuarios[0] ?? { id: -1, codigo: '—', alias: 'Sin cuentas', iniciales: '--', correo: '—', rol: 'NORMAL', estado: 'ELIMINADA', registro: '—' }; }
+  get usuariosFiltrados(): Usuario[] { const q = this.busqueda.trim().toLowerCase(); return this.usuarios.filter((u) => (this.filtroEstado === 'TODAS' || u.estado === this.filtroEstado) && (this.filtroRol === 'TODOS' || u.rol === this.filtroRol) && (!q || u.alias.toLowerCase().includes(q) || u.correo.toLowerCase().includes(q))); }
+  contar(estado: Estado): number { return this.usuarios.filter((u) => u.estado === estado).length; }
+  contarFiltro(estado: FiltroEstado): number { return estado === 'TODAS' ? this.total : this.contar(estado); }
+  etiquetaRol(rol: Rol): string { return rol === 'CAZARRECOMPENSAS' ? 'CAZADOR' : 'NORMAL'; }
+  iconoEstado(estado: Estado): string { return ({ ACTIVA: 'pi-check', SUSPENDIDA: 'pi-ban', ELIMINADA: 'pi-trash' })[estado]; }
+  descripcionEstado(estado: Estado): string { return ({ ACTIVA: 'Acceso permitido a la red.', SUSPENDIDA: 'Sin acceso a la red hasta que sea reactivada.', ELIMINADA: 'Cuenta dada de baja.' })[estado]; }
+  seleccionar(usuario: Usuario): void { this.seleccionadoId = usuario.id; }
+  pedirCambio(): void { if (this.seleccionado.id === this.idSesion) { this.avisar('No puedes suspender tu propia cuenta.', 'error'); return; } if (this.seleccionado.estado !== 'ELIMINADA') this.pendiente = this.seleccionado; }
+  confirmar(): void { const u = this.pendiente; if (!u) return; const estado = u.estado === 'ACTIVA' ? 'SUSPENDIDA' : 'ACTIVA'; this.api.cambiarEstado(u.id, estado).subscribe({ next: () => { this.pendiente = null; this.cargar(); this.avisar(`La cuenta ${u.alias} ahora está ${estado.toLowerCase()}.`, 'ok'); this.cdr.markForCheck(); }, error: () => { this.avisar('No se pudo cambiar el estado de la cuenta.', 'error'); this.cdr.markForCheck(); } }); }
+  cancelar(): void { this.pendiente = null; }
+  private avisar(texto: string, tipo: 'ok' | 'error'): void { this.mensaje = texto; this.tipoMensaje = tipo; }
 }

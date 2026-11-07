@@ -12,7 +12,6 @@ export type ModoApp = 'NORMAL' | 'CAZARRECOMPENSAS' | 'ADMIN';
 export class NavbarComponent {
   @Input() alias = 'OPERADOR';
   @Input() modo: ModoApp = 'NORMAL';
-  @Input() notificaciones = 0;
 
   termino = '';
 

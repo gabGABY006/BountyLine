@@ -50,6 +50,9 @@ h1, h2, p { margin: 0; }
 .audit-metrics article:nth-child(2) span { color: var(--amber); }
 .audit-metrics article:nth-child(3) span { color: var(--pink); }
 
+.audit-status { margin: 14px 0; padding: 12px 16px; border: 1px solid #31534e; color: var(--cyan); background: rgba(90,245,214,.045); font-size: 14px; }
+.audit-status.warning { border-color: #71552d; color: var(--amber); background: rgba(255,181,71,.045); }
+
 /* ---------- Panel y toolbar ---------- */
 .admin-panel { min-width: 0; border: 1px solid var(--line); background: rgba(13,18,22,.88); }
 .audit-panel { overflow: hidden; }

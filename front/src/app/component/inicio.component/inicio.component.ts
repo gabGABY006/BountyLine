@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService, Rol } from '../../service/auth.service';
@@ -9,7 +9,7 @@ import { AuthService, Rol } from '../../service/auth.service';
   styleUrl: './inicio.component.css',
   templateUrl: './inicio.component.html',
 })
-export class InicioComponent {
+export class InicioComponent implements OnInit, OnDestroy {
   rol: 'usuario' | 'admin' = 'usuario';
   modo: 'normal' | 'cazarrecompensas' = 'cazarrecompensas';
 
@@ -23,7 +23,23 @@ export class InicioComponent {
   constructor(
     private router: Router,
     private auth: AuthService,
+    private cdr: ChangeDetectorRef,
   ) {}
+
+  ngOnInit(): void {
+    this.limpiarCredenciales();
+  }
+
+  ngOnDestroy(): void {
+    this.limpiarCredenciales();
+  }
+
+  private limpiarCredenciales(): void {
+    this.correo = '';
+    this.contrasenia = '';
+    this.recordar = false;
+    this.mostrarContrasenia = false;
+  }
 
   get etiquetaPerfil(): string {
     if (this.rol === 'admin') return 'administrador';
@@ -60,17 +76,20 @@ export class InicioComponent {
     this.auth.login(this.correo, this.contrasenia).subscribe({
       next: (sesion) => {
         this.cargando = false;
+        this.cdr.markForCheck();
         if (sesion.rol !== this.rolEsperado) {
           // Credenciales válidas, pero el perfil elegido no es el de la cuenta
           this.auth.cerrarSesion();
           this.mensaje = `Esta cuenta es de tipo ${sesion.rol}. Selecciona el perfil correcto.`;
           return;
         }
+        this.limpiarCredenciales();
         void this.router.navigate([this.auth.rutaInicio(sesion.rol)]);
       },
       error: (err) => {
         this.cargando = false;
         this.mensaje = this.auth.mensajeDeError(err);
+        this.cdr.markForCheck();
       },
     });
   }

@@ -1,11 +1,16 @@
-import { Component, ElementRef, Input, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
+import { forkJoin } from 'rxjs';
+import { ApiService } from '../../../service/api.service';
+import { AuthService } from '../../../service/auth.service';
+import { Catalogo, CatalogoService } from '../../../service/catalogo.service';
+import { BilleteraService } from '../../../service/billetera.service';
+import { MisionService, SugerenciaApi } from '../../../service/mision.service';
 
 /* =====================================================================
  * MODELOS
  *
- * Cada tarjeta del feed = una publicación (MongoDB) enlazada a una misión
- * (MySQL). El front trabaja con un solo objeto `Mision` que la API arma
- * juntando ambas fuentes:
+ * Datos relacionales de una misión y sus postulaciones. Las interacciones
+ * sociales marcadas abajo dependen de MongoDB y siguen fuera de alcance:
  *
  *   MySQL · Misión ......... id, autor, zona, especialidad, titulo,
  *                            descripcion, recompensa, estado, creadaEn,
@@ -14,8 +19,7 @@ import { Component, ElementRef, Input, ViewChild } from '@angular/core';
  *                            (texto = descripcion, misionId = id)
  *   MongoDB · mensajes_chat . mensajes
  *
- * Cuando exista el back, muévelas a models/mision.ts y reemplaza los datos
- * de ejemplo por un MisionesService.
+ * La pantalla obtiene el ciclo de vida de misiones desde la API Spring.
  * ===================================================================== */
 export type Estado = 'PUBLICADA' | 'ASIGNADA' | 'EN_CURSO' | 'CERRADA' | 'CANCELADA';
 export type Tono = 'cyan' | 'pink' | 'amber';
@@ -23,12 +27,14 @@ export type Accion = 'asignar' | 'cancelar' | 'cerrar';
 export type Vista = 'RED' | 'MIAS';
 
 export interface Autor {
+  idCuenta: number;
   alias: string;
   iniciales: string;
 }
 
 /** Cazarrecompensas con los datos que muestra la interfaz (join en MySQL). */
 export interface Cazador {
+  idCazarrecompensas: number;
   alias: string;
   iniciales: string;
   zona: string;
@@ -94,25 +100,23 @@ export interface Plantilla {
   campos: CampoPlantilla[];
 }
 
-const ago = (minutos: number): string => new Date(Date.now() - minutos * 60000).toISOString();
-
 @Component({
   selector: 'app-misiones',
   standalone: false,
   styleUrl: './misiones.component.css',
   templateUrl: './misiones.component.html',
 })
-export class MisionesComponent {
+export class MisionesComponent implements OnInit {
   /** Texto de búsqueda (opcional): si tu topbar tiene buscador, pásalo con [query]="..." */
   @Input() query = '';
   @ViewChild('detalle') detalle?: ElementRef<HTMLElement>;
 
-  // ---------- Datos de ejemplo (reemplazar por servicios cuando exista el back) ----------
-  readonly miAlias = 'AXIOM_47';
-  readonly miIniciales = 'AX';
+  // ---------- Datos de sesión y catálogo ----------
+  get miAlias(): string { return this.auth.sesion?.alias ?? ''; }
+  get miIniciales(): string { return this.miAlias.replace(/[^A-Za-z0-9]/g, '').slice(0, 2).toUpperCase(); }
   readonly stars: number[] = [1, 2, 3, 4, 5];
   readonly pasos: string[] = ['Publicada', 'Cazador asignado', 'En curso', 'Cierre confirmado'];
-  readonly filtros: string[] = ['TODAS', 'PUBLICADA', 'ASIGNADA', 'EN_CURSO', 'CERRADA'];
+  readonly filtros: string[] = ['TODAS', 'PUBLICADA', 'ASIGNADA', 'EN_CURSO', 'CERRADA', 'CANCELADA'];
   readonly vistas: { id: Vista; texto: string }[] = [
     { id: 'RED', texto: 'RED' },
     { id: 'MIAS', texto: 'MIS MISIONES' },
@@ -120,8 +124,14 @@ export class MisionesComponent {
   readonly motivos: string[] = ['Contenido inapropiado', 'Fraude o engaño', 'Suplantación'];
 
   /** Catálogos: vienen de MySQL (Zona y Especialidad, gestionadas por el administrador). */
-  readonly zonas: string[] = ['Distrito Centro', 'Puerto', 'Zona industrial', 'Suburbios'];
-  readonly especialidades: string[] = ['Recuperación', 'Protección', 'Escolta', 'Venganza', 'Sabotaje'];
+  zonas: string[] = [];
+  especialidades: string[] = [];
+  private zonasApi: Catalogo[] = [];
+  private especialidadesApi: Catalogo[] = [];
+  cazadores: Cazador[] = [];
+  misiones: Mision[] = [];
+  cargando = true;
+  saldoDisponible = 0;
 
   readonly plantillas: Plantilla[] = [
     {
@@ -179,101 +189,10 @@ export class MisionesComponent {
     campos: [{ clave: 'detalle', etiqueta: '¿Qué necesitas?' }],
   };
 
-  /** Cazadores disponibles. Mock de lo que devolvería sp_sugerir_cazarrecompensas. */
-  private readonly cazadores: Cazador[] = [
-    { alias: 'VANTA_K', iniciales: 'VK', zona: 'Distrito Centro', especialidad: 'Recuperación', rating: '4.9', trabajos: 87, match: 0 },
-    { alias: 'RØNIN_X', iniciales: 'RX', zona: 'Puerto', especialidad: 'Protección', rating: '4.8', trabajos: 72, match: 0 },
-    { alias: 'NIGHTMARE', iniciales: 'NM', zona: 'Zona industrial', especialidad: 'Sabotaje', rating: '4.7', trabajos: 64, match: 0 },
-    { alias: 'SPECTRE_8', iniciales: 'S8', zona: 'Suburbios', especialidad: 'Venganza', rating: '4.6', trabajos: 41, match: 0 },
-  ];
-
-  private siguienteId = 2060;
-  saldoDisponible = 42850;
-
-  misiones: Mision[] = [
-    {
-      id: 'BL-2048',
-      autor: { alias: 'AXIOM_47', iniciales: 'AX' },
-      especialidad: 'Recuperación', zona: 'Distrito Centro',
-      titulo: 'Recuperar créditos del Clan Kuro', recompensa: 12800,
-      descripcion: 'Me quitaron créditos en Distrito Centro. Última vez visto: hace 3 días. Necesito que alguien negocie la devolución.',
-      estado: 'PUBLICADA',
-      postulaciones: [
-        { alias: 'VANTA_K', iniciales: 'VK', zona: 'Distrito Centro', especialidad: 'Recuperación', rating: '4.9', trabajos: 87, match: 98, mensaje: 'Conozco la zona.', fecha: ago(40) },
-        { alias: 'NIGHTMARE', iniciales: 'NM', zona: 'Zona industrial', especialidad: 'Sabotaje', rating: '4.7', trabajos: 64, match: 61, mensaje: 'Puedo empezar hoy.', fecha: ago(25) },
-      ],
-      creadaEn: ago(95),
-      etiquetas: ['#RECUPERACIÓN', '#DISTRITO_CENTRO', '#CLAN_KURO'],
-      reacciones: { apoyo: 14 },
-      comentarios: [{ autor: 'KIRA_09', iniciales: 'K9', texto: '¿Hay testigos del robo?', fecha: ago(30) }],
-      mensajes: [],
-    },
-    {
-      id: 'BL-2039',
-      autor: { alias: 'AXIOM_47', iniciales: 'AX' },
-      especialidad: 'Escolta', zona: 'Puerto',
-      titulo: 'Escolta hacia el Puerto Gris', recompensa: 8400,
-      descripcion: 'Necesito escolta desde Distrito Centro hasta Puerto Gris. Salida: esta noche. Llevo un contenedor sellado.',
-      estado: 'EN_CURSO', cazador: 'RØNIN_X',
-      postulaciones: [
-        { alias: 'RØNIN_X', iniciales: 'RX', zona: 'Puerto', especialidad: 'Protección', rating: '4.8', trabajos: 72, match: 92, mensaje: 'Tengo una ruta segura.', fecha: ago(300) },
-      ],
-      creadaEn: ago(400),
-      etiquetas: ['#ESCOLTA', '#PUERTO'],
-      reacciones: { apoyo: 9 },
-      comentarios: [],
-      mensajes: [{ autor: 'RØNIN_X', iniciales: 'RX', texto: 'Tengo una ruta segura. Puedo iniciar en 20 minutos.' }],
-    },
-    {
-      id: 'BL-2014',
-      autor: { alias: 'AXIOM_47', iniciales: 'AX' },
-      especialidad: 'Venganza', zona: 'Zona industrial',
-      titulo: 'Cobrar una deuda al Clan Hoshi', recompensa: 5900,
-      descripcion: 'Quiero cobrarme una ofensa de un lugarteniente del Clan Hoshi. Pasó en Zona industrial la semana pasada. Lo que espero: que pague lo que debe.',
-      estado: 'CERRADA', cazador: 'VANTA_K',
-      postulaciones: [
-        { alias: 'VANTA_K', iniciales: 'VK', zona: 'Distrito Centro', especialidad: 'Recuperación', rating: '4.9', trabajos: 87, match: 58, mensaje: 'Lo tomo.', fecha: ago(3000) },
-      ],
-      creadaEn: ago(3200),
-      etiquetas: ['#VENGANZA', '#ZONA_INDUSTRIAL'],
-      reacciones: { apoyo: 31 },
-      comentarios: [],
-      mensajes: [{ autor: 'VANTA_K', iniciales: 'VK', texto: 'Listo. Entrego el reporte ahora.' }],
-    },
-    {
-      id: 'BL-2051',
-      autor: { alias: 'KIRA_09', iniciales: 'K9' },
-      especialidad: 'Recuperación', zona: 'Zona industrial',
-      titulo: 'Cargamento perdido en el anillo industrial', recompensa: 9600,
-      descripcion: 'Me quitaron un cargamento en Zona industrial. Última vez visto: ayer por la noche. Necesito alguien que conozca los accesos del sector.',
-      estado: 'PUBLICADA',
-      postulaciones: [],
-      creadaEn: ago(12),
-      etiquetas: ['#RECUPERACIÓN', '#ZONA_INDUSTRIAL'],
-      reacciones: { apoyo: 28 },
-      comentarios: [],
-      mensajes: [],
-    },
-    {
-      id: 'BL-2046',
-      autor: { alias: 'NOVA_12', iniciales: 'N1' },
-      especialidad: 'Protección', zona: 'Puerto',
-      titulo: 'Custodia de testigo en el muelle 4', recompensa: 7200,
-      descripcion: 'Necesito protección en Puerto para un testigo clave. Durante las próximas 48 horas. Riesgo principal: seguimiento de un clan rival.',
-      estado: 'PUBLICADA',
-      postulaciones: [],
-      creadaEn: ago(34),
-      etiquetas: ['#PROTECCIÓN', '#PUERTO'],
-      reacciones: { apoyo: 6 },
-      comentarios: [{ autor: 'VANTA_K', iniciales: 'VK', texto: '¿Cuántas personas necesitan cobertura?', fecha: ago(20) }],
-      mensajes: [],
-    },
-  ];
-
   // ---------- Estado de la vista ----------
   vista: Vista = 'RED';
   filtro = 'TODAS';
-  selectedId = 'BL-2048';
+  selectedId = '';
   cazadorSel = '';
   formError = '';
   pendiente: { accion: Accion; texto: string } | null = null;
@@ -290,8 +209,37 @@ export class MisionesComponent {
   etiquetasNuevas = '';
   valores: Record<string, string> = {};
 
-  constructor() {
-    this.cazadorSel = this.selected?.postulaciones[0]?.alias ?? '';
+  constructor(private api: ApiService, private auth: AuthService, private catalogos: CatalogoService, private wallet: BilleteraService, private missionApi: MisionService, private cdr: ChangeDetectorRef) {}
+
+  ngOnInit(): void {
+    forkJoin({ zonas: this.catalogos.zonas(), especialidades: this.catalogos.especialidades(), misiones: this.api.misiones(), propias: this.api.mias(), wallet: this.wallet.miBilletera() }).subscribe({
+      next: ({ zonas, especialidades, misiones, propias, wallet }) => {
+        this.zonasApi = zonas; this.especialidadesApi = especialidades;
+        this.zonas = zonas.map((x) => x.nombre); this.especialidades = especialidades.map((x) => x.nombre);
+        const todos = [...misiones, ...propias].filter((m, i, xs) => xs.findIndex((x) => x.idMision === m.idMision) === i);
+        this.misiones = todos.map((m: any) => this.adaptarMision(m));
+        this.saldoDisponible = Number(wallet.saldoDisponible);
+        this.selectedId = this.misiones[0]?.id ?? '';
+        this.cargando = false;
+        this.cdr.markForCheck();
+        if (this.selected) this.cargarPostulaciones(this.selected);
+        const misIds = new Set(this.misiones.filter((m) => this.esMia(m)).map((m) => this.idMision(m)));
+        this.api.calificaciones().subscribe({ next: (xs) => { for (const c of xs) if (misIds.has(c.idMision)) this.calificadas[`BL-${c.idMision}`] = c.puntaje; this.cdr.markForCheck(); }, error: () => this.cdr.markForCheck() });
+      },
+      error: () => { this.cargando = false; this.notify('No se pudieron cargar las misiones. Verifica la conexión con el backend.'); this.cdr.markForCheck(); },
+    });
+  }
+
+  private adaptarMision(m: any): Mision {
+    return { id: `BL-${m.idMision}`, autor: { idCuenta: m.idUsuario, alias: m.aliasUsuario, iniciales: (m.aliasUsuario ?? '').replace(/[^A-Za-z0-9]/g, '').slice(0, 2).toUpperCase() }, especialidad: m.especialidad, zona: m.zona, titulo: m.titulo, recompensa: Number(m.montoRecompensa), descripcion: m.descripcion, estado: m.estado, cazador: m.aliasCazarrecompensas ?? undefined, postulaciones: [], creadaEn: m.fechaPublicacion, etiquetas: [], reacciones: {}, comentarios: [], mensajes: [] };
+  }
+
+  private idMision(m: Mision): number { return Number(m.id.replace(/^BL-/, '')); }
+
+  private cargarPostulaciones(m: Mision): void {
+    const id = this.idMision(m);
+    this.api.postulacionesMision(id).subscribe({ next: (xs) => { m.postulaciones = xs.map((p: any) => ({ idCazarrecompensas: p.idCazarrecompensas, alias: p.alias, iniciales: (p.alias ?? '').replace(/[^A-Za-z0-9]/g, '').slice(0, 2).toUpperCase(), zona: '', especialidad: '', rating: '0.0', trabajos: 0, match: p.puntaje ?? 0, mensaje: p.mensaje ?? '', fecha: p.fechaPostulacion })); this.cazadorSel = m.postulaciones[0]?.alias ?? ''; this.cdr.markForCheck(); }, error: () => { this.notify('No se pudieron cargar las postulaciones.'); this.cdr.markForCheck(); } });
+    this.missionApi.sugerencias(id).subscribe({ next: (xs: SugerenciaApi[]) => { this.cazadores = xs.map((c) => ({ idCazarrecompensas: c.idCazarrecompensas, alias: c.alias, iniciales: c.alias.replace(/[^A-Za-z0-9]/g, '').slice(0, 2).toUpperCase(), zona: c.zona, especialidad: '', rating: Number(c.reputacion ?? 0).toFixed(1), trabajos: c.misionesCompletadas ?? 0, match: c.puntaje })); this.cdr.markForCheck(); }, error: () => { this.cazadores = []; this.cdr.markForCheck(); } });
   }
 
   // ---------- Getters ----------
@@ -427,21 +375,14 @@ export class MisionesComponent {
    * y reputación (hasta 20). Reemplazar por la llamada real al back.
    */
   sugeridosDe(m: Mision): Cazador[] {
-    return this.cazadores
-      .filter((c) => !m.postulaciones.some((p) => p.alias === c.alias))
-      .map((c) => ({
-        ...c,
-        match:
-          (c.zona === m.zona ? 40 : 0) + (c.especialidad === m.especialidad ? 40 : 0) + Math.round(parseFloat(c.rating) * 4),
-      }))
-      .sort((a, b) => b.match - a.match)
-      .slice(0, 3);
+    return this.cazadores.filter((c) => !m.postulaciones.some((p) => p.alias === c.alias));
   }
 
   seleccionar(m: Mision): void {
     this.selectedId = m.id;
     this.calificacion = 0;
     this.cazadorSel = m.postulaciones[0]?.alias ?? '';
+    this.cargarPostulaciones(m);
     if (window.innerWidth <= 1100) {
       this.detalle?.nativeElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
@@ -454,10 +395,7 @@ export class MisionesComponent {
 
   reaccionar(m: Mision, event: Event): void {
     event.stopPropagation();
-    m.miReaccion = !m.miReaccion;
-    const actual = m.reacciones['apoyo'] ?? 0;
-    m.reacciones = { ...m.reacciones, apoyo: Math.max(0, actual + (m.miReaccion ? 1 : -1)) };
-    if (m.miReaccion) this.notify('Reacción registrada');
+    this.notify('Las reacciones se habilitarán con la integración de MongoDB.');
   }
 
   // ---------- Línea de tiempo ----------
@@ -502,40 +440,20 @@ export class MisionesComponent {
       return;
     }
 
-    // Con el back: 1) sp_publicar_mision (MySQL) valida saldo y retiene el monto;
-    //              2) se inserta la publicación en MongoDB con el id de la misión.
-    const nueva: Mision = {
-      id: `BL-${this.siguienteId++}`,
-      autor: { alias: this.miAlias, iniciales: this.miIniciales },
-      especialidad: this.especialidadSel,
-      zona: this.zonaSel,
-      titulo: this.tituloNuevo.trim(),
-      recompensa: monto,
-      descripcion: this.descripcionPrevia,
-      estado: 'PUBLICADA',
-      postulaciones: [],
-      creadaEn: new Date().toISOString(),
-      etiquetas: this.armarEtiquetas(this.especialidadSel, this.zonaSel, this.etiquetasNuevas),
-      reacciones: {},
-      comentarios: [],
-      mensajes: [],
-    };
-
-    this.misiones = [nueva, ...this.misiones];
-    this.saldoDisponible -= monto;
-    this.selectedId = nueva.id;
-    this.cazadorSel = '';
-    this.vista = 'MIAS';
-    this.filtro = 'TODAS';
-    this.formError = '';
-
-    this.tituloNuevo = '';
-    this.especialidadSel = '';
-    this.zonaSel = '';
-    this.recompensaNueva = '';
-    this.etiquetasNuevas = '';
-    this.valores = {};
-    this.notify('Misión publicada y créditos retenidos');
+    const idZona = this.zonasApi.find((z) => z.nombre === this.zonaSel)?.id;
+    const idEspecialidad = this.especialidadesApi.find((e) => e.nombre === this.especialidadSel)?.id;
+    if (!idZona || !idEspecialidad) { this.formError = 'Selecciona una zona y especialidad vigentes del catálogo.'; return; }
+    this.api.publicarMision({ idZona, idEspecialidad, titulo: this.tituloNuevo.trim(), descripcion: this.descripcionPrevia, monto }).subscribe({
+      next: (respuesta) => {
+        const nueva = this.adaptarMision(respuesta);
+        this.misiones = [nueva, ...this.misiones]; this.selectedId = nueva.id; this.cazadorSel = ''; this.vista = 'MIAS'; this.filtro = 'TODAS'; this.formError = '';
+        this.tituloNuevo = ''; this.especialidadSel = ''; this.zonaSel = ''; this.recompensaNueva = ''; this.etiquetasNuevas = ''; this.valores = {};
+        this.wallet.miBilletera().subscribe((b) => { this.saldoDisponible = Number(b.saldoDisponible); this.cdr.markForCheck(); });
+        this.notify('Misión publicada y créditos retenidos');
+        this.cdr.markForCheck();
+      },
+      error: (err) => { this.formError = err?.error?.error ?? 'No se pudo publicar la misión. Revisa tu saldo y vuelve a intentar.'; this.cdr.markForCheck(); },
+    });
   }
 
   // ---------- Acciones sobre la misión (con confirmación) ----------
@@ -554,52 +472,32 @@ export class MisionesComponent {
     this.pendiente = null;
   }
 
-  /** Con el back: sp_asignar_cazarrecompensas / sp_cancelar_mision / sp_cerrar_mision. */
   confirmar(): void {
     const m = this.selected;
     if (!this.pendiente || !m) return;
-
-    switch (this.pendiente.accion) {
-      case 'asignar':
-        m.estado = 'ASIGNADA';
-        m.cazador = this.cazadorSel;
-        this.notify(`Misión asignada a ${this.cazadorSel}`);
-        break;
-      case 'cancelar':
-        m.estado = 'CANCELADA';
-        this.saldoDisponible += m.recompensa;
-        this.notify('Misión cancelada y saldo reembolsado');
-        break;
-      case 'cerrar':
-        m.estado = 'CERRADA';
-        this.notify('Cierre confirmado y pago liberado');
-        break;
-    }
-    this.pendiente = null;
+    const accion = this.pendiente.accion;
+    let request;
+    if (accion === 'asignar') {
+      const candidato = m.postulaciones.find((p) => p.alias === this.cazadorSel);
+      if (!candidato) { this.notify('Selecciona una postulación para asignar.'); return; }
+      request = this.api.asignarMision(this.idMision(m), candidato.idCazarrecompensas);
+    } else if (accion === 'cancelar') request = this.api.cancelarMision(this.idMision(m));
+    else request = this.api.cerrarMision(this.idMision(m));
+    request.subscribe({ next: (r: any) => { const postulaciones = m.postulaciones; Object.assign(m, this.adaptarMision(r)); m.postulaciones = postulaciones; this.pendiente = null; this.notify(accion === 'asignar' ? `Misión asignada a ${this.cazadorSel}` : accion === 'cancelar' ? 'Misión cancelada y saldo reembolsado' : 'Cierre confirmado y pago liberado'); this.wallet.miBilletera().subscribe((b) => { this.saldoDisponible = Number(b.saldoDisponible); this.cdr.markForCheck(); }); this.cdr.markForCheck(); }, error: (err: any) => { this.notify(err?.error?.error ?? 'No se pudo completar la acción.'); this.cdr.markForCheck(); } });
   }
 
   // ---------- Chat privado (dueño ↔ cazador asignado) ----------
   enviarMensaje(event: Event, input: HTMLInputElement): void {
     event.preventDefault();
-    const m = this.selected;
-    const texto = input.value.trim();
-    if (!m || !texto || !this.chatActivo) return;
-    m.mensajes = [...m.mensajes, { autor: this.miAlias, iniciales: this.miIniciales, texto }];
     input.value = '';
+    this.notify('El chat se habilitará con la integración de MongoDB.');
   }
 
   // ---------- Comentarios públicos ----------
   enviarComentario(event: Event, input: HTMLInputElement): void {
     event.preventDefault();
-    const m = this.selected;
-    const texto = input.value.trim();
-    if (!m || !texto || !this.comentariosAbiertos(m)) return;
-    m.comentarios = [
-      ...m.comentarios,
-      { autor: this.miAlias, iniciales: this.miIniciales, texto, fecha: new Date().toISOString() },
-    ];
     input.value = '';
-    this.notify('Comentario añadido');
+    this.notify('Los comentarios se habilitarán con la integración de MongoDB.');
   }
 
   // ---------- Calificación ----------
@@ -611,9 +509,7 @@ export class MisionesComponent {
       this.notify('Elige una calificación de estrellas');
       return;
     }
-    this.calificadas = { ...this.calificadas, [m.id]: this.calificacion };
-    comentario.value = '';
-    this.notify('Calificación enviada');
+    this.api.calificar(this.idMision(m), this.calificacion, comentario.value.trim()).subscribe({ next: () => { this.calificadas = { ...this.calificadas, [m.id]: this.calificacion }; comentario.value = ''; this.notify('Calificación enviada'); this.cdr.markForCheck(); }, error: () => { this.notify('No se pudo enviar la calificación.'); this.cdr.markForCheck(); } });
   }
 
   // ---------- Reporte (tabla Reporte en MySQL, guarda el id de la publicación) ----------
@@ -628,12 +524,17 @@ export class MisionesComponent {
 
   enviarReporte(event: Event): void {
     event.preventDefault();
-    this.reportando = null;
-    this.notify('Reporte enviado a moderación');
+    const m = this.reportando;
+    if (!m) return;
+    const form = event.currentTarget as HTMLFormElement;
+    const data = new FormData(form);
+    const motivo = `${String(data.get('motivo') ?? '')}: ${String(data.get('detalle') ?? '').trim()}`.slice(0, 300);
+    this.api.crearReporte({ idCuentaReportada: m.autor.idCuenta, motivo }).subscribe({ next: () => { this.reportando = null; this.notify('Reporte enviado a moderación'); this.cdr.markForCheck(); }, error: () => { this.notify('No se pudo enviar el reporte.'); this.cdr.markForCheck(); } });
   }
 
   private notify(message: string): void {
     this.toast = message;
-    setTimeout(() => (this.toast = ''), 2800);
+    this.cdr.markForCheck();
+    setTimeout(() => { this.toast = ''; this.cdr.markForCheck(); }, 2800);
   }
 }

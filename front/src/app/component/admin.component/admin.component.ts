@@ -1,4 +1,7 @@
-import { Component } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { forkJoin, of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
+import { ApiService } from '../../service/api.service';
 
 type Tono = 'cian' | 'ambar' | 'rosa';
 
@@ -45,48 +48,64 @@ interface Acceso {
   styleUrl: './admin.component.css',
   templateUrl: './admin.component.html',
 })
-export class AdminComponent {
-  // Datos simulados. Más adelante vendrán de admin.service.
-  canceladas = 38;
+export class AdminComponent implements OnInit {
+  constructor(private api: ApiService, private cdr: ChangeDetectorRef) {}
+  canceladas = 0;
 
-  metricas: Metrica[] = [
-    { indice: '01', etiqueta: 'Usuarios', valor: '128', detalle: '34 cazarrecompensas', icono: 'pi-users', tono: 'cian' },
-    { indice: '02', etiqueta: 'Misiones abiertas', valor: '12', detalle: '7 activas en curso', icono: 'pi-folder-open', tono: 'cian' },
-    { indice: '03', etiqueta: 'Misiones cerradas', valor: '45', detalle: 'Pagos completados', icono: 'pi-check-circle', tono: 'ambar' },
-    { indice: '04', etiqueta: 'Reportes pendientes', valor: '03', detalle: 'Requieren revisión', icono: 'pi-exclamation-triangle', tono: 'rosa' },
-  ];
+  metricas: Metrica[] = [];
 
-  incidentes: Incidente[] = [
-    { id: 'R-014', objetivo: 'GHOST_FEED', motivo: 'Contenido ofensivo en el feed', hace: 'HACE 04 MIN', nivel: 'ALFA' },
-    { id: 'R-013', objetivo: 'OPERATOR_19', motivo: 'Suplantación de alias', hace: 'HACE 18 MIN', nivel: 'ALFA' },
-    { id: 'R-012', objetivo: 'NX-0802', motivo: 'Spam de contratos falsos', hace: 'HACE 42 MIN', nivel: 'BETA' },
-  ];
+  incidentes: Incidente[] = [];
 
-  flujo: Punto[] = [
-    { hora: '06:00', valor: 42 }, { hora: '07:00', valor: 56 }, { hora: '08:00', valor: 48 },
-    { hora: '09:00', valor: 72 }, { hora: '10:00', valor: 61 }, { hora: '11:00', valor: 88 },
-    { hora: '12:00', valor: 70 }, { hora: '13:00', valor: 93 }, { hora: '14:00', valor: 78 },
-    { hora: '15:00', valor: 100 }, { hora: '16:00', valor: 84 }, { hora: '17:00', valor: 96 },
-  ];
+  flujo: Punto[] = [];
 
-  eventos: Evento[] = [
-    { titulo: 'Reporte R-012 resuelto', detalle: 'Sin sanción · ADMIN_CORE', hora: '14:32:08', icono: 'pi-check', tono: 'cian' },
-    { titulo: 'Operador KIRA_09 verificado', detalle: 'Protocolo de identidad completado', hora: '14:28:41', icono: 'pi-user', tono: 'ambar' },
-    { titulo: 'Misión MS-0798 cancelada', detalle: 'Regla automática R-17', hora: '14:21:19', icono: 'pi-ban', tono: 'rosa' },
-    { titulo: 'Zona Orbital actualizada', detalle: 'Catálogo de zonas · ADMIN_CORE', hora: '13:58:02', icono: 'pi-map', tono: 'cian' },
-  ];
+  eventos: Evento[] = [];
+  cargando = true;
+  fuentesConError: string[] = [];
 
   accesos: Acceso[] = [
     { titulo: 'GESTIONAR OPERADORES', detalle: 'Altas, permisos y suspensiones', icono: 'pi-users', ruta: '/admin/usuarios' },
     { titulo: 'EDITAR CATÁLOGOS', detalle: 'Zonas y especialidades', icono: 'pi-map', ruta: '/admin/catalogos' },
   ];
 
+  ngOnInit(): void {
+    this.cargando = true;
+    this.fuentesConError = [];
+    forkJoin({
+      cuentas: this.api.cuentas().pipe(catchError(() => { this.fuentesConError.push('cuentas'); return of([]); })),
+      misiones: this.api.misiones().pipe(catchError(() => { this.fuentesConError.push('misiones'); return of([]); })),
+      reportes: this.api.reportes().pipe(catchError(() => { this.fuentesConError.push('reportes'); return of([]); })),
+      auditoria: this.api.auditoria().pipe(catchError(() => { this.fuentesConError.push('auditoría'); return of([]); })),
+    }).subscribe({
+      next: ({ cuentas, misiones, reportes, auditoria }) => {
+        const cazadores = cuentas.filter((c) => c.rol === 'CAZARRECOMPENSAS').length;
+        const abiertas = misiones.filter((m) => ['PUBLICADA', 'ASIGNADA', 'EN_CURSO'].includes(m.estado)).length;
+        const enCurso = misiones.filter((m) => m.estado === 'EN_CURSO').length;
+        const cerradas = misiones.filter((m) => m.estado === 'CERRADA').length;
+        const pendientes = reportes.filter((r) => r.estado === 'PENDIENTE').length;
+        this.canceladas = misiones.filter((m) => m.estado === 'CANCELADA').length;
+        this.metricas = [
+          { indice: '01', etiqueta: 'Usuarios', valor: String(cuentas.length), detalle: `${cazadores} cazarrecompensas`, icono: 'pi-users', tono: 'cian' },
+          { indice: '02', etiqueta: 'Misiones abiertas', valor: String(abiertas), detalle: `${enCurso} activas en curso`, icono: 'pi-folder-open', tono: 'cian' },
+          { indice: '03', etiqueta: 'Misiones cerradas', valor: String(cerradas), detalle: 'Pagos completados', icono: 'pi-check-circle', tono: 'ambar' },
+          { indice: '04', etiqueta: 'Reportes pendientes', valor: String(pendientes), detalle: 'Requieren revisión', icono: 'pi-exclamation-triangle', tono: 'rosa' },
+        ];
+        this.incidentes = reportes.filter((r) => r.estado === 'PENDIENTE').slice(0, 4).map((r) => ({ id: `R-${r.idReporte}`, objetivo: r.aliasReportada ?? `CUENTA-${r.idCuentaReportada ?? ''}`, motivo: r.motivo, hace: new Date(r.fechaReporte).toLocaleString('es-CO'), nivel: 'ALFA' as const }));
+        const now = Date.now();
+        this.flujo = Array.from({ length: 12 }, (_, i) => { const date = new Date(now - (11 - i) * 3600000); return { hora: date.toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit', hour12: false }), valor: misiones.filter((m) => Math.abs(new Date(m.fechaPublicacion).getTime() - date.getTime()) < 3600000).length }; });
+        this.eventos = auditoria.slice(0, 5).map((a) => ({ titulo: `${a.campoModificado} actualizado`, detalle: `${a.usuarioBd} · cuenta ${a.idCuenta}`, hora: new Date(a.fechaCambio).toLocaleTimeString('es-CO'), icono: 'pi-user', tono: 'cian' as const }));
+        this.cargando = false;
+        this.cdr.markForCheck();
+      },
+      error: () => { this.cargando = false; this.fuentesConError = ['datos del panel']; this.cdr.markForCheck(); },
+    });
+  }
+
   get totalPublicadas(): number {
     return this.flujo.reduce((suma, p) => suma + p.valor, 0);
   }
 
   get maximo(): number {
-    return Math.max(...this.flujo.map(p => p.valor));
+    return Math.max(1, ...this.flujo.map(p => p.valor));
   }
 
   get escala(): number[] {

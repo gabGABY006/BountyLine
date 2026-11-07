@@ -20,18 +20,8 @@
     <span class="shortcut">⌘ K</span>
   </div>
 
-  <!-- Zona Usuario & Notificaciones -->
+  <!-- Zona Usuario -->
   <div class="nav-user-zone">
-    <button
-      class="notif-btn"
-      type="button"
-      [routerLink]="[rutaBase, 'notificaciones']"
-      routerLinkActive="active"
-      [attr.aria-label]="'Notificaciones' + (notificaciones > 0 ? ': ' + notificaciones + ' nuevas' : '')">
-      <i class="pi pi-bell" style="font-size: 1.2rem"></i>
-      <span class="notif-badge" *ngIf="notificaciones > 0">{{ notificaciones }}</span>
-    </button>
-
     <button
       class="user-profile-btn"
       type="button"

@@ -1,8 +1,12 @@
-import { Component } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { Observable } from 'rxjs';
+import { ApiService } from '../../../service/api.service';
 
 interface CatalogItem {
+  id: number;
   nombre: string;
   descripcion: string;
+  nivelPeligro?: number;
 }
 
 interface Mission {
@@ -24,24 +28,14 @@ type CatalogType = 'zone' | 'specialty';
   styleUrl: './catalogos.component.css',
   templateUrl: './catalogos.component.html',
 })
-export class CatalogosComponent {
-  zones: CatalogItem[] = [
-    { nombre: 'Distrito Centro', descripcion: '' },
-    { nombre: 'Puerto', descripcion: '' },
-    { nombre: 'Zona industrial', descripcion: '' },
-    { nombre: 'Suburbios', descripcion: '' },
-    { nombre: 'Zona libre', descripcion: '' },
-  ];
-  specialties: CatalogItem[] = [
-    { nombre: 'Recuperación', descripcion: '' },
-    { nombre: 'Protección', descripcion: '' },
-    { nombre: 'Rastreo', descripcion: '' },
-    { nombre: 'Escolta', descripcion: '' },
-    { nombre: 'Sabotaje', descripcion: '' },
-  ];
+export class CatalogosComponent implements OnInit {
+  constructor(private api: ApiService, private cdr: ChangeDetectorRef) {}
+  zones: CatalogItem[] = [];
+  specialties: CatalogItem[] = [];
 
   // Formulario (modal)
   modal: CatalogType | null = null;
+  editando: CatalogItem | null = null;
   formNombre = '';
   formDescripcion = '';
   formError = '';
@@ -51,18 +45,28 @@ export class CatalogosComponent {
   cancelled: string[] = [];
   toast = '';
 
-  missions: Mission[] = [
-    { id: 'BL-2048', title: 'Recuperar créditos del Clan Kuro', zone: 'Distrito Centro', specialty: 'Recuperación', reward: '12.800', status: 'PUBLICADA', applicants: 4, image: 'https://images.unsplash.com/photo-1519608487953-e999c86e7455?crop=entropy&cs=tinysrgb&fit=crop&fm=jpg&q=85&w=900&h=520' },
-    { id: 'BL-2039', title: 'Escolta hacia el Puerto Gris', zone: 'Puerto', specialty: 'Protección', reward: '8.400', status: 'EN CURSO', applicants: 1, image: 'https://images.unsplash.com/photo-1493514789931-586cb221d7a7?crop=entropy&cs=tinysrgb&fit=crop&fm=jpg&q=85&w=900&h=520' },
-    { id: 'BL-2014', title: 'Rastrear señal fantasma', zone: 'Zona industrial', specialty: 'Rastreo', reward: '5.900', status: 'CERRADA', applicants: 7, image: 'https://images.unsplash.com/photo-1531058020387-3be344556be6?crop=entropy&cs=tinysrgb&fit=crop&fm=jpg&q=85&w=900&h=520' },
-  ];
+  missions: Mission[] = [];
+
+  ngOnInit(): void {
+    this.recargarCatalogos();
+    this.cargarMisiones();
+  }
+
+  private cargarMisiones(): void {
+    this.api.misiones().subscribe({ next: (xs) => { this.missions = xs.map((m) => ({ id: String(m.idMision), title: m.titulo, zone: m.zona, specialty: m.especialidad, reward: Number(m.montoRecompensa).toLocaleString('es-CO'), status: m.estado, applicants: m.postulaciones ?? 0, image: '' })); this.cdr.markForCheck(); }, error: () => { this.notify('No se pudieron cargar las misiones.'); this.cdr.markForCheck(); } });
+  }
+
+  private recargarCatalogos(): void {
+    this.api.zonas().subscribe({ next: (xs) => { this.zones = xs.map((x) => ({ id: x.idZona, nombre: x.nombre, descripcion: x.descripcion ?? '', nivelPeligro: x.nivelPeligro })); this.cdr.markForCheck(); }, error: () => { this.notify('No se pudieron cargar las zonas.'); this.cdr.markForCheck(); } });
+    this.api.especialidades().subscribe({ next: (xs) => { this.specialties = xs.map((x) => ({ id: x.idEspecialidad, nombre: x.nombre, descripcion: x.descripcion ?? '' })); this.cdr.markForCheck(); }, error: () => { this.notify('No se pudieron cargar las especialidades.'); this.cdr.markForCheck(); } });
+  }
 
   get misionesVisibles(): Mission[] {
-    return this.missions.filter((m) => m.status !== 'CERRADA');
+    return this.missions.filter((m) => m.status !== 'CERRADA' && m.status !== 'CANCELADA');
   }
 
   get misionesEnCurso(): number {
-    return this.misionesVisibles.filter((m) => !this.isCancelled(m.id)).length;
+    return this.misionesVisibles.filter((m) => m.status === 'EN_CURSO' && !this.isCancelled(m.id)).length;
   }
 
   pad(n: number): string {
@@ -72,13 +76,19 @@ export class CatalogosComponent {
   // ---------- Formulario de alta ----------
   abrirModal(type: CatalogType): void {
     this.modal = type;
+    this.editando = null;
     this.formNombre = '';
     this.formDescripcion = '';
     this.formError = '';
   }
 
+  editar(item: CatalogItem, type: CatalogType): void {
+    this.modal = type; this.editando = item; this.formNombre = item.nombre; this.formDescripcion = item.descripcion; this.formError = '';
+  }
+
   cerrarModal(): void {
     this.modal = null;
+    this.editando = null;
     this.formError = '';
   }
 
@@ -112,17 +122,16 @@ export class CatalogosComponent {
       this.formError = 'El nombre debe tener al menos 3 caracteres.';
       return;
     }
-    if (lista.some((item) => item.nombre.toLowerCase() === nombre.toLowerCase())) {
+    if (lista.some((item) => item.id !== this.editando?.id && item.nombre.toLowerCase() === nombre.toLowerCase())) {
       this.formError = `Ya existe ${isZone ? 'una zona' : 'una especialidad'} con ese nombre.`;
       return;
     }
 
-    const nuevo: CatalogItem = { nombre, descripcion };
-    if (isZone) this.zones = [...this.zones, nuevo];
-    else this.specialties = [...this.specialties, nuevo];
-
-    this.cerrarModal();
-    this.notify(`${isZone ? 'Zona' : 'Especialidad'} añadida al catálogo`);
+    const datosZona = { nombre, descripcion, nivelPeligro: this.editando?.nivelPeligro ?? 3 };
+    const solicitud: Observable<unknown> = isZone
+      ? this.editando ? this.api.actualizarZona(this.editando.id, datosZona) : this.api.crearZona(datosZona)
+      : this.editando ? this.api.actualizarEspecialidad(this.editando.id, { nombre, descripcion }) : this.api.crearEspecialidad({ nombre, descripcion });
+    solicitud.subscribe({ next: () => { const accion = this.editando ? 'actualizada' : 'añadida'; this.recargarCatalogos(); this.cerrarModal(); this.notify(`${isZone ? 'Zona' : 'Especialidad'} ${accion} en el catálogo`); this.cdr.markForCheck(); }, error: () => { this.formError = 'No se pudo guardar en el catálogo. Revisa que el nombre no exista.'; this.cdr.markForCheck(); } });
   }
 
   // ---------- Misiones ----------
@@ -140,12 +149,12 @@ export class CatalogosComponent {
 
   cancelMission(m: Mission): void {
     if (this.isCancelled(m.id)) return;
-    this.cancelled = [...this.cancelled, m.id];
-    this.notify(`${m.id} cancelada y saldo reembolsado`);
+    this.api.cancelarMision(Number(m.id)).subscribe({ next: () => { this.cancelled = [...this.cancelled, m.id]; this.cargarMisiones(); this.notify(`BL-${m.id} cancelada y saldo reembolsado`); this.cdr.markForCheck(); }, error: () => { this.notify(`No se pudo cancelar BL-${m.id}.`); this.cdr.markForCheck(); } });
   }
 
   private notify(message: string): void {
     this.toast = message;
-    setTimeout(() => (this.toast = ''), 2800);
+    this.cdr.markForCheck();
+    setTimeout(() => { this.toast = ''; this.cdr.markForCheck(); }, 2800);
   }
 }

@@ -32,6 +32,11 @@
 
 h1, h2 { margin: 0; }
 
+.panel-feedback, .panel-vacio { margin: 0; padding: 14px 18px; color: var(--cyan); font-size: 12px; }
+.panel-feedback { border: 1px solid rgba(90, 245, 214, .22); background: rgba(90, 245, 214, .04); }
+.panel-feedback.error { color: var(--amber); border-color: rgba(255, 181, 71, .3); }
+.panel-vacio { color: var(--muted); border-bottom: 1px solid var(--line); }
+
 .kicker {
   margin: 0 0 12px;
   color: var(--muted);

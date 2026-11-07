@@ -7,7 +7,6 @@ import { LayoutComponent } from './component/layout/layout.component';
 import { AdminComponent } from './component/admin.component/admin.component';
 import { GestionUsuariosComponent } from './component/admin.component/gestion-usuarios.component/gestion-usuarios.component';
 import { ReportesComponent } from './component/admin.component/reportes/reportes.component';
-import { FeedAdminComponent } from './component/admin.component/feed-admin.component/feed-admin.component';
 import { BilleteraComponent } from './component/usuario.component/billetera/billetera.component';
 import { MiPerfilComponent } from './component/usuario.component/mi-perfil/mi-perfil.component';
 import { CatalogosComponent} from './component/admin.component/catalogos/catalogos.component';
@@ -33,9 +32,9 @@ const routes: Routes = [
       { path: 'panel', component: AdminComponent },
       { path: 'usuarios', component: GestionUsuariosComponent },
       { path: 'reportes', component: ReportesComponent },
-      { path: 'feed', component: FeedAdminComponent },
       { path: 'catalogos', component: CatalogosComponent },
       { path: 'bitacora', component: BitacoraComponent },
+      { path: 'mi-perfil', component: MiPerfilComponent, data: { esAdministrador: true } },
     ],
   },
 

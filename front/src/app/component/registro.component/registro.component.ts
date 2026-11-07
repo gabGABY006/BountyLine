@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService, RegistroPeticion } from '../../service/auth.service';
@@ -54,19 +54,30 @@ export class RegistroComponent implements OnInit {
     private auth: AuthService,
     private catalogos: CatalogoService,
     private router: Router,
+    private cdr: ChangeDetectorRef,
   ) {}
 
   ngOnInit(): void {
     this.catalogos.zonas().subscribe({
-      next: (z) => (this.zonas = z),
-      error: (err) => (this.mensaje = this.auth.mensajeDeError(err)),
+      next: (z) => {
+        this.zonas = z;
+        this.cdr.markForCheck();
+      },
+      error: (err) => {
+        this.mensaje = this.auth.mensajeDeError(err);
+        this.cdr.markForCheck();
+      },
     });
     this.catalogos.especialidades().subscribe({
       next: (e) => {
         this.especialidades = e;
         e.forEach((x) => (this.nivelesEspecialidad[x.id] = 1));
+        this.cdr.markForCheck();
       },
-      error: (err) => (this.mensaje = this.auth.mensajeDeError(err)),
+      error: (err) => {
+        this.mensaje = this.auth.mensajeDeError(err);
+        this.cdr.markForCheck();
+      },
     });
   }
 
@@ -128,11 +139,13 @@ export class RegistroComponent implements OnInit {
     this.auth.registrar(datos).subscribe({
       next: (sesion) => {
         this.cargando = false;
+        this.cdr.markForCheck();
         void this.router.navigate([this.auth.rutaInicio(sesion.rol)]);
       },
       error: (err) => {
         this.cargando = false;
         this.mensaje = this.auth.mensajeDeError(err);
+        this.cdr.markForCheck();
       },
     });
   }

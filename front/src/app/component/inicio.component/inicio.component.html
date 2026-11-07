@@ -22,7 +22,7 @@
   </section>
 
   <section class="auth-zone">
-    <form class="auth-card" #loginForm="ngForm"
+    <form class="auth-card" #loginForm="ngForm" autocomplete="off"
           (ngSubmit)="iniciarSesion(loginForm)">
 
       <p class="eyebrow">ACCESO AL SISTEMA / NB-001</p>
@@ -57,7 +57,7 @@
 
       <label class="field">
         <span>CORREO ELECTRÓNICO</span>
-        <input type="email" name="correo"
+        <input type="email" name="correo" autocomplete="off"
                [(ngModel)]="correo"
                required email
                placeholder="jugador@neonbounty.net">
@@ -67,7 +67,7 @@
         <span>CONTRASEÑA</span>
         <div class="password-field">
           <input [type]="mostrarContrasenia ? 'text' : 'password'"
-                 name="password"
+                 name="clave-acceso" autocomplete="new-password"
                  [(ngModel)]="contrasenia"
                  required
                  placeholder="Tu contraseña">
