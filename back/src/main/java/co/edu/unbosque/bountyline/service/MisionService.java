@@ -21,8 +21,8 @@ public class MisionService {
         this.misiones = misiones;
     }
 
-    public List<MisionDto> listar(String estado, Long idUsuario, Long idCazarrecompensas) {
-        return misiones.listarDetalle(estado, idUsuario, idCazarrecompensas);
+    public List<MisionDto> listar(MisionDto.Filtro filtro) {
+        return misiones.listarDetalle(filtro);
     }
 
     public MisionDto buscar(Long idMision) {

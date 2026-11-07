@@ -17,8 +17,13 @@ public class CazarrecompensasService {
         this.cazarrecompensas = cazarrecompensas;
     }
 
-    public List<CazarrecompensasDto> listar(Long idZona, String disponibilidad) {
-        return cazarrecompensas.listarPerfiles(idZona, disponibilidad);
+    public List<CazarrecompensasDto> listar(String alias, Long idZona, Long idEspecialidad, String disponibilidad) {
+        return cazarrecompensas.listarPerfiles(alias, idZona, idEspecialidad, disponibilidad);
+    }
+
+    public CazarrecompensasDto.Resumen resumen(Long idCazarrecompensas) {
+        buscar(idCazarrecompensas);
+        return cazarrecompensas.resumen(idCazarrecompensas);
     }
 
     public CazarrecompensasDto buscar(Long idCazarrecompensas) {

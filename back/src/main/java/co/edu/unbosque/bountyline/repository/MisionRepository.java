@@ -37,8 +37,11 @@ public class MisionRepository {
                 Filas.entero(rs, "postulaciones"));
     }
 
-    /** Filtros opcionales: estado, usuario que publicó y cazarrecompensas asignado. */
-    public List<MisionDto> listarDetalle(String estado, Long idUsuario, Long idCazarrecompensas) {
+    /** Filtros opcionales: estado, dueño, asignado, zona, especialidad y texto en título o descripción. */
+    public List<MisionDto> listarDetalle(MisionDto.Filtro f) {
+        String estado = f.estado();
+        Long idUsuario = f.idUsuario();
+        Long idCazarrecompensas = f.idCazarrecompensas();
         StringBuilder sql = new StringBuilder(SELECT_DETALLE).append(" WHERE 1 = 1");
         List<Object> args = new ArrayList<>();
         if (estado != null && !estado.isBlank()) {
@@ -52,6 +55,20 @@ public class MisionRepository {
         if (idCazarrecompensas != null) {
             sql.append(" AND id_cazarrecompensas = ?");
             args.add(idCazarrecompensas);
+        }
+        if (f.idZona() != null) {
+            sql.append(" AND id_zona = ?");
+            args.add(f.idZona());
+        }
+        if (f.idEspecialidad() != null) {
+            sql.append(" AND id_especialidad = ?");
+            args.add(f.idEspecialidad());
+        }
+        if (f.texto() != null && !f.texto().isBlank()) {
+            sql.append(" AND (titulo LIKE ? OR descripcion LIKE ?)");
+            String patron = Filas.contiene(f.texto());
+            args.add(patron);
+            args.add(patron);
         }
         sql.append(" ORDER BY fecha_publicacion DESC, id_mision DESC");
         return jdbc.query(sql.toString(), MisionRepository::mapearDetalle, args.toArray());

@@ -33,9 +33,19 @@ public class CazarrecompensasRepository {
     }
 
     /** Búsqueda manual con filtros (RF-06). */
-    public List<CazarrecompensasDto> listarPerfiles(Long idZona, String disponibilidad) {
-        StringBuilder sql = new StringBuilder(SELECT_PERFIL).append(" WHERE 1 = 1");
+    public List<CazarrecompensasDto> listarPerfiles(String alias, Long idZona, Long idEspecialidad,
+                                                    String disponibilidad) {
+        StringBuilder sql = new StringBuilder(SELECT_PERFIL).append(" WHERE estado_cuenta = 'ACTIVA'");
         List<Object> args = new ArrayList<>();
+        if (alias != null && !alias.isBlank()) {
+            sql.append(" AND alias LIKE ?");
+            args.add(Filas.contiene(alias));
+        }
+        if (idEspecialidad != null) {
+            sql.append(" AND id_cazarrecompensas IN (SELECT id_cazarrecompensas FROM cazarrecompensas_especialidad "
+                    + "WHERE id_especialidad = ?)");
+            args.add(idEspecialidad);
+        }
         if (idZona != null) {
             sql.append(" AND id_zona = ?");
             args.add(idZona);
@@ -60,6 +70,28 @@ public class CazarrecompensasRepository {
                 (rs, i) -> new Cazarrecompensas(rs.getLong("id_cazarrecompensas"), rs.getLong("id_zona"),
                         rs.getString("biografia"), rs.getString("disponibilidad"), rs.getBigDecimal("reputacion")),
                 idCazarrecompensas).stream().findFirst();
+    }
+
+    /** Totales de la pantalla de ganancias, calculados en la base. */
+    public CazarrecompensasDto.Resumen resumen(Long idCazarrecompensas) {
+        return jdbc.queryForObject(
+                "SELECT COALESCE((SELECT SUM(mv.monto) FROM movimiento mv JOIN billetera b ON b.id_billetera = mv.id_billetera "
+                        + "WHERE b.id_cuenta = ? AND mv.tipo = 'COBRO'), 0) AS total_cobrado, "
+                        + "COALESCE((SELECT SUM(mv.monto) FROM movimiento mv JOIN billetera b ON b.id_billetera = mv.id_billetera "
+                        + "WHERE b.id_cuenta = ? AND mv.tipo = 'COBRO' AND mv.fecha >= NOW() - INTERVAL 30 DAY), 0) AS cobrado_30_dias, "
+                        + "fn_misiones_completadas(?) AS misiones_completadas, "
+                        + "(SELECT COUNT(*) FROM mision WHERE id_cazarrecompensas = ? AND estado IN ('ASIGNADA', 'EN_CURSO')) AS misiones_activas, "
+                        + "(SELECT COUNT(*) FROM postulacion WHERE id_cazarrecompensas = ? AND estado_postulacion = 'PENDIENTE') AS postulaciones_pendientes, "
+                        + "(SELECT COUNT(*) FROM calificacion c JOIN mision m ON m.id_mision = c.id_mision WHERE m.id_cazarrecompensas = ?) AS calificaciones, "
+                        + "(SELECT reputacion FROM cazarrecompensas WHERE id_cazarrecompensas = ?) AS reputacion, "
+                        + "fn_saldo_disponible(?) AS saldo_disponible",
+                (rs, i) -> new CazarrecompensasDto.Resumen(rs.getBigDecimal("total_cobrado"),
+                        rs.getBigDecimal("cobrado_30_dias"), rs.getInt("misiones_completadas"),
+                        rs.getInt("misiones_activas"), rs.getInt("postulaciones_pendientes"),
+                        rs.getInt("calificaciones"), rs.getBigDecimal("reputacion"),
+                        rs.getBigDecimal("saldo_disponible")),
+                idCazarrecompensas, idCazarrecompensas, idCazarrecompensas, idCazarrecompensas,
+                idCazarrecompensas, idCazarrecompensas, idCazarrecompensas, idCazarrecompensas);
     }
 
     public void actualizar(Long idCazarrecompensas, Long idZona, String biografia, String disponibilidad) {

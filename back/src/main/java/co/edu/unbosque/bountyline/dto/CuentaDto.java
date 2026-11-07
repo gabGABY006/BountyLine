@@ -17,6 +17,10 @@ public record CuentaDto(Long idCuenta, String correo, String alias, String rol, 
                 c.getFechaRegistro());
     }
 
+    /** La contraseña actual se verifica antes de guardar la nueva. */
+    public record CambioContrasena(@NotBlank String actual, @NotBlank @Size(min = 8, max = 72) String nueva) {
+    }
+
     public record CambioCorreo(@NotBlank @Email @Size(max = 120) String correo) {
     }
 

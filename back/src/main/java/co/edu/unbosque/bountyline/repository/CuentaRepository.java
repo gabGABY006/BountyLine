@@ -63,6 +63,16 @@ public class CuentaRepository {
         procedimientos.llamar("sp_cambiar_correo", idCuenta, correo);
     }
 
+    public void cambiarContrasena(Long idCuenta, String hash) {
+        procedimientos.llamar("sp_cambiar_contrasena", idCuenta, hash);
+    }
+
+    /** Estado de la cuenta (ACTIVA o SUSPENDIDA), o vacío si no existe. */
+    public Optional<String> estado(Long idCuenta) {
+        return jdbc.query("SELECT estado FROM cuenta WHERE id_cuenta = ?", (rs, i) -> rs.getString(1), idCuenta)
+                .stream().findFirst();
+    }
+
     public void cambiarEstado(Long idAdministrador, Long idCuenta, String estado) {
         procedimientos.llamar("sp_cambiar_estado_cuenta", idAdministrador, idCuenta, estado);
     }

@@ -2,6 +2,7 @@ package co.edu.unbosque.bountyline.controller;
 
 import java.util.List;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import co.edu.unbosque.bountyline.dto.CuentaDto;
@@ -46,6 +48,14 @@ public class CuentaController {
     @PutMapping("/yo/correo")
     public CuentaDto cambiarCorreo(@AuthenticationPrincipal Jwt jwt, @Valid @RequestBody CuentaDto.CambioCorreo cambio) {
         return servicio.cambiarCorreo(Sesion.id(jwt), cambio);
+    }
+
+    /** Cada cuenta cambia su propia contraseña. Responde 204 sin cuerpo. */
+    @PutMapping("/yo/contrasena")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void cambiarContrasena(@AuthenticationPrincipal Jwt jwt,
+                                  @Valid @RequestBody CuentaDto.CambioContrasena cambio) {
+        servicio.cambiarContrasena(Sesion.id(jwt), cambio);
     }
 
     /** Suspender o reactivar una cuenta (solo administradores). */

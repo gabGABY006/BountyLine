@@ -34,11 +34,15 @@ public class MisionController {
         this.servicio = servicio;
     }
 
+    /** Búsqueda de misiones; el mercado del cazarrecompensas usa estado=PUBLICADA con zona, especialidad y texto. */
     @GetMapping
     public List<MisionDto> listar(@RequestParam(required = false) String estado,
                                   @RequestParam(required = false) Long idUsuario,
-                                  @RequestParam(required = false) Long idCazarrecompensas) {
-        return servicio.listar(estado, idUsuario, idCazarrecompensas);
+                                  @RequestParam(required = false) Long idCazarrecompensas,
+                                  @RequestParam(required = false) Long idZona,
+                                  @RequestParam(required = false) Long idEspecialidad,
+                                  @RequestParam(required = false) String texto) {
+        return servicio.listar(new MisionDto.Filtro(estado, idUsuario, idCazarrecompensas, idZona, idEspecialidad, texto));
     }
 
     /** Misiones publicadas por el usuario o asignadas al cazarrecompensas autenticado. */
@@ -47,8 +51,8 @@ public class MisionController {
     public List<MisionDto> mias(@AuthenticationPrincipal Jwt jwt, @RequestParam(required = false) String estado) {
         Long id = Sesion.id(jwt);
         return Sesion.USUARIO.equals(Sesion.rol(jwt))
-                ? servicio.listar(estado, id, null)
-                : servicio.listar(estado, null, id);
+                ? servicio.listar(new MisionDto.Filtro(estado, id, null, null, null, null))
+                : servicio.listar(new MisionDto.Filtro(estado, null, id, null, null, null));
     }
 
     @GetMapping("/{id}")

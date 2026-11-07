@@ -23,4 +23,10 @@ final class Filas {
     static LocalDateTime fecha(ResultSet rs, String columna) throws SQLException {
         return rs.getObject(columna, LocalDateTime.class);
     }
+
+    /** Texto para un LIKE con % a ambos lados; escapa los comodines que escriba el usuario. */
+    public static String contiene(String texto) {
+        String limpio = texto.trim().replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_");
+        return "%" + limpio + "%";
+    }
 }

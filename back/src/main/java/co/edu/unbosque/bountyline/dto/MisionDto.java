@@ -21,6 +21,11 @@ public record MisionDto(Long idMision, String titulo, String descripcion, BigDec
                         @NotNull @Positive BigDecimal monto) {
     }
 
+    /** Filtros de la búsqueda de misiones; todos son opcionales. */
+    public record Filtro(String estado, Long idUsuario, Long idCazarrecompensas, Long idZona, Long idEspecialidad,
+                         String texto) {
+    }
+
     public record Asignacion(@NotNull Long idCazarrecompensas) {
     }
 

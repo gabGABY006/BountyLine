@@ -11,6 +11,12 @@ public record CazarrecompensasDto(Long idCazarrecompensas, String alias, String 
                                   String disponibilidad, BigDecimal reputacion, Long idZona, String zona,
                                   Integer misionesCompletadas, String especialidades) {
 
+    /** Totales para la pantalla de ganancias del cazarrecompensas. */
+    public record Resumen(BigDecimal totalCobrado, BigDecimal cobradoUltimos30Dias, Integer misionesCompletadas,
+                          Integer misionesActivas, Integer postulacionesPendientes, Integer calificaciones,
+                          BigDecimal reputacion, BigDecimal saldoDisponible) {
+    }
+
     public record Actualizacion(@NotNull Long idZona, @Size(max = 500) String biografia,
                                 @NotNull @Pattern(regexp = "DISPONIBLE|NO_DISPONIBLE") String disponibilidad) {
     }

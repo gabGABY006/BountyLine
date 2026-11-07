@@ -13,9 +13,11 @@ import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.oauth2.core.DelegatingOAuth2TokenValidator;
 import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
+import org.springframework.security.oauth2.jwt.JwtValidators;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
@@ -23,6 +25,9 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtGra
 import org.springframework.security.web.SecurityFilterChain;
 
 import com.nimbusds.jose.jwk.source.ImmutableSecret;
+
+import co.edu.unbosque.bountyline.repository.CuentaRepository;
+import co.edu.unbosque.bountyline.security.CuentaActivaValidator;
 
 /**
  * Seguridad de la API: sin sesión, con token JWT firmado con HMAC (HS256).
@@ -61,9 +66,13 @@ public class SecurityConfig {
         return new NimbusJwtEncoder(new ImmutableSecret<>(clave()));
     }
 
+    /** Además de la firma y el vencimiento, revisa que la cuenta siga activa. */
     @Bean
-    public JwtDecoder jwtDecoder() {
-        return NimbusJwtDecoder.withSecretKey(clave()).macAlgorithm(MacAlgorithm.HS256).build();
+    public JwtDecoder jwtDecoder(CuentaRepository cuentas) {
+        NimbusJwtDecoder decoder = NimbusJwtDecoder.withSecretKey(clave()).macAlgorithm(MacAlgorithm.HS256).build();
+        decoder.setJwtValidator(new DelegatingOAuth2TokenValidator<>(
+                JwtValidators.createDefault(), new CuentaActivaValidator(cuentas)));
+        return decoder;
     }
 
     private JwtAuthenticationConverter convertidorRoles() {

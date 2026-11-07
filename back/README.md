@@ -48,7 +48,8 @@ El usuario de base de datos `bountyline_app` solo puede consultar y ejecutar pro
 - Los permisos van por rol (`USUARIO`, `CAZARRECOMPENSAS`, `ADMINISTRADOR`). Un rol que no corresponde recibe 403.
 - Quién hace cada acción sale del token, no del cuerpo de la petición. Las rutas con `/yo` trabajan sobre la cuenta autenticada.
 - El registro solo crea usuarios y cazarrecompensas. Los administradores se crean por script (S30).
-- Las contraseñas se guardan como hash BCrypt (S11).
+- Las contraseñas se guardan como hash BCrypt (S11). Para cambiarla se pide la actual.
+- Si un administrador suspende una cuenta, su token deja de servir en la siguiente petición (401), aunque no haya vencido.
 
 ## Endpoints
 
@@ -62,11 +63,13 @@ Roles: U = usuario, C = cazarrecompensas, A = administrador, todos = cualquier c
 | Cuenta | `GET /api/cuentas?rol=&estado=` | A | |
 | | `GET /api/cuentas/{id}` | la propia o A | |
 | | `PUT /api/cuentas/yo/correo` | todos | `sp_cambiar_correo` |
+| | `PUT /api/cuentas/yo/contrasena` | todos | `sp_cambiar_contrasena` |
 | | `PUT /api/cuentas/{id}/estado` | A | `sp_cambiar_estado_cuenta` |
 | Usuario | `GET /api/usuarios` | A | |
 | | `GET /api/usuarios/yo` · `PUT /api/usuarios/yo` | U | `sp_actualizar_usuario` |
 | | `GET /api/usuarios/{id}` | todos | |
-| Cazarrecompensas | `GET /api/cazarrecompensas?idZona=&disponibilidad=` · `GET /api/cazarrecompensas/{id}` | todos | `v_cazarrecompensas_perfil` |
+| Cazarrecompensas | `GET /api/cazarrecompensas?alias=&idZona=&idEspecialidad=&disponibilidad=` · `GET /api/cazarrecompensas/{id}` | todos | `v_cazarrecompensas_perfil` |
+| | `GET /api/cazarrecompensas/yo/resumen` | C | `fn_misiones_completadas`, `fn_saldo_disponible` |
 | | `GET /api/cazarrecompensas/yo` · `PUT /api/cazarrecompensas/yo` | C | `sp_actualizar_cazarrecompensas` |
 | CazarrecompensasEspecialidad | `GET /api/cazarrecompensas/{id}/especialidades` | todos | |
 | | `POST /api/cazarrecompensas/yo/especialidades` | C | `sp_guardar_especialidad_caz` |
@@ -80,7 +83,7 @@ Roles: U = usuario, C = cazarrecompensas, A = administrador, todos = cualquier c
 | | `POST /api/zonas` · `PUT /api/zonas/{id}` | A | `sp_crear_zona` · `sp_actualizar_zona` |
 | Especialidad | `GET /api/especialidades` · `GET /api/especialidades/{id}` | público | |
 | | `POST /api/especialidades` · `PUT /api/especialidades/{id}` | A | `sp_crear_especialidad` · `sp_actualizar_especialidad` |
-| Misión | `GET /api/misiones?estado=&idUsuario=&idCazarrecompensas=` · `GET /api/misiones/{id}` | todos | `v_mision_detalle` |
+| Misión | `GET /api/misiones?estado=&idUsuario=&idCazarrecompensas=&idZona=&idEspecialidad=&texto=` · `GET /api/misiones/{id}` | todos | `v_mision_detalle` |
 | | `GET /api/misiones/mias?estado=` | U, C | `v_mision_detalle` |
 | | `POST /api/misiones` | U | `sp_publicar_mision` |
 | | `GET /api/misiones/{id}/sugerencias?limite=5` | U, A | `sp_sugerir_cazarrecompensas` |
@@ -97,6 +100,7 @@ Roles: U = usuario, C = cazarrecompensas, A = administrador, todos = cualquier c
 | | `POST /api/reportes` | U, C | `sp_crear_reporte` |
 | | `POST /api/reportes/{id}/resolucion` | A | `sp_resolver_reporte` |
 | AuditoriaCuenta | `GET /api/auditoria-cuentas?idCuenta=` | A | |
+| Bitácora | `GET /api/bitacora?tipo=&idCuenta=&desde=&hasta=&limite=` | A | `v_bitacora` |
 | | `GET /api/salud` | público | Prueba de conexión |
 
 Los movimientos y la auditoría solo se consultan: los crean los procedimientos y los triggers, y la base no deja modificarlos.
@@ -117,3 +121,11 @@ Respuesta:
 ```
 
 Cuentas de prueba (contraseña `BountyLine2026*`): `axiom_47@bountyline.gg` (usuario), `vanta_k@bountyline.gg` (cazarrecompensas), `admin@bountyline.gg` (administrador).
+
+## Pruebas
+
+```bash
+./mvnw test
+```
+
+Las pruebas de `src/test` cubren el registro y el inicio de sesión, el cambio de contraseña, el token JWT, los permisos de la sesión, el bloqueo de cuentas suspendidas, la bitácora y el escape de los filtros de texto. No necesitan la base de datos, salvo `BountylineApplicationTests`, que levanta la aplicación completa y requiere la VM encendida.

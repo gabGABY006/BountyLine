@@ -28,11 +28,20 @@ public class CazarrecompensasController {
         this.servicio = servicio;
     }
 
-    /** Búsqueda manual con filtros (RF-06). */
+    /** Búsqueda manual con filtros (RF-06). Solo muestra cuentas activas. */
     @GetMapping
-    public List<CazarrecompensasDto> listar(@RequestParam(required = false) Long idZona,
+    public List<CazarrecompensasDto> listar(@RequestParam(required = false) String alias,
+                                            @RequestParam(required = false) Long idZona,
+                                            @RequestParam(required = false) Long idEspecialidad,
                                             @RequestParam(required = false) String disponibilidad) {
-        return servicio.listar(idZona, disponibilidad);
+        return servicio.listar(alias, idZona, idEspecialidad, disponibilidad);
+    }
+
+    /** Totales de la pantalla de ganancias. */
+    @GetMapping("/yo/resumen")
+    @PreAuthorize("hasRole('CAZARRECOMPENSAS')")
+    public CazarrecompensasDto.Resumen resumen(@AuthenticationPrincipal Jwt jwt) {
+        return servicio.resumen(Sesion.id(jwt));
     }
 
     @GetMapping("/yo")
