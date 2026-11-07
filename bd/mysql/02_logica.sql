@@ -665,6 +665,22 @@ BEGIN
 END $$
 
 -- Un administrador suspende o reactiva una cuenta; queda en la auditoría (S14, S35)
+-- Cambia la contraseña de una cuenta. Llega ya cifrada con BCrypt (S11);
+-- la aplicación comprueba antes la contraseña actual. Queda en la auditoría.
+DROP PROCEDURE IF EXISTS sp_cambiar_contrasena $$
+CREATE PROCEDURE sp_cambiar_contrasena(
+    IN p_id_cuenta INT UNSIGNED,
+    IN p_hash      VARCHAR(100))
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM cuenta WHERE id_cuenta = p_id_cuenta) THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'La cuenta no existe.';
+    END IF;
+    IF p_hash IS NULL OR CHAR_LENGTH(p_hash) < 50 THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'La contraseña debe llegar cifrada.';
+    END IF;
+    UPDATE cuenta SET contrasena_hash = p_hash WHERE id_cuenta = p_id_cuenta;
+END $$
+
 DROP PROCEDURE IF EXISTS sp_cambiar_estado_cuenta $$
 CREATE PROCEDURE sp_cambiar_estado_cuenta(
     IN p_id_administrador INT UNSIGNED,
@@ -796,6 +812,11 @@ BEGIN
         INSERT INTO auditoria_cuenta (id_cuenta, campo_modificado, valor_anterior, valor_nuevo, usuario_bd)
         VALUES (NEW.id_cuenta, 'correo', OLD.correo, NEW.correo, USER());
     END IF;
+    -- El cambio de contraseña se registra sin guardar ningún hash
+    IF NEW.contrasena_hash <> OLD.contrasena_hash THEN
+        INSERT INTO auditoria_cuenta (id_cuenta, campo_modificado, valor_anterior, valor_nuevo, usuario_bd)
+        VALUES (NEW.id_cuenta, 'contrasena', NULL, NULL, USER());
+    END IF;
 END $$
 
 -- El rol no cambia después del registro (S13)
@@ -914,3 +935,46 @@ SELECT z.id_cazarrecompensas, c.alias, c.estado AS estado_cuenta, z.biografia,
   FROM cazarrecompensas z
   JOIN cuenta c ON c.id_cuenta = z.id_cazarrecompensas
   JOIN zona zo  ON zo.id_zona = z.id_zona;
+
+-- Bitácora del administrador: une en orden de fecha los eventos de pagos,
+-- misiones, reportes y cambios de cuenta.
+CREATE OR REPLACE VIEW v_bitacora AS
+SELECT 'PAGO' AS tipo, mv.tipo AS accion, mv.fecha,
+       b.id_cuenta, c.alias AS operador,
+       CONCAT('MOV-', mv.id_movimiento) AS referencia, mv.id_mision,
+       CONCAT(mv.tipo, ' de ', FORMAT(mv.monto, 2), IFNULL(CONCAT(' - ', mv.descripcion), '')) AS detalle
+  FROM movimiento mv
+  JOIN billetera b ON b.id_billetera = mv.id_billetera
+  JOIN cuenta c    ON c.id_cuenta = b.id_cuenta
+UNION ALL
+SELECT 'MISION', 'PUBLICADA', m.fecha_publicacion,
+       m.id_usuario, c.alias, CONCAT('MIS-', m.id_mision), m.id_mision,
+       CONCAT('Publicó "', m.titulo, '" por ', FORMAT(m.monto_recompensa, 2))
+  FROM mision m
+  JOIN cuenta c ON c.id_cuenta = m.id_usuario
+UNION ALL
+SELECT 'MISION', m.estado, m.fecha_cierre,
+       IFNULL(m.id_admin_cancela, m.id_usuario), c.alias, CONCAT('MIS-', m.id_mision), m.id_mision,
+       CONCAT('Misión "', m.titulo, '" ', LOWER(m.estado))
+  FROM mision m
+  JOIN cuenta c ON c.id_cuenta = IFNULL(m.id_admin_cancela, m.id_usuario)
+ WHERE m.estado IN ('CERRADA', 'CANCELADA') AND m.fecha_cierre IS NOT NULL
+UNION ALL
+SELECT 'REPORTE', 'CREADO', r.fecha_reporte,
+       r.id_cuenta_reporta, c.alias, CONCAT('REP-', r.id_reporte), NULL, r.motivo
+  FROM reporte r
+  JOIN cuenta c ON c.id_cuenta = r.id_cuenta_reporta
+UNION ALL
+SELECT 'REPORTE', r.estado, r.fecha_resolucion,
+       r.id_administrador, c.alias, CONCAT('REP-', r.id_reporte), NULL,
+       CONCAT('Reporte ', LOWER(r.estado))
+  FROM reporte r
+  JOIN cuenta c ON c.id_cuenta = r.id_administrador
+ WHERE r.estado <> 'PENDIENTE'
+UNION ALL
+SELECT 'CUENTA', UPPER(a.campo_modificado), a.fecha_cambio,
+       a.id_cuenta, c.alias, CONCAT('AUD-', a.id_auditoria), NULL,
+       CASE WHEN a.campo_modificado = 'contrasena' THEN 'Cambió la contraseña'
+            ELSE CONCAT(a.campo_modificado, ': ', IFNULL(a.valor_anterior, '-'), ' -> ', IFNULL(a.valor_nuevo, '-')) END
+  FROM auditoria_cuenta a
+  JOIN cuenta c ON c.id_cuenta = a.id_cuenta;

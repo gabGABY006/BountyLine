@@ -34,6 +34,7 @@ GRANT EXECUTE ON PROCEDURE bountyline.sp_actualizar_cazarrecompensas TO 'bountyl
 GRANT EXECUTE ON PROCEDURE bountyline.sp_guardar_especialidad_caz TO 'bountyline_app'@'%';
 GRANT EXECUTE ON PROCEDURE bountyline.sp_quitar_especialidad_caz TO 'bountyline_app'@'%';
 GRANT EXECUTE ON PROCEDURE bountyline.sp_cambiar_correo TO 'bountyline_app'@'%';
+GRANT EXECUTE ON PROCEDURE bountyline.sp_cambiar_contrasena TO 'bountyline_app'@'%';
 GRANT EXECUTE ON PROCEDURE bountyline.sp_cambiar_estado_cuenta TO 'bountyline_app'@'%';
 GRANT EXECUTE ON PROCEDURE bountyline.sp_actualizar_zona TO 'bountyline_app'@'%';
 GRANT EXECUTE ON PROCEDURE bountyline.sp_actualizar_especialidad TO 'bountyline_app'@'%';
