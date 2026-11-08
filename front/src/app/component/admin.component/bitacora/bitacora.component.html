@@ -25,10 +25,6 @@
 </section>
 
 <p class="audit-status" *ngIf="cargando" role="status">Cargando automáticamente la bitácora…</p>
-<p class="audit-status warning" *ngIf="!cargando && fuentesConError.length">
-  No se pudieron consultar: {{ fuentesConError.join(', ') }}. Los demás registros sí están disponibles.
-</p>
-
 <section class="admin-panel audit-panel">
   <div class="report-toolbar">
     <div>

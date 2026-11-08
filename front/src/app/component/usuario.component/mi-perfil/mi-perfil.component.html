@@ -68,6 +68,19 @@
   </section>
 </div>
 
+<section class="panel password-panel">
+  <div class="panel-heading">
+    <div><p class="eyebrow">SEGURIDAD DE LA CUENTA</p><h2>Cambiar contraseña</h2></div>
+  </div>
+  <form class="profile-form password-form" (submit)="cambiarContrasena($event)">
+    <label>CONTRASEÑA ACTUAL<input type="password" name="contrasenaActual" [(ngModel)]="contrasenaActual" autocomplete="current-password" required /></label>
+    <label>NUEVA CONTRASEÑA<input type="password" name="contrasenaNueva" [(ngModel)]="contrasenaNueva" autocomplete="new-password" minlength="8" maxlength="72" required /></label>
+    <label>CONFIRMAR NUEVA<input type="password" name="contrasenaConfirmar" [(ngModel)]="contrasenaConfirmar" autocomplete="new-password" required /></label>
+    <p class="form-error" *ngIf="errorContrasena" role="alert">{{ errorContrasena }}</p>
+    <button type="submit" [disabled]="guardandoContrasena">{{ guardandoContrasena ? 'ACTUALIZANDO…' : 'CAMBIAR CONTRASEÑA' }}</button>
+  </form>
+</section>
+
 <!-- MODAL: AÑADIR ESPECIALIDAD DEL CATÁLOGO -->
 <div class="modal-backdrop" *ngIf="mostrarEspecialidades && selectorAbierto" (click)="cerrarSelector()">
   <section class="confirm-modal" (click)="$event.stopPropagation()">

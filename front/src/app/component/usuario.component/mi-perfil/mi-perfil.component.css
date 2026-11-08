@@ -58,6 +58,9 @@ svg { display: block; }
 .form-error { padding: 10px 14px; color: var(--pink); font-size: 14px; border: 1px solid #6a2944; background: rgba(255,61,141,.07); }
 .profile-form > button { min-height: 54px; padding: 0 22px; display: flex; align-items: center; justify-content: center; border: 1px solid var(--cyan); background: var(--cyan); color: #07110f; font: 700 15px "Rajdhani"; letter-spacing: .08em; }
 .profile-form > button:hover { filter: brightness(1.1); }
+.profile-form > button:disabled { opacity: .6; }
+.password-panel { max-width: 760px; margin-bottom: 30px; border-top: 2px solid var(--cyan); }
+.password-form { border: 0; background: transparent; }
 
 /* ---------- Especialidades ---------- */
 .specialty-editor { overflow: hidden; border-top: 2px solid var(--pink); }

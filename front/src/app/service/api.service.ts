@@ -12,6 +12,7 @@ export interface ReporteApi { idReporte: number; idCuentaReporta: number; aliasR
 export interface CalificacionApi { idCalificacion: number; idMision: number; idCazarrecompensas: number; aliasCazarrecompensas: string; puntaje: number; comentario: string | null; fecha: string; }
 export interface AuditoriaApi { idAuditoria: number; idCuenta: number; campoModificado: string; valorAnterior: string | null; valorNuevo: string | null; fechaCambio: string; usuarioBd: string; }
 export interface MovimientoApiFull { idMovimiento: number; idBilletera: number; idMision: number | null; tipo: string; monto: number; fecha: string; descripcion: string | null; }
+export interface BitacoraApi { tipo: 'PAGO' | 'MISION' | 'REPORTE' | 'CUENTA'; accion: string; fecha: string; idCuenta: number | null; operador: string | null; referencia: string; idMision: number | null; detalle: string | null; }
 
 @Injectable({ providedIn: 'root' })
 export class ApiService {
@@ -19,6 +20,7 @@ export class ApiService {
   cuentas(rol?: string, estado?: string): Observable<CuentaApi[]> { let p = new HttpParams(); if (rol) p = p.set('rol', rol); if (estado) p = p.set('estado', estado); return this.http.get<CuentaApi[]>(`${API_URL}/cuentas`, { params: p }); }
   cuenta(id: number): Observable<CuentaApi> { return this.http.get<CuentaApi>(`${API_URL}/cuentas/${id}`); }
   cambiarCorreo(correo: string): Observable<CuentaApi> { return this.http.put<CuentaApi>(`${API_URL}/cuentas/yo/correo`, { correo }); }
+  cambiarContrasena(actual: string, nueva: string): Observable<void> { return this.http.put<void>(`${API_URL}/cuentas/yo/contrasena`, { actual, nueva }); }
   cambiarEstado(id: number, estado: string): Observable<CuentaApi> { return this.http.put<CuentaApi>(`${API_URL}/cuentas/${id}/estado`, { estado }); }
   miUsuario(): Observable<UsuarioApi> { return this.http.get<UsuarioApi>(`${API_URL}/usuarios/yo`); }
   actualizarUsuario(biografia: string): Observable<UsuarioApi> { return this.http.put<UsuarioApi>(`${API_URL}/usuarios/yo`, { biografia }); }
@@ -47,6 +49,7 @@ export class ApiService {
   crearReporte(datos: { idCuentaReportada?: number; idContenido?: string; motivo: string }): Observable<ReporteApi> { return this.http.post<ReporteApi>(`${API_URL}/reportes`, datos); }
   resolverReporte(id: number, estado: string, suspender: boolean): Observable<ReporteApi> { return this.http.post<ReporteApi>(`${API_URL}/reportes/${id}/resolucion`, { estado, suspender }); }
   auditoria(idCuenta?: number): Observable<AuditoriaApi[]> { let p = new HttpParams(); if (idCuenta != null) p = p.set('idCuenta', idCuenta); return this.http.get<AuditoriaApi[]>(`${API_URL}/auditoria-cuentas`, { params: p }); }
+  bitacora(limite = 500, tipo?: string): Observable<BitacoraApi[]> { return this.http.get<BitacoraApi[]>(`${API_URL}/bitacora`, { params: { limite, ...(tipo ? { tipo } : {}) } }); }
   movimientos(idCuenta?: number, limite = 50): Observable<MovimientoApiFull[]> { let p = new HttpParams().set('limite', limite); if (idCuenta != null) p = p.set('idCuenta', idCuenta); return this.http.get<MovimientoApiFull[]>(`${API_URL}/movimientos`, { params: p }); }
   calificaciones(idCazarrecompensas?: number): Observable<CalificacionApi[]> { let p = new HttpParams(); if (idCazarrecompensas != null) p = p.set('idCazarrecompensas', idCazarrecompensas); return this.http.get<CalificacionApi[]>(`${API_URL}/calificaciones`, { params: p }); }
   calificar(idMision: number, puntaje: number, comentario: string): Observable<CalificacionApi[]> { return this.http.post<CalificacionApi[]>(`${API_URL}/calificaciones`, { idMision, puntaje, comentario }); }
