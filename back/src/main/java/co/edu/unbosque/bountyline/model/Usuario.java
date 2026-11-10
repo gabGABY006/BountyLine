@@ -1,6 +1,5 @@
 package co.edu.unbosque.bountyline.model;
 
-/** Tabla usuario: Perfil del jugador que publica misiones. */
 public class Usuario {
 
     private Long idUsuario;

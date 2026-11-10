@@ -21,7 +21,6 @@ import co.edu.unbosque.bountyline.security.Sesion;
 import co.edu.unbosque.bountyline.service.MensajeChatService;
 import jakarta.validation.Valid;
 
-/** Chat de una misión (MongoDB, colección mensajes_chat). */
 @RestController
 @RequestMapping("/api/misiones/{idMision}/chat")
 public class MensajeChatController {

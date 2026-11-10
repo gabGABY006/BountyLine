@@ -7,10 +7,6 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
-/**
- * Evento de la colección bitacora_actividad (MongoDB, S84). Cada tipo usa
- * solo algunos campos; los que no aplican quedan nulos y no se guardan.
- */
 @Document(collection = "bitacora_actividad")
 public class EventoActividad {
 

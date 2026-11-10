@@ -1,6 +1,5 @@
 package co.edu.unbosque.bountyline.model;
 
-/** Tabla zona: Distrito del mundo del juego. */
 public class Zona {
 
     private Long idZona;

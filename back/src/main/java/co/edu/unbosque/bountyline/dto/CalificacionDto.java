@@ -7,7 +7,6 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
-/** Calificación de una misión con el cazarrecompensas que la ejecutó. */
 public record CalificacionDto(Long idCalificacion, Long idMision, Long idCazarrecompensas, String aliasCazarrecompensas,
                               Integer puntaje, String comentario, LocalDateTime fecha) {
 

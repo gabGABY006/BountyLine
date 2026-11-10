@@ -35,7 +35,6 @@ public class PostulacionController {
         return servicio.listar(idMision, idCazarrecompensas);
     }
 
-    /** Postulaciones del cazarrecompensas autenticado. */
     @GetMapping("/mias")
     @PreAuthorize("hasRole('CAZARRECOMPENSAS')")
     public List<PostulacionDto> mias(@AuthenticationPrincipal Jwt jwt) {

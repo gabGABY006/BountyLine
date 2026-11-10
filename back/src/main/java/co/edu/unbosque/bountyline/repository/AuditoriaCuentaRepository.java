@@ -8,7 +8,6 @@ import org.springframework.stereotype.Repository;
 
 import co.edu.unbosque.bountyline.model.AuditoriaCuenta;
 
-/** La auditoría solo se consulta; la llena el trigger trg_auditoria_cuenta (S76). */
 @Repository
 public class AuditoriaCuentaRepository {
 

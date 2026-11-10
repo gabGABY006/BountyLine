@@ -8,7 +8,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-/** Comprueba que la API está arriba y que llega a MySQL. */
 @RestController
 @RequestMapping("/api/salud")
 public class SaludController {

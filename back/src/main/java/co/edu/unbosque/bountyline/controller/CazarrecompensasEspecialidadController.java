@@ -18,7 +18,6 @@ import co.edu.unbosque.bountyline.security.Sesion;
 import co.edu.unbosque.bountyline.service.CazarrecompensasEspecialidadService;
 import jakarta.validation.Valid;
 
-/** Especialidades de un cazarrecompensas con su nivel. Solo el propio cazarrecompensas las modifica. */
 @RestController
 @RequestMapping("/api/cazarrecompensas")
 public class CazarrecompensasEspecialidadController {
@@ -34,7 +33,6 @@ public class CazarrecompensasEspecialidadController {
         return servicio.listar(idCazarrecompensas);
     }
 
-    /** Agrega la especialidad o cambia su nivel. */
     @PostMapping("/yo/especialidades")
     @PreAuthorize("hasRole('CAZARRECOMPENSAS')")
     public List<CazarrecompensasEspecialidadDto> guardar(@AuthenticationPrincipal Jwt jwt,

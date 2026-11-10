@@ -17,7 +17,6 @@ import org.springframework.stereotype.Repository;
 import co.edu.unbosque.bountyline.model.Comentario;
 import co.edu.unbosque.bountyline.model.Publicacion;
 
-/** Acceso a la colección publicaciones de MongoDB. */
 @Repository
 public class PublicacionRepository {
 
@@ -27,7 +26,6 @@ public class PublicacionRepository {
         this.mongo = mongo;
     }
 
-    /** Feed con filtros opcionales; los más recientes primero. */
     public List<Publicacion> listar(boolean soloVisibles, String etiqueta, Integer idZona, Integer idCuenta,
                                     Integer idMision, String texto, int pagina, int tamano) {
         List<Criteria> filtros = new ArrayList<>();
@@ -78,7 +76,6 @@ public class PublicacionRepository {
         mongo.updateFirst(porId(id), new Update().push("comentarios", c), Publicacion.class);
     }
 
-    /** Quita la reacción que tenga la cuenta (si la tiene) y descuenta su tipo. */
     public void quitarReaccion(String id, Integer idCuenta, String tipo) {
         Query q = new Query(Criteria.where("_id").is(new ObjectId(id))
                 .and("reaccionaron").elemMatch(Criteria.where("id_cuenta").is(idCuenta).and("tipo").is(tipo)));
@@ -88,7 +85,6 @@ public class PublicacionRepository {
         mongo.updateFirst(q, u, Publicacion.class);
     }
 
-    /** Agrega la reacción solo si la cuenta no ha reaccionado (una por cuenta). */
     public void agregarReaccion(String id, Integer idCuenta, String tipo) {
         Query q = new Query(Criteria.where("_id").is(new ObjectId(id)).and("reaccionaron.id_cuenta").ne(idCuenta));
         Update u = new Update()
@@ -101,7 +97,6 @@ public class PublicacionRepository {
         mongo.updateFirst(porId(id), new Update().set("estado_moderacion", estado), Publicacion.class);
     }
 
-    /** Oculta o muestra un comentario por su id; devuelve true si lo encontró. */
     public boolean moderarComentario(String idComentario, String estado) {
         if (!ObjectId.isValid(idComentario)) {
             return false;
@@ -111,7 +106,6 @@ public class PublicacionRepository {
                 .getMatchedCount() > 0;
     }
 
-    /** True si existe un comentario con ese id en alguna publicación. */
     public boolean existeComentario(String idComentario) {
         return ObjectId.isValid(idComentario)
                 && mongo.count(new Query(Criteria.where("comentarios._id").is(new ObjectId(idComentario))), Publicacion.class) > 0;

@@ -11,7 +11,6 @@ import org.springframework.stereotype.Repository;
 
 import co.edu.unbosque.bountyline.model.EventoActividad;
 
-/** Acceso a la colección bitacora_actividad de MongoDB. */
 @Repository
 public class EventoActividadRepository {
 

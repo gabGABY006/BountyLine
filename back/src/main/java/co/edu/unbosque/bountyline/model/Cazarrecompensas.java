@@ -2,7 +2,6 @@ package co.edu.unbosque.bountyline.model;
 
 import java.math.BigDecimal;
 
-/** Tabla cazarrecompensas: Perfil del jugador que resuelve misiones. */
 public class Cazarrecompensas {
 
     private Long idCazarrecompensas;

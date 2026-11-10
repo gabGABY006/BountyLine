@@ -10,7 +10,6 @@ public record ReporteDto(Long idReporte, Long idCuentaReporta, String aliasRepor
                          String aliasReportada, String idContenido, Long idAdministrador, String motivo,
                          String estado, LocalDateTime fechaReporte, LocalDateTime fechaResolucion) {
 
-    /** Debe indicar idCuentaReportada o idContenido, no ambos (S72). */
     public record Nuevo(Long idCuentaReportada, @Size(max = 24) String idContenido,
                         @NotBlank @Size(max = 300) String motivo) {
     }

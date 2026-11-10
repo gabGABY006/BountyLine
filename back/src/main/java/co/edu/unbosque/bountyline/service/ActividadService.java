@@ -19,11 +19,6 @@ import co.edu.unbosque.bountyline.exception.ReglaNegocioException;
 import co.edu.unbosque.bountyline.model.EventoActividad;
 import co.edu.unbosque.bountyline.repository.EventoActividadRepository;
 
-/**
- * Bitácora de actividad en MongoDB (S84). Los eventos se guardan en un hilo
- * aparte, así que registrar uno nunca demora ni hace fallar la petición: si
- * MongoDB no responde, solo queda un aviso en el log.
- */
 @Service
 public class ActividadService {
 
@@ -53,7 +48,6 @@ public class ActividadService {
         guardar(nuevo("CIERRE_SESION", idCuenta, rol));
     }
 
-    /** Búsqueda con los filtros que se usaron (solo los que traen valor). */
     public void busqueda(Long idCuenta, String rol, String pantalla, Map<String, Object> filtros, int resultados) {
         EventoActividad e = nuevo("BUSQUEDA", idCuenta, rol);
         e.setPantalla(pantalla);

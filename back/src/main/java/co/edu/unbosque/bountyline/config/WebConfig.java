@@ -17,7 +17,6 @@ public class WebConfig {
     @Value("${bountyline.cors.origen}")
     private String origen;
 
-    /** Permite que el front Angular llame a la API con el token en el encabezado Authorization. */
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration cors = new CorsConfiguration();
@@ -29,7 +28,6 @@ public class WebConfig {
         return fuente;
     }
 
-    /** Las contraseñas se guardan como hash BCrypt (supuesto S11). */
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();

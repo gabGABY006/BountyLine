@@ -8,10 +8,6 @@ import co.edu.unbosque.bountyline.dto.MisionDto;
 import co.edu.unbosque.bountyline.exception.NoEncontradoException;
 import co.edu.unbosque.bountyline.repository.MisionRepository;
 
-/**
- * Ciclo de vida de una misión. Cada acción llama a su procedimiento
- * almacenado, que valida las reglas y maneja la transacción.
- */
 @Service
 public class MisionService {
 
@@ -38,25 +34,21 @@ public class MisionService {
         return misiones.sugerencias(idMision, Math.max(1, Math.min(limite, 50)));
     }
 
-    /** El usuario que publicó la misión elige a un postulado. */
     public MisionDto asignar(Long idUsuario, Long idMision, MisionDto.Asignacion a) {
         misiones.asignar(idMision, idUsuario, a.idCazarrecompensas());
         return buscar(idMision);
     }
 
-    /** El cazarrecompensas asignado inicia la misión. */
     public MisionDto iniciar(Long idCazarrecompensas, Long idMision) {
         misiones.iniciar(idMision, idCazarrecompensas);
         return buscar(idMision);
     }
 
-    /** El usuario que publicó la misión la cierra y se libera el pago. */
     public MisionDto cerrar(Long idUsuario, Long idMision) {
         misiones.cerrar(idMision, idUsuario);
         return buscar(idMision);
     }
 
-    /** La cancela el usuario que la publicó o un administrador; el monto retenido se devuelve. */
     public MisionDto cancelar(Long idCuenta, boolean esAdministrador, Long idMision) {
         if (esAdministrador) {
             misiones.cancelar(idMision, null, idCuenta);

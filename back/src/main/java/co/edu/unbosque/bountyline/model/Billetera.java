@@ -3,7 +3,6 @@ package co.edu.unbosque.bountyline.model;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-/** Tabla billetera: Saldo de créditos de una cuenta de jugador. */
 public class Billetera {
 
     private Long idBilletera;

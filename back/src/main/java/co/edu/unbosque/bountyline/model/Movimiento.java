@@ -3,7 +3,6 @@ package co.edu.unbosque.bountyline.model;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-/** Tabla movimiento: Movimiento de créditos de una billetera. */
 public class Movimiento {
 
     private Long idMovimiento;

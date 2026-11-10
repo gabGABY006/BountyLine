@@ -8,11 +8,6 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
-/**
- * Documento de la colección publicaciones (MongoDB). Los comentarios y las
- * reacciones van embebidos (S81). El autor, la zona y la misión se
- * referencian por su id de MySQL.
- */
 @Document(collection = "publicaciones")
 public class Publicacion {
 
@@ -73,7 +68,6 @@ public class Publicacion {
     public Instant getFechaEdicion() { return fechaEdicion; }
     public void setFechaEdicion(Instant fechaEdicion) { this.fechaEdicion = fechaEdicion; }
 
-    /** Conteo de reacciones por tipo. */
     public static class Reacciones {
         @Field("me_gusta")
         private Integer meGusta = 0;
@@ -88,7 +82,6 @@ public class Publicacion {
         public void setAlerta(Integer alerta) { this.alerta = alerta; }
     }
 
-    /** Quién reaccionó y con qué tipo; una reacción por cuenta. */
     public static class Reaccion {
         @Field("id_cuenta")
         private Integer idCuenta;

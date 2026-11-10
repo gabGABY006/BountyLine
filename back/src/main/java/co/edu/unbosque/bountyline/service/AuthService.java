@@ -12,7 +12,6 @@ import co.edu.unbosque.bountyline.model.Cuenta;
 import co.edu.unbosque.bountyline.repository.CuentaRepository;
 import co.edu.unbosque.bountyline.security.TokenService;
 
-/** Registro e inicio de sesión. Ambos devuelven un token JWT. */
 @Service
 public class AuthService {
 
@@ -31,7 +30,6 @@ public class AuthService {
         this.actividad = actividad;
     }
 
-    /** Registra un Usuario o un Cazarrecompensas con su perfil y billetera (S30, S37). */
     public AuthDto.Sesion registrar(AuthDto.Registro r) {
         String especialidades = null;
         Long idZona = null;
@@ -48,7 +46,6 @@ public class AuthService {
         return sesion(cuentas.buscarPorId(id).orElseThrow());
     }
 
-    /** Inicio de sesión con correo y contraseña (S16). Cada intento queda en la bitácora de actividad. */
     public AuthDto.Sesion iniciarSesion(AuthDto.Login login) {
         Cuenta c = cuentas.buscarPorCorreo(login.correo().trim().toLowerCase())
                 .orElseThrow(() -> new NoAutorizadoException("Correo o contraseña incorrectos."));
@@ -69,7 +66,6 @@ public class AuthService {
                 c.getRol());
     }
 
-    /** Arreglo JSON que recibe sp_registrar_cuenta: [{"id":1,"nivel":4}, ...] */
     private static String aJson(List<AuthDto.EspecialidadNivel> lista) {
         StringBuilder sb = new StringBuilder("[");
         for (int i = 0; i < lista.size(); i++) {

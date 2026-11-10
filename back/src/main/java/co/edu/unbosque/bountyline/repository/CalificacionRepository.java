@@ -41,7 +41,6 @@ public class CalificacionRepository {
                 args.toArray());
     }
 
-    /** sp_calificar_mision; la reputación se actualiza por trigger (S27). */
     public void calificar(Long idMision, Long idUsuario, Integer puntaje, String comentario) {
         procedimientos.llamar("sp_calificar_mision", idMision, idUsuario, puntaje, comentario);
     }

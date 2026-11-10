@@ -10,7 +10,6 @@ public record EspecialidadDto(Long idEspecialidad, String nombre, String descrip
         return new EspecialidadDto(e.getIdEspecialidad(), e.getNombre(), e.getDescripcion(), e.getIdAdministrador());
     }
 
-    /** Datos para crear o modificar una especialidad (solo administradores, S32). */
     public record Guardar(@NotBlank @Size(max = 60) String nombre,
                           @Size(max = 300) String descripcion) {
     }

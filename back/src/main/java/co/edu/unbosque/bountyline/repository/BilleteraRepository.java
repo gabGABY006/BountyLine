@@ -29,7 +29,6 @@ public class BilleteraRepository {
                 idCuenta).stream().findFirst();
     }
 
-    /** Recarga simulada de créditos (sp_recargar_saldo, S46). */
     public void recargar(Long idCuenta, BigDecimal monto) {
         procedimientos.llamar("sp_recargar_saldo", idCuenta, monto);
     }

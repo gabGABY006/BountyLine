@@ -20,7 +20,6 @@ import co.edu.unbosque.bountyline.security.Sesion;
 import co.edu.unbosque.bountyline.service.EspecialidadService;
 import jakarta.validation.Valid;
 
-/** Catálogo de especialidades: la consulta es pública (la usa el registro); solo los administradores lo modifican (S32). */
 @RestController
 @RequestMapping("/api/especialidades")
 public class EspecialidadController {

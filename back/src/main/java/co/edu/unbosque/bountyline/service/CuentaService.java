@@ -35,7 +35,6 @@ public class CuentaService {
         return buscar(idCuenta);
     }
 
-    /** Comprueba la contraseña actual y guarda el hash BCrypt de la nueva (S11). */
     public void cambiarContrasena(Long idCuenta, CuentaDto.CambioContrasena cambio) {
         Cuenta c = cuentas.buscarPorId(idCuenta)
                 .orElseThrow(() -> new NoEncontradoException("La cuenta no existe."));

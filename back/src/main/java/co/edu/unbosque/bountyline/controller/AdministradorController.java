@@ -14,7 +14,6 @@ import co.edu.unbosque.bountyline.dto.AdministradorDto;
 import co.edu.unbosque.bountyline.security.Sesion;
 import co.edu.unbosque.bountyline.service.AdministradorService;
 
-/** Los administradores se crean por script (S30); aquí solo se consultan. */
 @RestController
 @RequestMapping("/api/administradores")
 @PreAuthorize("hasRole('ADMINISTRADOR')")

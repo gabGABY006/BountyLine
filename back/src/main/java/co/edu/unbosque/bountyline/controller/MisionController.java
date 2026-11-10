@@ -23,10 +23,6 @@ import co.edu.unbosque.bountyline.service.ActividadService;
 import co.edu.unbosque.bountyline.service.MisionService;
 import jakarta.validation.Valid;
 
-/**
- * Ciclo de vida de la misión. Quién hace cada acción sale del token; el
- * procedimiento almacenado comprueba que sea el dueño o el asignado.
- */
 @RestController
 @RequestMapping("/api/misiones")
 public class MisionController {
@@ -39,7 +35,6 @@ public class MisionController {
         this.actividad = actividad;
     }
 
-    /** Búsqueda de misiones; el mercado del cazarrecompensas usa estado=PUBLICADA con zona, especialidad y texto. */
     @GetMapping
     public List<MisionDto> listar(@AuthenticationPrincipal Jwt jwt,
                                   @RequestParam(required = false) String estado,
@@ -59,7 +54,6 @@ public class MisionController {
         return lista;
     }
 
-    /** Misiones publicadas por el usuario o asignadas al cazarrecompensas autenticado. */
     @GetMapping("/mias")
     @PreAuthorize("hasAnyRole('USUARIO', 'CAZARRECOMPENSAS')")
     public List<MisionDto> mias(@AuthenticationPrincipal Jwt jwt, @RequestParam(required = false) String estado) {

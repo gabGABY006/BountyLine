@@ -8,12 +8,6 @@ import org.springframework.jdbc.core.ConnectionCallback;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
-/**
- * Llama procedimientos almacenados de MySQL.
- * Para los parámetros OUT se usa una variable de sesión (@salida) y luego se
- * lee con SELECT en la misma conexión; así no hace falta que el usuario de la
- * aplicación tenga acceso a los metadatos de los procedimientos.
- */
 @Component
 public class Procedimientos {
 
@@ -23,7 +17,6 @@ public class Procedimientos {
         this.jdbc = jdbc;
     }
 
-    /** CALL procedimiento(?, ?, ...) sin parámetro de salida. */
     public void llamar(String procedimiento, Object... argumentos) {
         String sql = "CALL " + procedimiento + "(" + marcadores(argumentos.length) + ")";
         jdbc.execute((ConnectionCallback<Void>) con -> {
@@ -35,7 +28,6 @@ public class Procedimientos {
         });
     }
 
-    /** CALL procedimiento(?, ?, ..., @salida) y devuelve el valor de @salida. */
     public Long llamarConSalida(String procedimiento, Object... argumentos) {
         String lista = argumentos.length == 0 ? "@salida" : marcadores(argumentos.length) + ", @salida";
         String sql = "CALL " + procedimiento + "(" + lista + ")";

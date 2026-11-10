@@ -37,7 +37,6 @@ public class MisionRepository {
                 Filas.entero(rs, "postulaciones"));
     }
 
-    /** Filtros opcionales: estado, dueño, asignado, zona, especialidad y texto en título o descripción. */
     public List<MisionDto> listarDetalle(MisionDto.Filtro f) {
         String estado = f.estado();
         Long idUsuario = f.idUsuario();

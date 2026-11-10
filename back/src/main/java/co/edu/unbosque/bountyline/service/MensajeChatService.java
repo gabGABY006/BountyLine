@@ -15,10 +15,6 @@ import co.edu.unbosque.bountyline.model.Mision;
 import co.edu.unbosque.bountyline.repository.MensajeChatRepository;
 import co.edu.unbosque.bountyline.repository.MisionRepository;
 
-/**
- * Chat de la misión (S56, S57). Solo hablan el usuario que la publicó y el
- * cazarrecompensas asignado. El administrador puede leerlo para resolver reportes.
- */
 @Service
 public class MensajeChatService {
 
@@ -61,7 +57,6 @@ public class MensajeChatService {
         return aDto(mensajes.insertar(msg));
     }
 
-    /** Marca como leídos los mensajes que le llegaron a esta cuenta. Devuelve cuántos cambió. */
     public long marcarLeidos(Long idMision, Long idCuenta) {
         exigirParticipante(mision(idMision), idCuenta);
         return mensajes.marcarLeidos(idMision.intValue(), idCuenta.intValue());

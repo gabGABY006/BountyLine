@@ -1,6 +1,5 @@
 package co.edu.unbosque.bountyline.model;
 
-/** Tabla administrador: Perfil con permisos de moderación y gestión de catálogos. */
 public class Administrador {
 
     private Long idAdministrador;

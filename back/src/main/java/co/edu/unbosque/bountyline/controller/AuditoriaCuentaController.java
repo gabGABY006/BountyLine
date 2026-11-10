@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.RestController;
 import co.edu.unbosque.bountyline.dto.AuditoriaCuentaDto;
 import co.edu.unbosque.bountyline.service.AuditoriaCuentaService;
 
-/** Bitácora de cambios de correo y estado de las cuentas (solo administradores). */
 @RestController
 @RequestMapping("/api/auditoria-cuentas")
 @PreAuthorize("hasRole('ADMINISTRADOR')")

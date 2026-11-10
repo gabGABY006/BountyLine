@@ -3,7 +3,6 @@ package co.edu.unbosque.bountyline.model;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-/** Tabla mision: Encargo publicado por un usuario. */
 public class Mision {
 
     private Long idMision;

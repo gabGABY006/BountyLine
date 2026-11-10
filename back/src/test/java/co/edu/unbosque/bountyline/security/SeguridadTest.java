@@ -27,7 +27,6 @@ import com.nimbusds.jose.jwk.source.ImmutableSecret;
 import co.edu.unbosque.bountyline.model.Cuenta;
 import co.edu.unbosque.bountyline.repository.CuentaRepository;
 
-/** Token, lectura de la sesión y bloqueo de cuentas suspendidas, sin levantar Spring. */
 class SeguridadTest {
 
     private static final SecretKey CLAVE = new SecretKeySpec(

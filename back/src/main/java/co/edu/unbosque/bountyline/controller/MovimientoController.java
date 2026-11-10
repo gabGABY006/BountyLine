@@ -23,7 +23,6 @@ public class MovimientoController {
         this.servicio = servicio;
     }
 
-    /** Un administrador puede filtrar por cualquier cuenta; los demás solo ven los de su billetera. */
     @GetMapping
     public List<MovimientoDto> listar(@AuthenticationPrincipal Jwt jwt,
                                       @RequestParam(required = false) Long idCuenta,

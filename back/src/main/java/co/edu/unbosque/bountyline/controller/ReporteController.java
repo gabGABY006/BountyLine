@@ -42,7 +42,6 @@ public class ReporteController {
         return servicio.buscar(id);
     }
 
-    /** Cualquier usuario o cazarrecompensas puede reportar una cuenta o un contenido. */
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     @PreAuthorize("hasAnyRole('USUARIO', 'CAZARRECOMPENSAS')")

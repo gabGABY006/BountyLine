@@ -2,7 +2,6 @@ package co.edu.unbosque.bountyline.model;
 
 import java.time.LocalDateTime;
 
-/** Tabla postulacion: Postulación de un cazarrecompensas a una misión (relación N:M). */
 public class Postulacion {
 
     private Long idMision;

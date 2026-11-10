@@ -7,10 +7,6 @@ import org.springframework.security.oauth2.jwt.Jwt;
 
 import co.edu.unbosque.bountyline.repository.CuentaRepository;
 
-/**
- * Rechaza el token de una cuenta suspendida o que ya no existe, aunque el
- * token todavía no haya vencido. La petición responde 401.
- */
 public class CuentaActivaValidator implements OAuth2TokenValidator<Jwt> {
 
     private static final OAuth2Error CUENTA_INACTIVA =

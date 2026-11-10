@@ -25,7 +25,6 @@ public class BilleteraController {
         this.servicio = servicio;
     }
 
-    /** Billetera de la cuenta autenticada. */
     @GetMapping("/yo")
     public BilleteraDto mia(@AuthenticationPrincipal Jwt jwt) {
         return servicio.buscarPorCuenta(Sesion.id(jwt));
@@ -37,7 +36,6 @@ public class BilleteraController {
         return servicio.buscarPorCuenta(idCuenta);
     }
 
-    /** Recarga simulada de créditos en la propia billetera. */
     @PostMapping("/yo/recargas")
     @PreAuthorize("hasAnyRole('USUARIO', 'CAZARRECOMPENSAS')")
     public BilleteraDto recargar(@AuthenticationPrincipal Jwt jwt, @Valid @RequestBody BilleteraDto.Recarga recarga) {

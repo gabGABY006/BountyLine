@@ -18,10 +18,6 @@ import co.edu.unbosque.bountyline.repository.MisionRepository;
 import co.edu.unbosque.bountyline.repository.PublicacionRepository;
 import co.edu.unbosque.bountyline.repository.ZonaRepository;
 
-/**
- * Feed social guardado en MongoDB (S71 a S75). Los que no son administradores
- * solo ven publicaciones y comentarios visibles.
- */
 @Service
 public class PublicacionService {
 
@@ -85,7 +81,6 @@ public class PublicacionService {
         return aDto(guardada, idCuenta, false);
     }
 
-    /** Solo el autor puede editar su publicación. */
     public PublicacionDto editar(String id, Long idCuenta, PublicacionDto.Edicion e) {
         Publicacion p = obtener(id);
         if (!Objects.equals(p.getIdCuenta(), idCuenta.intValue())) {
@@ -95,7 +90,6 @@ public class PublicacionService {
         return aDto(obtener(id), idCuenta, false);
     }
 
-    /** El autor o un administrador pueden borrarla. */
     public void eliminar(String id, Long idCuenta, boolean admin) {
         Publicacion p = obtener(id);
         if (!admin && !Objects.equals(p.getIdCuenta(), idCuenta.intValue())) {
@@ -114,7 +108,6 @@ public class PublicacionService {
         return aDto(obtener(id), idCuenta, false);
     }
 
-    /** Si la cuenta ya reaccionó igual, la quita. Si reaccionó distinto, la cambia. */
     public PublicacionDto reaccionar(String id, Long idCuenta, String tipo) {
         Publicacion p = obtener(id);
         if (!VISIBLE.equals(p.getEstadoModeracion())) {

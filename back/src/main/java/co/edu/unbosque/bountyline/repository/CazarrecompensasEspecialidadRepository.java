@@ -29,12 +29,10 @@ public class CazarrecompensasEspecialidadRepository {
                 idCazarrecompensas);
     }
 
-    /** Agrega la especialidad o actualiza su nivel. */
     public void guardar(Long idCazarrecompensas, Long idEspecialidad, Integer nivel) {
         procedimientos.llamar("sp_guardar_especialidad_caz", idCazarrecompensas, idEspecialidad, nivel);
     }
 
-    /** Quita la especialidad; la base exige que quede al menos una (S26). */
     public void quitar(Long idCazarrecompensas, Long idEspecialidad) {
         procedimientos.llamar("sp_quitar_especialidad_caz", idCazarrecompensas, idEspecialidad);
     }

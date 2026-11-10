@@ -22,7 +22,6 @@ import co.edu.unbosque.bountyline.security.Sesion;
 import co.edu.unbosque.bountyline.service.PublicacionService;
 import jakarta.validation.Valid;
 
-/** Feed social (MongoDB, colección publicaciones). */
 @RestController
 @RequestMapping("/api/publicaciones")
 public class PublicacionController {
@@ -79,7 +78,6 @@ public class PublicacionController {
         return servicio.comentar(id, Sesion.id(jwt), jwt.getClaimAsString("alias"), comentario);
     }
 
-    /** Envía la misma reacción otra vez para quitarla. */
     @PostMapping("/{id}/reacciones")
     @PreAuthorize("hasAnyRole('USUARIO', 'CAZARRECOMPENSAS')")
     public PublicacionDto reaccionar(@AuthenticationPrincipal Jwt jwt, @PathVariable String id,

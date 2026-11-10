@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.RestController;
 import co.edu.unbosque.bountyline.dto.BitacoraDto;
 import co.edu.unbosque.bountyline.service.BitacoraService;
 
-/** Bitácora del administrador: pagos, misiones, reportes y cambios de cuenta en orden de fecha. */
 @RestController
 @RequestMapping("/api/bitacora")
 @PreAuthorize("hasRole('ADMINISTRADOR')")

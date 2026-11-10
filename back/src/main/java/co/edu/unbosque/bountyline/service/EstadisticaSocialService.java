@@ -7,7 +7,6 @@ import org.springframework.stereotype.Service;
 
 import co.edu.unbosque.bountyline.repository.EstadisticaSocialRepository;
 
-/** Reportes de la parte no relacional para el administrador. */
 @Service
 public class EstadisticaSocialService {
 

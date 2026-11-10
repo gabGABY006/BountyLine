@@ -2,7 +2,6 @@ package co.edu.unbosque.bountyline.model;
 
 import java.time.LocalDateTime;
 
-/** Tabla reporte: Denuncia de una cuenta o de un contenido. */
 public class Reporte {
 
     private Long idReporte;

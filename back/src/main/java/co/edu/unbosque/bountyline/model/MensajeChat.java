@@ -6,7 +6,6 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
-/** Mensaje del chat de una misión (MongoDB), entre el usuario y el cazarrecompensas asignado (S82, S83). */
 @Document(collection = "mensajes_chat")
 public class MensajeChat {
 

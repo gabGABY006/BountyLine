@@ -35,7 +35,6 @@ public class CalificacionController {
         return servicio.listar(idMision, idCazarrecompensas);
     }
 
-    /** El usuario que publicó la misión la califica cuando está cerrada. */
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     @PreAuthorize("hasRole('USUARIO')")

@@ -1,6 +1,5 @@
 package co.edu.unbosque.bountyline.model;
 
-/** Tabla especialidad: Tipo de trabajo que realiza un cazarrecompensas. */
 public class Especialidad {
 
     private Long idEspecialidad;

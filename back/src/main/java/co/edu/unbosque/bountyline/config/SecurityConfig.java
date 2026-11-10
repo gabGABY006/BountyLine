@@ -29,11 +29,6 @@ import com.nimbusds.jose.jwk.source.ImmutableSecret;
 import co.edu.unbosque.bountyline.repository.CuentaRepository;
 import co.edu.unbosque.bountyline.security.CuentaActivaValidator;
 
-/**
- * Seguridad de la API: sin sesión, con token JWT firmado con HMAC (HS256).
- * El token lleva el id de la cuenta (sub) y su rol; el rol se convierte en
- * ROLE_USUARIO, ROLE_CAZARRECOMPENSAS o ROLE_ADMINISTRADOR.
- */
 @Configuration
 @EnableMethodSecurity
 public class SecurityConfig {
@@ -66,7 +61,6 @@ public class SecurityConfig {
         return new NimbusJwtEncoder(new ImmutableSecret<>(clave()));
     }
 
-    /** Además de la firma y el vencimiento, revisa que la cuenta siga activa. */
     @Bean
     public JwtDecoder jwtDecoder(CuentaRepository cuentas) {
         NimbusJwtDecoder decoder = NimbusJwtDecoder.withSecretKey(clave()).macAlgorithm(MacAlgorithm.HS256).build();

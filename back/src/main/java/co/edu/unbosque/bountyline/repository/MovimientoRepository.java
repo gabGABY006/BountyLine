@@ -8,7 +8,6 @@ import org.springframework.stereotype.Repository;
 
 import co.edu.unbosque.bountyline.model.Movimiento;
 
-/** Los movimientos solo se consultan; los crean los procedimientos (S42, S48). */
 @Repository
 public class MovimientoRepository {
 

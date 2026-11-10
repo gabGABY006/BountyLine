@@ -20,7 +20,6 @@ import co.edu.unbosque.bountyline.security.Sesion;
 import co.edu.unbosque.bountyline.service.ZonaService;
 import jakarta.validation.Valid;
 
-/** Catálogo de zonas: la consulta es pública (la usa el registro); solo los administradores lo modifican (S32). */
 @RestController
 @RequestMapping("/api/zonas")
 public class ZonaController {

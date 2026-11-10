@@ -18,7 +18,6 @@ import co.edu.unbosque.bountyline.service.AuthService;
 import co.edu.unbosque.bountyline.service.CuentaService;
 import jakarta.validation.Valid;
 
-/** Registro, inicio de sesión y datos de la cuenta autenticada. */
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
@@ -44,17 +43,12 @@ public class AuthController {
         return auth.iniciarSesion(login);
     }
 
-    /**
-     * Cierre de sesión. El token JWT no se guarda en el servidor, así que el
-     * front lo borra. Esta llamada solo deja el evento en la bitácora de actividad.
-     */
     @PostMapping("/salida")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void salida(@AuthenticationPrincipal Jwt jwt) {
         actividad.cierreSesion(Sesion.id(jwt), Sesion.rol(jwt));
     }
 
-    /** Cuenta dueña del token. */
     @GetMapping("/yo")
     public CuentaDto yo(@AuthenticationPrincipal Jwt jwt) {
         return cuentas.buscar(Sesion.id(jwt));

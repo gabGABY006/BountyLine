@@ -15,7 +15,6 @@ import co.edu.unbosque.bountyline.dto.EventoActividadDto;
 import co.edu.unbosque.bountyline.service.ActividadService;
 import co.edu.unbosque.bountyline.service.EstadisticaSocialService;
 
-/** Bitácora de actividad y reportes de MongoDB. Solo para administradores. */
 @RestController
 @RequestMapping("/api")
 @PreAuthorize("hasRole('ADMINISTRADOR')")

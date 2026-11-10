@@ -44,7 +44,6 @@ public class UsuarioController {
         return servicio.buscar(id);
     }
 
-    /** El usuario actualiza su propio perfil. */
     @PutMapping("/yo")
     @PreAuthorize("hasRole('USUARIO')")
     public UsuarioDto actualizar(@AuthenticationPrincipal Jwt jwt,

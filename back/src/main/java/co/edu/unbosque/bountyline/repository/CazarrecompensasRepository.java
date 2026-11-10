@@ -32,7 +32,6 @@ public class CazarrecompensasRepository {
                 rs.getInt("misiones_completadas"), rs.getString("especialidades"));
     }
 
-    /** Búsqueda manual con filtros (RF-06). */
     public List<CazarrecompensasDto> listarPerfiles(String alias, Long idZona, Long idEspecialidad,
                                                     String disponibilidad) {
         StringBuilder sql = new StringBuilder(SELECT_PERFIL).append(" WHERE estado_cuenta = 'ACTIVA'");
@@ -72,7 +71,6 @@ public class CazarrecompensasRepository {
                 idCazarrecompensas).stream().findFirst();
     }
 
-    /** Totales de la pantalla de ganancias, calculados en la base. */
     public CazarrecompensasDto.Resumen resumen(Long idCazarrecompensas) {
         return jdbc.queryForObject(
                 "SELECT COALESCE((SELECT SUM(mv.monto) FROM movimiento mv JOIN billetera b ON b.id_billetera = mv.id_billetera "

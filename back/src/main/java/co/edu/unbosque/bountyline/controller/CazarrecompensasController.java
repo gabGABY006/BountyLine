@@ -33,7 +33,6 @@ public class CazarrecompensasController {
         this.actividad = actividad;
     }
 
-    /** Búsqueda manual con filtros (RF-06). Solo muestra cuentas activas. */
     @GetMapping
     public List<CazarrecompensasDto> listar(@AuthenticationPrincipal Jwt jwt,
                                             @RequestParam(required = false) String alias,
@@ -50,7 +49,6 @@ public class CazarrecompensasController {
         return lista;
     }
 
-    /** Totales de la pantalla de ganancias. */
     @GetMapping("/yo/resumen")
     @PreAuthorize("hasRole('CAZARRECOMPENSAS')")
     public CazarrecompensasDto.Resumen resumen(@AuthenticationPrincipal Jwt jwt) {
@@ -72,7 +70,6 @@ public class CazarrecompensasController {
         return perfil;
     }
 
-    /** El cazarrecompensas actualiza su propio perfil. */
     @PutMapping("/yo")
     @PreAuthorize("hasRole('CAZARRECOMPENSAS')")
     public CazarrecompensasDto actualizar(@AuthenticationPrincipal Jwt jwt,

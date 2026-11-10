@@ -7,11 +7,6 @@ import org.bson.Document;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Repository;
 
-/**
- * Agregaciones de MongoDB para los reportes de la propuesta (sección 6.2):
- * etiquetas por zona, publicaciones por semana, mensajes por misión y filtros
- * de búsqueda más usados.
- */
 @Repository
 public class EstadisticaSocialRepository {
 

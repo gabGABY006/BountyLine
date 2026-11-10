@@ -13,7 +13,6 @@ import org.springframework.stereotype.Service;
 
 import co.edu.unbosque.bountyline.model.Cuenta;
 
-/** Genera el token JWT que devuelve el inicio de sesión. */
 @Service
 public class TokenService {
 

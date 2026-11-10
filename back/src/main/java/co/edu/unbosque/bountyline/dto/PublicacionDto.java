@@ -7,7 +7,6 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
-/** Publicación del feed con sus comentarios visibles y conteo de reacciones. */
 public record PublicacionDto(String id, Long idCuenta, String alias, String rol, String texto, List<String> etiquetas,
                              Long idZona, String zona, Long idMision, Reacciones reacciones, String miReaccion,
                              List<ComentarioDto> comentarios, String estadoModeracion, Instant fechaPublicacion,
@@ -16,7 +15,6 @@ public record PublicacionDto(String id, Long idCuenta, String alias, String rol,
     public record Reacciones(int meGusta, int fuego, int alerta) {
     }
 
-    /** Las etiquetas van en minúscula, sin tildes ni espacios (ej. "zona_industrial"). */
     public record Nueva(@NotBlank @Size(max = 1000) String texto,
                         @Size(max = 10) List<@Pattern(regexp = "[a-z0-9_]{2,30}") String> etiquetas,
                         Long idZona, Long idMision) {
@@ -29,7 +27,6 @@ public record PublicacionDto(String id, Long idCuenta, String alias, String rol,
     public record NuevoComentario(@NotBlank @Size(max = 500) String texto) {
     }
 
-    /** Tipo de reacción; si la cuenta ya reaccionó con el mismo tipo, la reacción se quita. */
     public record NuevaReaccion(@NotBlank @Pattern(regexp = "me_gusta|fuego|alerta") String tipo) {
     }
 

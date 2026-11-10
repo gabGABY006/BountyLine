@@ -15,11 +15,6 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-/**
- * Convierte los errores en respuestas JSON con un mensaje claro.
- * Los procedimientos almacenados rechazan las reglas de negocio con
- * SIGNAL SQLSTATE '45000'; ese mensaje se devuelve tal cual al cliente.
- */
 @RestControllerAdvice
 public class ApiExceptionHandler {
 

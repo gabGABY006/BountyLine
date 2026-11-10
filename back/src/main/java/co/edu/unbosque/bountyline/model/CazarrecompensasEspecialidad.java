@@ -1,6 +1,5 @@
 package co.edu.unbosque.bountyline.model;
 
-/** Tabla cazarrecompensas_especialidad: Nivel de un cazarrecompensas en una especialidad (relación N:M). */
 public class CazarrecompensasEspecialidad {
 
     private Long idCazarrecompensas;

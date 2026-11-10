@@ -2,7 +2,6 @@ package co.edu.unbosque.bountyline.model;
 
 import java.time.LocalDateTime;
 
-/** Tabla cuenta: Cuenta de acceso (superclase de Usuario, Cazarrecompensas y Administrador). */
 public class Cuenta {
 
     private Long idCuenta;

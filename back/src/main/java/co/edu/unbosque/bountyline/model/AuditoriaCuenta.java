@@ -2,7 +2,6 @@ package co.edu.unbosque.bountyline.model;
 
 import java.time.LocalDateTime;
 
-/** Tabla auditoria_cuenta: Registro de un cambio de estado o de correo de una cuenta. */
 public class AuditoriaCuenta {
 
     private Long idAuditoria;

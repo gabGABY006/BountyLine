@@ -20,7 +20,6 @@ import co.edu.unbosque.bountyline.security.Sesion;
 import co.edu.unbosque.bountyline.service.CuentaService;
 import jakarta.validation.Valid;
 
-/** Consulta y gestión de cuentas. El registro y el inicio de sesión están en /api/auth. */
 @RestController
 @RequestMapping("/api/cuentas")
 public class CuentaController {
@@ -44,13 +43,11 @@ public class CuentaController {
         return servicio.buscar(id);
     }
 
-    /** Cada cuenta cambia su propio correo. */
     @PutMapping("/yo/correo")
     public CuentaDto cambiarCorreo(@AuthenticationPrincipal Jwt jwt, @Valid @RequestBody CuentaDto.CambioCorreo cambio) {
         return servicio.cambiarCorreo(Sesion.id(jwt), cambio);
     }
 
-    /** Cada cuenta cambia su propia contraseña. Responde 204 sin cuerpo. */
     @PutMapping("/yo/contrasena")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void cambiarContrasena(@AuthenticationPrincipal Jwt jwt,
@@ -58,7 +55,6 @@ public class CuentaController {
         servicio.cambiarContrasena(Sesion.id(jwt), cambio);
     }
 
-    /** Suspender o reactivar una cuenta (solo administradores). */
     @PutMapping("/{id}/estado")
     @PreAuthorize("hasRole('ADMINISTRADOR')")
     public CuentaDto cambiarEstado(@AuthenticationPrincipal Jwt jwt, @PathVariable Long id,

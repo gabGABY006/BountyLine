@@ -9,7 +9,6 @@ import org.springframework.stereotype.Repository;
 
 import co.edu.unbosque.bountyline.dto.BitacoraDto;
 
-/** Consulta la vista v_bitacora, que une pagos, misiones, reportes y cambios de cuenta. */
 @Repository
 public class BitacoraRepository {
 

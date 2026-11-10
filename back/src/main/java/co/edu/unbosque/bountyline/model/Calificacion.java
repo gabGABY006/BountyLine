@@ -2,7 +2,6 @@ package co.edu.unbosque.bountyline.model;
 
 import java.time.LocalDateTime;
 
-/** Tabla calificacion: Calificación de una misión cerrada. */
 public class Calificacion {
 
     private Long idCalificacion;

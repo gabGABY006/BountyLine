@@ -3,7 +3,6 @@ package co.edu.unbosque.bountyline.security;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.oauth2.jwt.Jwt;
 
-/** Datos de la cuenta que hace la petición, leídos del token. */
 public final class Sesion {
 
     public static final String USUARIO = "USUARIO";
@@ -25,7 +24,6 @@ public final class Sesion {
         return ADMINISTRADOR.equals(rol(jwt));
     }
 
-    /** Permite el acceso solo a la propia cuenta o a un administrador. */
     public static void exigirPropiaOAdministrador(Jwt jwt, Long idCuenta) {
         if (!esAdministrador(jwt) && !id(jwt).equals(idCuenta)) {
             throw new AccessDeniedException("No tiene permiso para ver o modificar datos de otra cuenta.");

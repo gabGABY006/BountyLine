@@ -5,7 +5,6 @@ import java.time.Instant;
 import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.core.mapping.Field;
 
-/** Comentario embebido en una publicación (MongoDB). Tiene su propio _id para poder reportarlo (S72). */
 public class Comentario {
 
     @Field("_id")

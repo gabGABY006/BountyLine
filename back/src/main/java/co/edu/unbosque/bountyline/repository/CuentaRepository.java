@@ -52,7 +52,6 @@ public class CuentaRepository {
         return jdbc.query(SELECT + " WHERE correo = ?", CuentaRepository::mapear, correo).stream().findFirst();
     }
 
-    /** sp_registrar_cuenta: cuenta + perfil + billetera en una sola transacción. */
     public Long registrar(String correo, String alias, String hash, String rol, String biografia,
                           Long idZona, String especialidadesJson) {
         return procedimientos.llamarConSalida("sp_registrar_cuenta",
@@ -67,7 +66,6 @@ public class CuentaRepository {
         procedimientos.llamar("sp_cambiar_contrasena", idCuenta, hash);
     }
 
-    /** Estado de la cuenta (ACTIVA o SUSPENDIDA), o vacío si no existe. */
     public Optional<String> estado(Long idCuenta) {
         return jdbc.query("SELECT estado FROM cuenta WHERE id_cuenta = ?", (rs, i) -> rs.getString(1), idCuenta)
                 .stream().findFirst();
