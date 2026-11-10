@@ -1,12 +1,13 @@
 # BountyLine API (Spring Boot)
 
-API REST de la parte relacional del proyecto. Se conecta a MySQL en la máquina virtual y ejecuta la lógica de negocio a través de los procedimientos almacenados de `bd/mysql/02_logica.sql`.
+API REST de BountyLine. La parte relacional (cuentas, misiones, pagos, reportes) va en MySQL y ejecuta la lógica de negocio a través de los procedimientos almacenados de `bd/mysql/02_logica.sql`. La parte social (publicaciones, chat de misión y bitácora de actividad) va en MongoDB, con las colecciones de `bd/mongodb`.
 
 ## Requisitos
 
 - JDK 21.
 - Maven no es necesario: el proyecto trae el wrapper `mvnw`.
-- La máquina virtual con MySQL encendida. Por defecto la API busca MySQL en `127.0.0.1:3307`; si la VM usa otra dirección o puerto, cámbielo con `DB_URL`.
+- La máquina virtual con MySQL encendida. Por defecto la API busca MySQL en `127.0.0.1:3307`. Si la VM usa otra dirección o puerto, cámbielo con `DB_URL`.
+- MongoDB con la base `bountyline` cargada. Por defecto la API busca la VM en `127.0.0.1:27018`. Para usar otro servidor, por ejemplo un clúster de Atlas, ponga la cadena de conexión en la variable `MONGODB_URI`.
 
 ## Ejecutar
 
@@ -17,7 +18,9 @@ cd back
 
 En Spring Tool Suite: *File > Import > Existing Maven Projects*, elegir la carpeta `back` y ejecutar `BountylineApplication` como *Spring Boot App*.
 
-La configuración se puede cambiar con variables de entorno: `DB_URL`, `DB_USER`, `DB_PASSWORD`, `PORT`, `CORS_ORIGEN`, `JWT_SECRETO` (mínimo 32 caracteres) y `JWT_HORAS` (duración del token, 8 por defecto).
+La configuración se puede cambiar con variables de entorno: `DB_URL`, `DB_USER`, `DB_PASSWORD`, `MONGODB_URI`, `PORT`, `CORS_ORIGEN`, `JWT_SECRETO` (mínimo 32 caracteres) y `JWT_HORAS` (duración del token, 8 por defecto).
+
+En Spring Tool Suite las variables se ponen en *Run > Run Configurations > Spring Boot App > BountylineApplication > Environment*. La cadena de Atlas lleva usuario y contraseña, así que va solo ahí y nunca en `application.properties` ni en el repositorio. Debe terminar en `/bountyline`, por ejemplo `mongodb+srv://USUARIO:CLAVE@bd2.lnjjdlq.mongodb.net/bountyline?retryWrites=true&w=majority`.
 
 Prueba rápida: <http://localhost:8080/api/salud>
 
@@ -29,9 +32,9 @@ Cada clase del modelo tiene su DTO, repositorio, servicio y controlador.
 
 | Paquete | Contenido |
 | :--- | :--- |
-| `model` | Una clase por cada tabla de la base de datos |
+| `model` | Una clase por cada tabla de MySQL y por cada colección de MongoDB (`Publicacion`, `Comentario`, `MensajeChat`, `EventoActividad`) |
 | `dto` | Objetos de respuesta y de entrada de la API (records) |
-| `repository` | Consultas a tablas y vistas, y llamadas a los procedimientos almacenados |
+| `repository` | Consultas a tablas y vistas, llamadas a los procedimientos almacenados y acceso a MongoDB con `MongoTemplate` |
 | `service` | Reglas de la aplicación (registro, inicio de sesión, validaciones) y conversión a DTO |
 | `controller` | Endpoints REST |
 | `config` | Seguridad (Spring Security con JWT), CORS y codificador BCrypt |
@@ -103,6 +106,32 @@ Roles: U = usuario, C = cazarrecompensas, A = administrador, todos = cualquier c
 | Bitácora | `GET /api/bitacora?tipo=&idCuenta=&desde=&hasta=&limite=` | A | `v_bitacora` |
 | | `GET /api/salud` | público | Prueba de conexión |
 
+Endpoints de MongoDB:
+
+| Entidad | Método y ruta | Rol | Colección |
+| :--- | :--- | :--- | :--- |
+| Publicación | `GET /api/publicaciones?etiqueta=&idZona=&idCuenta=&idMision=&texto=&pagina=&tamano=` | todos | `publicaciones` |
+| | `GET /api/publicaciones/{id}` | todos | |
+| | `POST /api/publicaciones` | U, C | |
+| | `PUT /api/publicaciones/{id}` | autor | |
+| | `DELETE /api/publicaciones/{id}` | autor o A | |
+| | `POST /api/publicaciones/{id}/comentarios` | U, C | |
+| | `POST /api/publicaciones/{id}/reacciones` | U, C | |
+| | `PUT /api/publicaciones/{id}/moderacion` | A | |
+| | `PUT /api/publicaciones/comentarios/{id}/moderacion` | A | |
+| Chat de misión | `GET /api/misiones/{id}/chat` | participantes o A | `mensajes_chat` |
+| | `POST /api/misiones/{id}/chat` | participantes | |
+| | `GET /api/misiones/{id}/chat/sin-leer` · `PUT /api/misiones/{id}/chat/leidos` | participantes | |
+| Bitácora de actividad | `GET /api/bitacora-actividad?tipo=&idCuenta=&desde=&hasta=&limite=` | A | `bitacora_actividad` |
+| Estadísticas sociales | `GET /api/estadisticas-sociales/etiquetas-por-zona?top=` | A | agregaciones |
+| | `GET /api/estadisticas-sociales/publicaciones-por-semana` | A | |
+| | `GET /api/estadisticas-sociales/mensajes-por-mision` | A | |
+| | `GET /api/estadisticas-sociales/filtros-mas-usados` | A | |
+
+Reglas de la parte social. Quien no es administrador solo ve publicaciones y comentarios visibles. Reaccionar dos veces con el mismo tipo quita la reacción y con otro tipo la cambia. En el chat solo escriben el usuario de la misión y el cazarrecompensas asignado, mientras la misión está asignada o en curso, y después de cerrada se puede seguir leyendo.
+
+La API registra sola en `bitacora_actividad` cada intento de inicio de sesión, las búsquedas de misiones y de cazarrecompensas con los filtros usados, y las vistas de misiones y perfiles. Si MongoDB no responde, la petición sigue normal y el error solo queda en el log.
+
 Los movimientos y la auditoría solo se consultan: los crean los procedimientos y los triggers, y la base no deja modificarlos.
 
 ## Ejemplo
@@ -128,4 +157,4 @@ Cuentas de prueba (contraseña `BountyLine2026*`): `axiom_47@bountyline.gg` (usu
 ./mvnw test
 ```
 
-Las pruebas de `src/test` cubren el registro y el inicio de sesión, el cambio de contraseña, el token JWT, los permisos de la sesión, el bloqueo de cuentas suspendidas, la bitácora y el escape de los filtros de texto. No necesitan la base de datos, salvo `BountylineApplicationTests`, que levanta la aplicación completa y requiere la VM encendida.
+Las pruebas de `src/test` cubren el registro y el inicio de sesión, el cambio de contraseña, el token JWT, los permisos de la sesión, el bloqueo de cuentas suspendidas, la bitácora, el chat de misión y el escape de los filtros de texto. No necesitan la base de datos, salvo `BountylineApplicationTests`, que levanta la aplicación completa y requiere MySQL y MongoDB disponibles.

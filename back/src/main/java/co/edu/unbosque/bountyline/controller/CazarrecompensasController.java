@@ -1,6 +1,8 @@
 package co.edu.unbosque.bountyline.controller;
 
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -15,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import co.edu.unbosque.bountyline.dto.CazarrecompensasDto;
 import co.edu.unbosque.bountyline.security.Sesion;
+import co.edu.unbosque.bountyline.service.ActividadService;
 import co.edu.unbosque.bountyline.service.CazarrecompensasService;
 import jakarta.validation.Valid;
 
@@ -23,18 +26,28 @@ import jakarta.validation.Valid;
 public class CazarrecompensasController {
 
     private final CazarrecompensasService servicio;
+    private final ActividadService actividad;
 
-    public CazarrecompensasController(CazarrecompensasService servicio) {
+    public CazarrecompensasController(CazarrecompensasService servicio, ActividadService actividad) {
         this.servicio = servicio;
+        this.actividad = actividad;
     }
 
     /** Búsqueda manual con filtros (RF-06). Solo muestra cuentas activas. */
     @GetMapping
-    public List<CazarrecompensasDto> listar(@RequestParam(required = false) String alias,
+    public List<CazarrecompensasDto> listar(@AuthenticationPrincipal Jwt jwt,
+                                            @RequestParam(required = false) String alias,
                                             @RequestParam(required = false) Long idZona,
                                             @RequestParam(required = false) Long idEspecialidad,
                                             @RequestParam(required = false) String disponibilidad) {
-        return servicio.listar(alias, idZona, idEspecialidad, disponibilidad);
+        List<CazarrecompensasDto> lista = servicio.listar(alias, idZona, idEspecialidad, disponibilidad);
+        Map<String, Object> filtros = new LinkedHashMap<>();
+        filtros.put("alias", alias);
+        filtros.put("id_zona", idZona);
+        filtros.put("id_especialidad", idEspecialidad);
+        filtros.put("disponibilidad", disponibilidad);
+        actividad.busqueda(Sesion.id(jwt), Sesion.rol(jwt), "buscar_cazadores", filtros, lista.size());
+        return lista;
     }
 
     /** Totales de la pantalla de ganancias. */
@@ -51,8 +64,12 @@ public class CazarrecompensasController {
     }
 
     @GetMapping("/{id}")
-    public CazarrecompensasDto buscar(@PathVariable Long id) {
-        return servicio.buscar(id);
+    public CazarrecompensasDto buscar(@AuthenticationPrincipal Jwt jwt, @PathVariable Long id) {
+        CazarrecompensasDto perfil = servicio.buscar(id);
+        if (!id.equals(Sesion.id(jwt))) {
+            actividad.vistaPerfil(Sesion.id(jwt), Sesion.rol(jwt), id);
+        }
+        return perfil;
     }
 
     /** El cazarrecompensas actualiza su propio perfil. */

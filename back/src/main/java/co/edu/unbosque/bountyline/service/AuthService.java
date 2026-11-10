@@ -21,11 +21,14 @@ public class AuthService {
     private final CuentaRepository cuentas;
     private final PasswordEncoder encoder;
     private final TokenService tokens;
+    private final ActividadService actividad;
 
-    public AuthService(CuentaRepository cuentas, PasswordEncoder encoder, TokenService tokens) {
+    public AuthService(CuentaRepository cuentas, PasswordEncoder encoder, TokenService tokens,
+                       ActividadService actividad) {
         this.cuentas = cuentas;
         this.encoder = encoder;
         this.tokens = tokens;
+        this.actividad = actividad;
     }
 
     /** Registra un Usuario o un Cazarrecompensas con su perfil y billetera (S30, S37). */
@@ -45,16 +48,19 @@ public class AuthService {
         return sesion(cuentas.buscarPorId(id).orElseThrow());
     }
 
-    /** Inicio de sesión con correo y contraseña (S16). */
+    /** Inicio de sesión con correo y contraseña (S16). Cada intento queda en la bitácora de actividad. */
     public AuthDto.Sesion iniciarSesion(AuthDto.Login login) {
         Cuenta c = cuentas.buscarPorCorreo(login.correo().trim().toLowerCase())
                 .orElseThrow(() -> new NoAutorizadoException("Correo o contraseña incorrectos."));
         if (!encoder.matches(login.contrasena(), c.getContrasenaHash())) {
+            actividad.inicioSesion(c.getIdCuenta(), c.getRol(), false);
             throw new NoAutorizadoException("Correo o contraseña incorrectos.");
         }
         if ("SUSPENDIDA".equals(c.getEstado())) {
+            actividad.inicioSesion(c.getIdCuenta(), c.getRol(), false);
             throw new NoAutorizadoException("La cuenta está suspendida.");
         }
+        actividad.inicioSesion(c.getIdCuenta(), c.getRol(), true);
         return sesion(c);
     }
 

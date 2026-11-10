@@ -33,6 +33,7 @@ class AuthServiceTest {
     private final BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(4);
     private CuentaRepository cuentas;
     private TokenService tokens;
+    private ActividadService actividad;
     private AuthService auth;
 
     @BeforeEach
@@ -41,7 +42,8 @@ class AuthServiceTest {
         tokens = mock(TokenService.class);
         when(tokens.generar(any(Cuenta.class))).thenReturn("token-de-prueba");
         when(tokens.expiracion()).thenReturn(Instant.now().plusSeconds(3600));
-        auth = new AuthService(cuentas, encoder, tokens);
+        actividad = mock(ActividadService.class);
+        auth = new AuthService(cuentas, encoder, tokens, actividad);
     }
 
     private Cuenta cuenta(String estado, String contrasena) {

@@ -1,6 +1,8 @@
 package co.edu.unbosque.bountyline.controller;
 
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -17,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import co.edu.unbosque.bountyline.dto.MisionDto;
 import co.edu.unbosque.bountyline.security.Sesion;
+import co.edu.unbosque.bountyline.service.ActividadService;
 import co.edu.unbosque.bountyline.service.MisionService;
 import jakarta.validation.Valid;
 
@@ -29,20 +32,31 @@ import jakarta.validation.Valid;
 public class MisionController {
 
     private final MisionService servicio;
+    private final ActividadService actividad;
 
-    public MisionController(MisionService servicio) {
+    public MisionController(MisionService servicio, ActividadService actividad) {
         this.servicio = servicio;
+        this.actividad = actividad;
     }
 
     /** Búsqueda de misiones; el mercado del cazarrecompensas usa estado=PUBLICADA con zona, especialidad y texto. */
     @GetMapping
-    public List<MisionDto> listar(@RequestParam(required = false) String estado,
+    public List<MisionDto> listar(@AuthenticationPrincipal Jwt jwt,
+                                  @RequestParam(required = false) String estado,
                                   @RequestParam(required = false) Long idUsuario,
                                   @RequestParam(required = false) Long idCazarrecompensas,
                                   @RequestParam(required = false) Long idZona,
                                   @RequestParam(required = false) Long idEspecialidad,
                                   @RequestParam(required = false) String texto) {
-        return servicio.listar(new MisionDto.Filtro(estado, idUsuario, idCazarrecompensas, idZona, idEspecialidad, texto));
+        List<MisionDto> lista = servicio.listar(
+                new MisionDto.Filtro(estado, idUsuario, idCazarrecompensas, idZona, idEspecialidad, texto));
+        Map<String, Object> filtros = new LinkedHashMap<>();
+        filtros.put("estado", estado);
+        filtros.put("id_zona", idZona);
+        filtros.put("id_especialidad", idEspecialidad);
+        filtros.put("texto", texto);
+        actividad.busqueda(Sesion.id(jwt), Sesion.rol(jwt), "mercado", filtros, lista.size());
+        return lista;
     }
 
     /** Misiones publicadas por el usuario o asignadas al cazarrecompensas autenticado. */
@@ -56,8 +70,10 @@ public class MisionController {
     }
 
     @GetMapping("/{id}")
-    public MisionDto buscar(@PathVariable Long id) {
-        return servicio.buscar(id);
+    public MisionDto buscar(@AuthenticationPrincipal Jwt jwt, @PathVariable Long id) {
+        MisionDto mision = servicio.buscar(id);
+        actividad.vistaMision(Sesion.id(jwt), Sesion.rol(jwt), id);
+        return mision;
     }
 
     @PostMapping
