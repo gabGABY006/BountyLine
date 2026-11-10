@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 import co.edu.unbosque.bountyline.dto.AuthDto;
 import co.edu.unbosque.bountyline.dto.CuentaDto;
 import co.edu.unbosque.bountyline.security.Sesion;
+import co.edu.unbosque.bountyline.service.ActividadService;
 import co.edu.unbosque.bountyline.service.AuthService;
 import co.edu.unbosque.bountyline.service.CuentaService;
 import jakarta.validation.Valid;
@@ -24,10 +25,12 @@ public class AuthController {
 
     private final AuthService auth;
     private final CuentaService cuentas;
+    private final ActividadService actividad;
 
-    public AuthController(AuthService auth, CuentaService cuentas) {
+    public AuthController(AuthService auth, CuentaService cuentas, ActividadService actividad) {
         this.auth = auth;
         this.cuentas = cuentas;
+        this.actividad = actividad;
     }
 
     @PostMapping("/registro")
@@ -39,6 +42,16 @@ public class AuthController {
     @PostMapping("/login")
     public AuthDto.Sesion login(@Valid @RequestBody AuthDto.Login login) {
         return auth.iniciarSesion(login);
+    }
+
+    /**
+     * Cierre de sesión. El token JWT no se guarda en el servidor, así que el
+     * front lo borra. Esta llamada solo deja el evento en la bitácora de actividad.
+     */
+    @PostMapping("/salida")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void salida(@AuthenticationPrincipal Jwt jwt) {
+        actividad.cierreSesion(Sesion.id(jwt), Sesion.rol(jwt));
     }
 
     /** Cuenta dueña del token. */

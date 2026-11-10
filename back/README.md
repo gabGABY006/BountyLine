@@ -63,6 +63,7 @@ Roles: U = usuario, C = cazarrecompensas, A = administrador, todos = cualquier c
 | Autenticación | `POST /api/auth/registro` | público | `sp_registrar_cuenta` |
 | | `POST /api/auth/login` | público | |
 | | `GET /api/auth/yo` | todos | |
+| | `POST /api/auth/salida` | todos | Deja el cierre de sesión en `bitacora_actividad` |
 | Cuenta | `GET /api/cuentas?rol=&estado=` | A | |
 | | `GET /api/cuentas/{id}` | la propia o A | |
 | | `PUT /api/cuentas/yo/correo` | todos | `sp_cambiar_correo` |
@@ -130,7 +131,9 @@ Endpoints de MongoDB:
 
 Reglas de la parte social. Quien no es administrador solo ve publicaciones y comentarios visibles. Reaccionar dos veces con el mismo tipo quita la reacción y con otro tipo la cambia. En el chat solo escriben el usuario de la misión y el cazarrecompensas asignado, mientras la misión está asignada o en curso, y después de cerrada se puede seguir leyendo.
 
-La API registra sola en `bitacora_actividad` cada intento de inicio de sesión, las búsquedas de misiones y de cazarrecompensas con los filtros usados, y las vistas de misiones y perfiles. Si MongoDB no responde, la petición sigue normal y el error solo queda en el log.
+Cuando el administrador da por resuelto un reporte sobre una publicación o un comentario, ese contenido queda oculto en MongoDB sin más pasos. Al crear el reporte se comprueba que el contenido exista.
+
+La API registra sola en `bitacora_actividad` cada intento de inicio de sesión, los cierres de sesión, las búsquedas de misiones y de cazarrecompensas con los filtros usados, y las vistas de misiones y perfiles. Si MongoDB no responde, la petición sigue normal y el error solo queda en el log.
 
 Los movimientos y la auditoría solo se consultan: los crean los procedimientos y los triggers, y la base no deja modificarlos.
 
@@ -157,4 +160,4 @@ Cuentas de prueba (contraseña `BountyLine2026*`): `axiom_47@bountyline.gg` (usu
 ./mvnw test
 ```
 
-Las pruebas de `src/test` cubren el registro y el inicio de sesión, el cambio de contraseña, el token JWT, los permisos de la sesión, el bloqueo de cuentas suspendidas, la bitácora, el chat de misión y el escape de los filtros de texto. No necesitan la base de datos, salvo `BountylineApplicationTests`, que levanta la aplicación completa y requiere MySQL y MongoDB disponibles.
+Las pruebas de `src/test` cubren el registro y el inicio de sesión, el cambio de contraseña, el token JWT, los permisos de la sesión, el bloqueo de cuentas suspendidas, la bitácora, el chat de misión, los reportes de contenido y el escape de los filtros de texto. No necesitan la base de datos, salvo `BountylineApplicationTests`, que levanta la aplicación completa y requiere MySQL y MongoDB disponibles.

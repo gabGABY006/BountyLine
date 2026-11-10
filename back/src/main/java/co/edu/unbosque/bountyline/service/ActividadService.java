@@ -41,6 +41,10 @@ public class ActividadService {
         guardar(e);
     }
 
+    public void cierreSesion(Long idCuenta, String rol) {
+        guardar(nuevo("CIERRE_SESION", idCuenta, rol));
+    }
+
     /** Búsqueda con los filtros que se usaron (solo los que traen valor). */
     public void busqueda(Long idCuenta, String rol, String pantalla, Map<String, Object> filtros, int resultados) {
         EventoActividad e = nuevo("BUSQUEDA", idCuenta, rol);

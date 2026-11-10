@@ -111,6 +111,12 @@ public class PublicacionRepository {
                 .getMatchedCount() > 0;
     }
 
+    /** True si existe un comentario con ese id en alguna publicación. */
+    public boolean existeComentario(String idComentario) {
+        return ObjectId.isValid(idComentario)
+                && mongo.count(new Query(Criteria.where("comentarios._id").is(new ObjectId(idComentario))), Publicacion.class) > 0;
+    }
+
     private static Query porId(String id) {
         return new Query(Criteria.where("_id").is(new ObjectId(id)));
     }
