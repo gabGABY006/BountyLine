@@ -7,6 +7,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,8 +20,9 @@ import co.edu.unbosque.bountyline.model.EventoActividad;
 import co.edu.unbosque.bountyline.repository.EventoActividadRepository;
 
 /**
- * Bitácora de actividad en MongoDB (S84). Registrar un evento nunca hace
- * fallar la petición: si MongoDB no responde, solo queda un aviso en el log.
+ * Bitácora de actividad en MongoDB (S84). Los eventos se guardan en un hilo
+ * aparte, así que registrar uno nunca demora ni hace fallar la petición: si
+ * MongoDB no responde, solo queda un aviso en el log.
  */
 @Service
 public class ActividadService {
@@ -30,6 +33,11 @@ public class ActividadService {
     private static final ZoneId ZONA = ZoneId.of("America/Bogota");
 
     private final EventoActividadRepository eventos;
+    private final ExecutorService hilo = Executors.newSingleThreadExecutor(r -> {
+        Thread t = new Thread(r, "bitacora-actividad");
+        t.setDaemon(true);
+        return t;
+    });
 
     public ActividadService(EventoActividadRepository eventos) {
         this.eventos = eventos;
@@ -101,11 +109,13 @@ public class ActividadService {
     }
 
     private void guardar(EventoActividad e) {
-        try {
-            eventos.insertar(e);
-        } catch (RuntimeException ex) {
-            LOG.warn("No se pudo registrar el evento {} en MongoDB: {}", e.getTipo(), ex.getMessage());
-        }
+        hilo.execute(() -> {
+            try {
+                eventos.insertar(e);
+            } catch (RuntimeException ex) {
+                LOG.warn("No se pudo registrar el evento {} en MongoDB: {}", e.getTipo(), ex.getMessage());
+            }
+        });
     }
 
     private static EventoActividadDto aDto(EventoActividad e) {

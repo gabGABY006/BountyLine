@@ -7,7 +7,7 @@ API REST de BountyLine. La parte relacional (cuentas, misiones, pagos, reportes)
 - JDK 21.
 - Maven no es necesario: el proyecto trae el wrapper `mvnw`.
 - La máquina virtual con MySQL encendida. Por defecto la API busca MySQL en `127.0.0.1:3307`. Si la VM usa otra dirección o puerto, cámbielo con `DB_URL`.
-- MongoDB con la base `bountyline` cargada. Por defecto la API busca la VM en `127.0.0.1:27018`. Para usar otro servidor, por ejemplo un clúster de Atlas, ponga la cadena de conexión en la variable `MONGODB_URI`.
+- MongoDB con la base `bountyline` cargada. Por ahora la API usa el clúster de Atlas que está en `spring.mongodb.uri` de `application.properties`. Cuando la VM de MongoDB funcione, se cambia esa línea por la dirección de la VM.
 
 ## Ejecutar
 
@@ -18,9 +18,7 @@ cd back
 
 En Spring Tool Suite: *File > Import > Existing Maven Projects*, elegir la carpeta `back` y ejecutar `BountylineApplication` como *Spring Boot App*.
 
-La configuración se puede cambiar con variables de entorno: `DB_URL`, `DB_USER`, `DB_PASSWORD`, `MONGODB_URI`, `PORT`, `CORS_ORIGEN`, `JWT_SECRETO` (mínimo 32 caracteres) y `JWT_HORAS` (duración del token, 8 por defecto).
-
-En Spring Tool Suite las variables se ponen en *Run > Run Configurations > Spring Boot App > BountylineApplication > Environment*. La cadena de Atlas lleva usuario y contraseña, así que va solo ahí y nunca en `application.properties` ni en el repositorio. Debe terminar en `/bountyline`, por ejemplo `mongodb+srv://USUARIO:CLAVE@bd2.lnjjdlq.mongodb.net/bountyline?retryWrites=true&w=majority`.
+La configuración se puede cambiar con variables de entorno: `DB_URL`, `DB_USER`, `DB_PASSWORD`, `PORT`, `CORS_ORIGEN`, `JWT_SECRETO` (mínimo 32 caracteres) y `JWT_HORAS` (duración del token, 8 por defecto).
 
 Prueba rápida: <http://localhost:8080/api/salud>
 
