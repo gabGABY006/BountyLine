@@ -8,94 +8,427 @@
 
 <!-- PESTAÑAS -->
 <div class="job-tabs">
-  <button type="button" *ngFor="let tab of pestanas" [class.active]="pestana === tab" (click)="cambiarPestana(tab)">
+  <button
+    type="button"
+    *ngFor="let tab of pestanas"
+    [class.active]="pestana === tab"
+    (click)="cambiarPestana(tab)"
+  >
     {{ tab }}<span>{{ contar(tab) }}</span>
   </button>
 </div>
 
 <div class="workspace-grid">
+
   <!-- LISTA DE TRABAJOS -->
   <section class="mission-stack">
-    <div class="empty-state" *ngIf="cargando">Cargando tus trabajos…</div>
-    <div class="empty-state" *ngIf="error">{{ error }}</div>
-    <div *ngFor="let job of lista" (click)="seleccionar(job)">
-      <article class="simple-mission-card" [ngClass]="job.tone" [class.selected]="job.id === selected.id">
-        <div class="simple-mission-image"><img [src]="job.image" alt="" /><span>{{ job.id }}</span></div>
-        <div class="simple-mission-body">
-          <div class="mission-card-top">
-            <span>{{ job.id }}</span>
-            <span class="mission-status" [ngClass]="statusClass(job.status)"><i></i>{{ job.status }}</span>
-          </div>
-          <h3>{{ job.title }}</h3>
-          <div class="mission-tags">
-            <span>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="square" aria-hidden="true"><path d="m3 6 6-3 6 3 6-3v15l-6 3-6-3-6 3Z" /><path d="M9 3v15m6-12v15" /></svg>
-              {{ job.zone }}
-            </span>
-            <span>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="7" /><path d="M12 2v5m0 10v5M2 12h5m10 0h5" /></svg>
-              {{ job.specialty }}
-            </span>
-          </div>
-          <div class="mission-card-foot">
-            <div><small>RECOMPENSA</small><strong>{{ formatear(job.reward) }} <em>CR</em></strong></div>
-            <button type="button" class="compact-primary" [disabled]="job.status !== 'ASIGNADA'" (click)="accion($event, job)">
-              {{ textoAccion(job) }}
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="square" aria-hidden="true"><path d="M5 12h14m-5-5 5 5-5 5" /></svg>
-            </button>
-          </div>
-        </div>
-      </article>
+
+    <div class="empty-state" *ngIf="cargando">
+      Cargando tus trabajos…
     </div>
 
-    <div class="empty-state" *ngIf="!cargando && !error && lista.length === cero">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="square" aria-hidden="true"><circle cx="12" cy="12" r="8" /><circle cx="12" cy="12" r="3" /><path d="M12 2v3m0 14v3M2 12h3m14 0h3" /></svg>
+    <div class="empty-state" *ngIf="error">
+      {{ error }}
+    </div>
+
+    <div *ngFor="let job of lista" (click)="seleccionar(job)">
+
+      <article
+        class="simple-mission-card"
+        [ngClass]="job.tone"
+        [class.selected]="job.id === selected.id"
+      >
+
+        <div class="simple-mission-image">
+          <img [src]="job.image" alt="" />
+          <span>{{ job.id }}</span>
+        </div>
+
+        <div class="simple-mission-body">
+
+          <div class="mission-card-top">
+            <span>{{ job.id }}</span>
+
+            <span
+              class="mission-status"
+              [ngClass]="statusClass(job.status)"
+            >
+              <i></i>
+              {{ job.status }}
+            </span>
+          </div>
+
+          <h3>{{ job.title }}</h3>
+
+          <div class="mission-tags">
+
+            <span>
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.8"
+                stroke-linecap="square"
+                aria-hidden="true"
+              >
+                <path d="m3 6 6-3 6 3 6-3v15l-6 3-6-3-6 3Z" />
+                <path d="M9 3v15m6-12v15" />
+              </svg>
+
+              {{ job.zone }}
+            </span>
+
+            <span>
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.8"
+                aria-hidden="true"
+              >
+                <circle cx="12" cy="12" r="7" />
+                <path d="M12 2v5m0 10v5M2 12h5m10 0h5" />
+              </svg>
+
+              {{ job.specialty }}
+            </span>
+
+          </div>
+
+          <div class="mission-card-foot">
+
+            <div>
+              <small>RECOMPENSA</small>
+
+              <strong>
+                {{ formatear(job.reward) }}
+                <em>CR</em>
+              </strong>
+            </div>
+
+            <button
+              type="button"
+              class="compact-primary"
+              [disabled]="job.status !== 'ASIGNADA'"
+              (click)="accion($event, job)"
+            >
+              {{ textoAccion(job) }}
+
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.8"
+                stroke-linecap="square"
+                aria-hidden="true"
+              >
+                <path d="M5 12h14m-5-5 5 5-5 5" />
+              </svg>
+            </button>
+
+          </div>
+
+        </div>
+
+      </article>
+
+    </div>
+
+    <div
+      class="empty-state"
+      *ngIf="!cargando && !error && lista.length === cero"
+    >
+      <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.8"
+        stroke-linecap="square"
+        aria-hidden="true"
+      >
+        <circle cx="12" cy="12" r="8" />
+        <circle cx="12" cy="12" r="3" />
+        <path d="M12 2v3m0 14v3M2 12h3m14 0h3" />
+      </svg>
+
       <b>SIN TRABAJOS</b>
       <span>No tienes trabajos en esta pestaña.</span>
     </div>
+
   </section>
+
 
   <!-- DETALLE -->
   <aside class="mission-detail panel">
+
     <div class="detail-header">
-      <div><small>MISIÓN SELECCIONADA</small><h2>{{ selected.id }}</h2></div>
-      <span class="mission-status" [ngClass]="statusClass(selected.status)"><i></i>{{ selected.status }}</span>
+
+      <div>
+        <small>MISIÓN SELECCIONADA</small>
+        <h2>{{ selected.id }}</h2>
+      </div>
+
+      <span
+        class="mission-status"
+        [ngClass]="statusClass(selected.status)"
+      >
+        <i></i>
+        {{ selected.status }}
+      </span>
+
     </div>
+
 
     <div class="detail-copy">
+
       <h3>{{ selected.title }}</h3>
-      <p>El cliente compartirá la ubicación exacta cuando te asigne la misión. Pago protegido por la red.</p>
-      <small class="client-ref">CLIENTE: {{ selected.client }}</small>
+
+      <p>
+        El cliente compartirá la ubicación exacta cuando te asigne
+        la misión. Pago protegido por la red.
+      </p>
+
+      <small class="client-ref">
+        CLIENTE: {{ selected.client }}
+      </small>
+
     </div>
 
+
+    <!-- TIMELINE -->
     <div class="mission-timeline">
-      <div *ngFor="let paso of pasos; let i = index" [class.done]="estaCompleto(i)">
+
+      <div
+        *ngFor="let paso of pasos; let i = index"
+        [class.done]="estaCompleto(i)"
+      >
         <i></i>
-        <span><b>{{ paso }}</b><small>{{ subtituloPaso(i) }}</small></span>
+
+        <span>
+          <b>{{ paso }}</b>
+          <small>{{ subtituloPaso(i) }}</small>
+        </span>
       </div>
+
     </div>
+
+
+    <!-- ====================================================== -->
+    <!-- CHAT / CANAL DE MISIÓN -->
+    <!-- ====================================================== -->
 
     <div class="mini-chat">
-      <p class="eyebrow">CANAL DE MISIÓN</p>
-      <p class="chat-empty">El canal privado estará disponible cuando se integre MongoDB.</p>
+
+      <p class="eyebrow">
+        CANAL DE MISIÓN
+      </p>
+
+
+      <!-- SIN CANAL -->
+      <div
+        class="chat-empty"
+        *ngIf="!tieneCanal"
+      >
+
+        <span class="chat-lock">
+          🔒
+        </span>
+
+        <strong>
+          CANAL NO DISPONIBLE
+        </strong>
+
+        <span>
+          El canal privado estará disponible cuando la misión
+          sea asignada o se encuentre en curso.
+        </span>
+
+      </div>
+
+
+      <!-- CANAL DISPONIBLE -->
+      <div
+        class="chat-container"
+        *ngIf="tieneCanal"
+      >
+
+        <!-- CARGANDO -->
+        <div
+          class="chat-loading"
+          *ngIf="cargandoChat"
+        >
+          Cargando conversación…
+        </div>
+
+
+        <!-- MENSAJES -->
+        <div
+          class="chat-messages"
+          *ngIf="!cargandoChat"
+        >
+
+          <!-- SIN MENSAJES -->
+          <div
+            class="chat-empty chat-empty-small"
+            *ngIf="selected.messages.length === 0"
+          >
+
+            <span>
+              Aún no hay mensajes en este canal.
+            </span>
+
+            <small>
+              Envía el primer mensaje al cliente.
+            </small>
+
+          </div>
+
+
+          <!-- LISTA DE MENSAJES -->
+          <div
+            class="chat-message"
+            *ngFor="let mensaje of selected.messages"
+            [class.chat-message-own]="mensaje.aliasEmisor === miAlias"
+          >
+
+            <div class="chat-message-header">
+
+              <strong>
+                {{ mensaje.aliasEmisor }}
+              </strong>
+
+              <small>
+                {{ mensaje.fecha | date:'dd/MM HH:mm' }}
+              </small>
+
+            </div>
+
+            <p>
+              {{ mensaje.texto }}
+            </p>
+
+          </div>
+
+        </div>
+
+
+        <!-- ESCRIBIR MENSAJE -->
+        <div class="chat-input-area">
+
+          <input
+            type="text"
+            [(ngModel)]="nuevoMensaje"
+            placeholder="Escribe un mensaje..."
+            maxlength="1000"
+            (keyup.enter)="enviarMensaje()"
+            [disabled]="!chatActivo"
+          />
+
+          <button
+            type="button"
+            class="chat-send"
+            (click)="enviarMensaje()"
+            [disabled]="!chatActivo || !nuevoMensaje.trim()"
+            aria-label="Enviar mensaje"
+          >
+
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.8"
+              stroke-linecap="square"
+              stroke-linejoin="miter"
+              aria-hidden="true"
+            >
+              <path d="M22 2 11 13" />
+              <path d="m22 2-7 20-4-9-9-4Z" />
+            </svg>
+
+          </button>
+
+        </div>
+
+      </div>
+
     </div>
+
   </aside>
+
 </div>
+
 
 <!-- MODAL: INICIAR MISIÓN -->
-<div class="modal-backdrop" *ngIf="pendiente" (click)="cancelarInicio()">
-  <section class="confirm-modal" (click)="$event.stopPropagation()">
+<div
+  class="modal-backdrop"
+  *ngIf="pendiente"
+  (click)="cancelarInicio()"
+>
+
+  <section
+    class="confirm-modal"
+    (click)="$event.stopPropagation()"
+  >
+
     <span class="modal-icon">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="square" stroke-linejoin="miter" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z" /></svg>
+
+      <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.8"
+        stroke-linecap="square"
+        stroke-linejoin="miter"
+        aria-hidden="true"
+      >
+        <path
+          d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"
+        />
+      </svg>
+
     </span>
-    <p class="eyebrow">CONFIRMACIÓN REQUERIDA</p>
-    <h2>¿Iniciar {{ pendiente.id }}?</h2>
-    <p class="modal-copy">La misión «{{ pendiente.title }}» pasará a En curso y el cliente será notificado.</p>
+
+    <p class="eyebrow">
+      CONFIRMACIÓN REQUERIDA
+    </p>
+
+    <h2>
+      ¿Iniciar {{ pendiente.id }}?
+    </h2>
+
+    <p class="modal-copy">
+      La misión «{{ pendiente.title }}» pasará a En curso
+      y el cliente será notificado.
+    </p>
+
     <div class="modal-actions">
-      <button type="button" (click)="cancelarInicio()">VOLVER</button>
-      <button type="button" class="primary" (click)="confirmarInicio()">CONFIRMAR</button>
+
+      <button
+        type="button"
+        (click)="cancelarInicio()"
+      >
+        VOLVER
+      </button>
+
+      <button
+        type="button"
+        class="primary"
+        (click)="confirmarInicio()"
+      >
+        CONFIRMAR
+      </button>
+
     </div>
+
   </section>
+
 </div>
 
-<div class="toast" *ngIf="toast">{{ toast }}</div>
+
+<!-- TOAST -->
+<div
+  class="toast"
+  *ngIf="toast"
+>
+  {{ toast }}
+</div>
