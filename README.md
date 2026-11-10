@@ -6,7 +6,7 @@
 
 <br/>
 
-![Estado](https://img.shields.io/badge/estado-en_finalizado-031c24?style=flat-square&labelColor=031c24&color=1de9a0)
+![Estado](https://img.shields.io/badge/estado-finalizado-031c24?style=flat-square&labelColor=031c24&color=1de9a0)
 ![Curso](https://img.shields.io/badge/Bases_de_Datos_2-proyecto_final-031c24?style=flat-square&labelColor=031c24&color=19f5f0)
 ![DB](https://img.shields.io/badge/base_de_datos-h%C3%ADbrida-031c24?style=flat-square&labelColor=031c24&color=e8408f)
 
