@@ -125,11 +125,11 @@
         </div>
 
         <div class="post-actions">
-          <button type="button" class="react" [class.liked]="m.miReaccion" aria-label="Reacciones disponibles al integrar MongoDB" disabled>
+          <button type="button" class="react" [class.liked]="m.miReaccion" aria-label="Reaccionar a la misión" [disabled]="!m.idPublicacion" (click)="reaccionar(m, $event)">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="square" stroke-linejoin="miter" aria-hidden="true"><path d="m13 2-8 12h7l-1 8 8-12h-7Z" /></svg>
             {{ totalReacciones(m) }}
           </button>
-          <button type="button" class="comments" aria-label="Comentarios disponibles al integrar MongoDB" disabled>
+          <button type="button" class="comments" aria-label="Ver comentarios de la misión" [disabled]="m.id === selectedId">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="square" stroke-linejoin="miter" aria-hidden="true"><path d="M21 15a4 4 0 0 1-4 4H8l-5 3 1.5-5A7 7 0 0 1 3 12V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4Z" /></svg>
             {{ m.comentarios.length }}
           </button>
@@ -254,15 +254,39 @@
       </form>
 
       <!-- Chat privado: dueño ↔ cazador asignado -->
-      <div class="mini-chat" *ngIf="esMia(m)">
+      <div class="mini-chat" *ngIf="esMia(m) || esCazadorAsignado(m)">
         <p class="eyebrow">CANAL DE MISIÓN (PRIVADO)</p>
-        <p class="chat-empty">El chat privado estará disponible al integrar MongoDB.</p>
+        <ng-container *ngIf="mostrarChat; else chatNoDisponible">
+          <div class="chat-message" *ngFor="let mensaje of m.mensajes" [class.own]="mensaje.esMio">
+            <span class="avatar" [ngClass]="tonoAutor(mensaje.autor)">{{ mensaje.iniciales }}</span>
+            <p><b>{{ mensaje.autor }} <small>{{ hace(mensaje.fecha) }}</small></b><span>{{ mensaje.texto }}</span></p>
+          </div>
+          <p class="chat-empty pad" *ngIf="m.mensajes.length === 0">Aún no hay mensajes en este canal.</p>
+          <form (submit)="enviarMensaje($event, mensajeInput)">
+            <input #mensajeInput maxlength="1000" placeholder="Escribe un mensaje privado…" [disabled]="!chatActivo || mensajeEnviando" />
+            <button type="submit" aria-label="Enviar mensaje" [disabled]="!chatActivo || mensajeEnviando">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="m22 2-7 20-4-9-9-4Z" /><path d="M22 2 11 13" /></svg>
+            </button>
+          </form>
+          <p class="chat-empty" *ngIf="!chatActivo">La misión está cerrada; puedes consultar el historial, pero ya no enviar mensajes.</p>
+        </ng-container>
+        <ng-template #chatNoDisponible><p class="chat-empty">El chat se activará cuando la misión tenga un cazarrecompensas asignado.</p></ng-template>
       </div>
 
       <!-- Preguntas públicas (visibles para toda la red) -->
       <div class="mini-chat comments">
         <p class="eyebrow">COMENTARIOS</p>
-        <p class="chat-empty">Los comentarios estarán disponibles al integrar MongoDB.</p>
+        <div class="chat-message" *ngFor="let comentario of m.comentarios">
+          <span class="avatar" [ngClass]="tonoAutor(comentario.autor)">{{ comentario.iniciales }}</span>
+          <p><b>{{ comentario.autor }} <small>{{ hace(comentario.fecha) }}</small></b><span>{{ comentario.texto }}</span></p>
+        </div>
+        <p class="chat-empty pad" *ngIf="m.comentarios.length === 0">Aún no hay comentarios. Inicia la conversación.</p>
+        <form *ngIf="puedeComentar" (submit)="enviarComentario($event, comentarioInput)">
+          <input #comentarioInput maxlength="500" placeholder="Escribe un comentario público…" [disabled]="comentarioEnviando" />
+          <button type="submit" aria-label="Publicar comentario" [disabled]="comentarioEnviando">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="m22 2-7 20-4-9-9-4Z" /><path d="M22 2 11 13" /></svg>
+          </button>
+        </form>
       </div>
     </ng-container>
 

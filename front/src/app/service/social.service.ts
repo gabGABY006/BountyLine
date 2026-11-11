@@ -43,6 +43,17 @@ export interface NuevaPublicacion {
   idMision?: number | null;
 }
 
+export interface MensajeChatApi {
+  id: string;
+  idMision: number;
+  idEmisor: number;
+  aliasEmisor: string;
+  rolEmisor: string;
+  texto: string;
+  fecha: string;
+  leido: boolean;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -168,5 +179,17 @@ export class SocialService {
       `${API_URL}/publicaciones/comentarios/${idComentario}/moderacion`,
       { estado }
     );
+  }
+
+  listarChat(idMision: number): Observable<MensajeChatApi[]> {
+    return this.http.get<MensajeChatApi[]>(`${API_URL}/misiones/${idMision}/chat`);
+  }
+
+  enviarMensaje(idMision: number, texto: string): Observable<MensajeChatApi> {
+    return this.http.post<MensajeChatApi>(`${API_URL}/misiones/${idMision}/chat`, { texto });
+  }
+
+  marcarChatLeido(idMision: number): Observable<{ marcados: number }> {
+    return this.http.put<{ marcados: number }>(`${API_URL}/misiones/${idMision}/chat/leidos`, {});
   }
 }

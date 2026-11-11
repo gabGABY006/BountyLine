@@ -108,7 +108,7 @@
     <section class="panel">
       <header class="panel-head">
         <div>
-          <p class="eyebrow">AUDITORÍA CIFRADA</p>
+          <p class="eyebrow">BITÁCORA</p>
           <h2>Actividad del sistema</h2>
         </div>
         <span class="hash">HASH 8F:2A:91</span>
@@ -122,7 +122,7 @@
         </p>
         <time>{{ e.hora }}</time>
       </div>
-      <p class="panel-vacio" *ngIf="!eventos.length">{{ cargando ? 'Consultando auditoría…' : fuentesConError.includes('auditoría') ? 'No se pudo cargar la auditoría.' : 'Aún no hay actividad registrada.' }}</p>
+      <p class="panel-vacio" *ngIf="!eventos.length">{{ cargando ? 'Consultando bitácora…' : fuentesConError.includes('bitácora') ? 'No se pudo cargar la bitácora.' : 'Aún no hay actividad registrada.' }}</p>
     </section>
 
     <!-- Accesos rápidos -->

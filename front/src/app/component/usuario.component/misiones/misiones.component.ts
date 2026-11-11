@@ -5,12 +5,13 @@ import { AuthService } from '../../../service/auth.service';
 import { Catalogo, CatalogoService } from '../../../service/catalogo.service';
 import { BilleteraService } from '../../../service/billetera.service';
 import { MisionService, SugerenciaApi } from '../../../service/mision.service';
+import { MensajeChatApi, PublicacionApi, SocialService } from '../../../service/social.service';
 
 /* =====================================================================
  * MODELOS
  *
- * Datos relacionales de una misión y sus postulaciones. Las interacciones
- * sociales marcadas abajo dependen de MongoDB y siguen fuera de alcance:
+ * Datos relacionales de una misión y sus postulaciones. La publicación,
+ * comentarios, reacciones y chat se cargan desde los endpoints sociales:
  *
  *   MySQL · Misión ......... id, autor, zona, especialidad, titulo,
  *                            descripcion, recompensa, estado, creadaEn,
@@ -55,6 +56,8 @@ export interface Mensaje {
   autor: string;
   iniciales: string;
   texto: string;
+  fecha: string;
+  esMio: boolean;
 }
 
 /** MongoDB · comentarios embebidos en la publicación. */
@@ -77,10 +80,13 @@ export interface Mision {
   cazador?: string;
   postulaciones: Postulacion[];
   creadaEn: string; // fecha_publicacion (ISO)
+  idCazarrecompensas: number | null;
+  idZona: number;
+  idPublicacion?: string;
   // --- MongoDB · publicaciones ---
   etiquetas: string[];
   reacciones: Record<string, number>; // conteo por tipo
-  miReaccion?: boolean;
+  miReaccion?: string | null;
   comentarios: Comentario[];
   // --- MongoDB · mensajes_chat ---
   mensajes: Mensaje[];
@@ -200,6 +206,8 @@ export class MisionesComponent implements OnInit {
   calificacion = 0;
   calificadas: Record<string, number> = {};
   toast = '';
+  comentarioEnviando = false;
+  mensajeEnviando = false;
 
   // ---------- Estado del composer ----------
   tituloNuevo = '';
@@ -209,7 +217,7 @@ export class MisionesComponent implements OnInit {
   etiquetasNuevas = '';
   valores: Record<string, string> = {};
 
-  constructor(private api: ApiService, private auth: AuthService, private catalogos: CatalogoService, private wallet: BilleteraService, private missionApi: MisionService, private cdr: ChangeDetectorRef) {}
+  constructor(private api: ApiService, private auth: AuthService, private catalogos: CatalogoService, private wallet: BilleteraService, private missionApi: MisionService, private social: SocialService, private cdr: ChangeDetectorRef) {}
 
   ngOnInit(): void {
     forkJoin({ zonas: this.catalogos.zonas(), especialidades: this.catalogos.especialidades(), misiones: this.api.misiones(), propias: this.api.mias(), wallet: this.wallet.miBilletera() }).subscribe({
@@ -222,7 +230,7 @@ export class MisionesComponent implements OnInit {
         this.selectedId = this.misiones[0]?.id ?? '';
         this.cargando = false;
         this.cdr.markForCheck();
-        if (this.selected) this.cargarPostulaciones(this.selected);
+        if (this.selected) { this.cargarPostulaciones(this.selected); this.cargarSocial(this.selected); this.cargarChat(this.selected); }
         const misIds = new Set(this.misiones.filter((m) => this.esMia(m)).map((m) => this.idMision(m)));
         this.api.calificaciones().subscribe({ next: (xs) => { for (const c of xs) if (misIds.has(c.idMision)) this.calificadas[`BL-${c.idMision}`] = c.puntaje; this.cdr.markForCheck(); }, error: () => this.cdr.markForCheck() });
       },
@@ -231,7 +239,7 @@ export class MisionesComponent implements OnInit {
   }
 
   private adaptarMision(m: any): Mision {
-    return { id: `BL-${m.idMision}`, autor: { idCuenta: m.idUsuario, alias: m.aliasUsuario, iniciales: (m.aliasUsuario ?? '').replace(/[^A-Za-z0-9]/g, '').slice(0, 2).toUpperCase() }, especialidad: m.especialidad, zona: m.zona, titulo: m.titulo, recompensa: Number(m.montoRecompensa), descripcion: m.descripcion, estado: m.estado, cazador: m.aliasCazarrecompensas ?? undefined, postulaciones: [], creadaEn: m.fechaPublicacion, etiquetas: [], reacciones: {}, comentarios: [], mensajes: [] };
+    return { id: `BL-${m.idMision}`, autor: { idCuenta: m.idUsuario, alias: m.aliasUsuario, iniciales: (m.aliasUsuario ?? '').replace(/[^A-Za-z0-9]/g, '').slice(0, 2).toUpperCase() }, especialidad: m.especialidad, zona: m.zona, titulo: m.titulo, recompensa: Number(m.montoRecompensa), descripcion: m.descripcion, estado: m.estado, cazador: m.aliasCazarrecompensas ?? undefined, idCazarrecompensas: m.idCazarrecompensas ?? null, idZona: m.idZona, postulaciones: [], creadaEn: m.fechaPublicacion, etiquetas: [], reacciones: {}, comentarios: [], mensajes: [] };
   }
 
   private idMision(m: Mision): number { return Number(m.id.replace(/^BL-/, '')); }
@@ -276,7 +284,21 @@ export class MisionesComponent implements OnInit {
 
   get chatActivo(): boolean {
     const m = this.selected;
-    return !!m && this.esMia(m) && !!m.cazador && ['ASIGNADA', 'EN_CURSO'].includes(m.estado);
+    return !!m && this.esParticipante(m) && !!m.idCazarrecompensas && ['ASIGNADA', 'EN_CURSO'].includes(m.estado);
+  }
+
+  get mostrarChat(): boolean {
+    const m = this.selected;
+    return !!m && this.esParticipante(m) && !!m.idCazarrecompensas && ['ASIGNADA', 'EN_CURSO', 'CERRADA'].includes(m.estado);
+  }
+
+  esCazadorAsignado(m: Mision): boolean {
+    return this.auth.sesion?.idCuenta != null && this.auth.sesion.idCuenta === m.idCazarrecompensas;
+  }
+
+  get puedeComentar(): boolean {
+    const rol = this.auth.sesion?.rol;
+    return rol === 'USUARIO' || rol === 'CAZARRECOMPENSAS';
   }
 
   get yaCalificada(): boolean {
@@ -383,9 +405,62 @@ export class MisionesComponent implements OnInit {
     this.calificacion = 0;
     this.cazadorSel = m.postulaciones[0]?.alias ?? '';
     this.cargarPostulaciones(m);
+    this.cargarSocial(m);
+    this.cargarChat(m);
     if (window.innerWidth <= 1100) {
       this.detalle?.nativeElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
+  }
+
+  private esParticipante(m: Mision): boolean {
+    const idCuenta = this.auth.sesion?.idCuenta;
+    return idCuenta != null && (idCuenta === m.autor.idCuenta || idCuenta === m.idCazarrecompensas);
+  }
+
+  private cargarSocial(m: Mision): void {
+    this.social.listarPublicaciones(0, 50, { idMision: this.idMision(m) }).subscribe({
+      next: (publicaciones) => {
+        const publicacion = publicaciones[0];
+        if (publicacion) this.aplicarPublicacion(m, publicacion);
+        else { m.idPublicacion = undefined; m.etiquetas = []; m.reacciones = {}; m.miReaccion = null; m.comentarios = []; }
+        this.cdr.markForCheck();
+      },
+      error: () => { this.notify('No se pudo cargar la conversación pública de la misión.'); this.cdr.markForCheck(); },
+    });
+  }
+
+  private aplicarPublicacion(m: Mision, p: PublicacionApi): void {
+    m.idPublicacion = p.id;
+    m.etiquetas = p.etiquetas ?? [];
+    m.reacciones = { me_gusta: p.reacciones?.meGusta ?? 0, fuego: p.reacciones?.fuego ?? 0, alerta: p.reacciones?.alerta ?? 0 };
+    m.miReaccion = p.miReaccion;
+    m.comentarios = (p.comentarios ?? []).map((c) => ({ autor: c.alias, iniciales: c.alias.replace(/[^A-Za-z0-9]/g, '').slice(0, 2).toUpperCase(), texto: c.texto, fecha: c.fecha }));
+  }
+
+  private asegurarPublicacion(m: Mision, continuar: (publicacionId: string) => void): void {
+    if (m.idPublicacion) { continuar(m.idPublicacion); return; }
+    const etiquetas = [m.especialidad, m.zona].map((t) => t.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '').slice(0, 30)).filter((t) => t.length >= 2);
+    this.social.crearPublicacion({ texto: m.descripcion, etiquetas, idZona: m.idZona, idMision: this.idMision(m) }).subscribe({
+      next: (p) => { this.aplicarPublicacion(m, p); this.cdr.markForCheck(); continuar(p.id); },
+      error: (err) => { this.comentarioEnviando = false; this.notify(err?.error?.error ?? 'No se pudo preparar la conversación de la misión.'); this.cdr.markForCheck(); },
+    });
+  }
+
+  private cargarChat(m: Mision): void {
+    if (!this.mostrarChat || this.selectedId !== m.id) { m.mensajes = []; return; }
+    const idCuenta = this.auth.sesion?.idCuenta;
+    this.social.listarChat(this.idMision(m)).subscribe({
+      next: (mensajes) => {
+        m.mensajes = mensajes.map((msg) => this.adaptarMensaje(msg, idCuenta));
+        this.cdr.markForCheck();
+        this.social.marcarChatLeido(this.idMision(m)).subscribe({ next: () => this.cdr.markForCheck(), error: () => this.cdr.markForCheck() });
+      },
+      error: (err) => { m.mensajes = []; this.notify(err?.error?.error ?? 'No se pudo cargar el chat de la misión.'); this.cdr.markForCheck(); },
+    });
+  }
+
+  private adaptarMensaje(msg: MensajeChatApi, idCuenta = this.auth.sesion?.idCuenta): Mensaje {
+    return { autor: msg.aliasEmisor, iniciales: msg.aliasEmisor.replace(/[^A-Za-z0-9]/g, '').slice(0, 2).toUpperCase(), texto: msg.texto, fecha: msg.fecha, esMio: msg.idEmisor === idCuenta };
   }
 
   // ---------- Reacciones (MongoDB · publicaciones) ----------
@@ -395,7 +470,11 @@ export class MisionesComponent implements OnInit {
 
   reaccionar(m: Mision, event: Event): void {
     event.stopPropagation();
-    this.notify('Las reacciones se habilitarán con la integración de MongoDB.');
+    if (!m.idPublicacion) { this.notify('La publicación social aún no está disponible para esta misión.'); return; }
+    this.social.reaccionar(m.idPublicacion, 'me_gusta').subscribe({
+      next: (p) => { this.aplicarPublicacion(m, p); this.cdr.markForCheck(); },
+      error: (err) => { this.notify(err?.error?.error ?? 'No se pudo guardar la reacción.'); this.cdr.markForCheck(); },
+    });
   }
 
   // ---------- Línea de tiempo ----------
@@ -447,6 +526,10 @@ export class MisionesComponent implements OnInit {
       next: (respuesta) => {
         const nueva = this.adaptarMision(respuesta);
         this.misiones = [nueva, ...this.misiones]; this.selectedId = nueva.id; this.cazadorSel = ''; this.vista = 'MIAS'; this.filtro = 'TODAS'; this.formError = '';
+        this.social.crearPublicacion({ texto: nueva.descripcion, etiquetas: [], idZona: nueva.idZona, idMision: this.idMision(nueva) }).subscribe({
+          next: (publicacion) => { this.aplicarPublicacion(nueva, publicacion); this.cdr.markForCheck(); },
+          error: () => { this.notify('La misión se publicó, pero no se pudo preparar su espacio de comentarios.'); this.cdr.markForCheck(); },
+        });
         this.tituloNuevo = ''; this.especialidadSel = ''; this.zonaSel = ''; this.recompensaNueva = ''; this.etiquetasNuevas = ''; this.valores = {};
         this.wallet.miBilletera().subscribe((b) => { this.saldoDisponible = Number(b.saldoDisponible); this.cdr.markForCheck(); });
         this.notify('Misión publicada y créditos retenidos');
@@ -483,21 +566,35 @@ export class MisionesComponent implements OnInit {
       request = this.api.asignarMision(this.idMision(m), candidato.idCazarrecompensas);
     } else if (accion === 'cancelar') request = this.api.cancelarMision(this.idMision(m));
     else request = this.api.cerrarMision(this.idMision(m));
-    request.subscribe({ next: (r: any) => { const postulaciones = m.postulaciones; Object.assign(m, this.adaptarMision(r)); m.postulaciones = postulaciones; this.pendiente = null; this.notify(accion === 'asignar' ? `Misión asignada a ${this.cazadorSel}` : accion === 'cancelar' ? 'Misión cancelada y saldo reembolsado' : 'Cierre confirmado y pago liberado'); this.wallet.miBilletera().subscribe((b) => { this.saldoDisponible = Number(b.saldoDisponible); this.cdr.markForCheck(); }); this.cdr.markForCheck(); }, error: (err: any) => { this.notify(err?.error?.error ?? 'No se pudo completar la acción.'); this.cdr.markForCheck(); } });
+    request.subscribe({ next: (r: any) => { const postulaciones = m.postulaciones; Object.assign(m, this.adaptarMision(r)); m.postulaciones = postulaciones; this.pendiente = null; this.notify(accion === 'asignar' ? `Misión asignada a ${this.cazadorSel}` : accion === 'cancelar' ? 'Misión cancelada y saldo reembolsado' : 'Cierre confirmado y pago liberado'); this.cargarChat(m); this.wallet.miBilletera().subscribe((b) => { this.saldoDisponible = Number(b.saldoDisponible); this.cdr.markForCheck(); }); this.cdr.markForCheck(); }, error: (err: any) => { this.notify(err?.error?.error ?? 'No se pudo completar la acción.'); this.cdr.markForCheck(); } });
   }
 
   // ---------- Chat privado (dueño ↔ cazador asignado) ----------
   enviarMensaje(event: Event, input: HTMLInputElement): void {
     event.preventDefault();
-    input.value = '';
-    this.notify('El chat se habilitará con la integración de MongoDB.');
+    const m = this.selected;
+    const texto = input.value.trim();
+    if (!m || !this.chatActivo || !texto || this.mensajeEnviando) return;
+    this.mensajeEnviando = true;
+    this.social.enviarMensaje(this.idMision(m), texto).subscribe({
+      next: (msg) => { m.mensajes = [...m.mensajes, this.adaptarMensaje(msg)]; input.value = ''; this.mensajeEnviando = false; this.cdr.markForCheck(); this.cargarChat(m); },
+      error: (err) => { this.mensajeEnviando = false; this.notify(err?.error?.error ?? 'No se pudo enviar el mensaje.'); this.cdr.markForCheck(); },
+    });
   }
 
   // ---------- Comentarios públicos ----------
   enviarComentario(event: Event, input: HTMLInputElement): void {
     event.preventDefault();
-    input.value = '';
-    this.notify('Los comentarios se habilitarán con la integración de MongoDB.');
+    const m = this.selected;
+    const texto = input.value.trim();
+    if (!m || !texto || this.comentarioEnviando) return;
+    this.comentarioEnviando = true;
+    this.asegurarPublicacion(m, (idPublicacion) => {
+      this.social.comentar(idPublicacion, texto).subscribe({
+        next: (p) => { this.aplicarPublicacion(m, p); input.value = ''; this.comentarioEnviando = false; this.notify('Comentario publicado'); this.cdr.markForCheck(); this.cargarSocial(m); },
+        error: (err) => { this.comentarioEnviando = false; this.notify(err?.error?.error ?? 'No se pudo publicar el comentario.'); this.cdr.markForCheck(); },
+      });
+    });
   }
 
   // ---------- Calificación ----------
