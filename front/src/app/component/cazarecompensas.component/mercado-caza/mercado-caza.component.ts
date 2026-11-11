@@ -19,7 +19,6 @@ export class MercadoCazaComponent implements OnInit {
   pendiente: Mission | null = null;
   toast = '';
   private readonly imagen = 'https://images.unsplash.com/photo-1519608487953-e999c86e7455?crop=entropy&cs=tinysrgb&fit=crop&fm=jpg&q=85&w=900&h=520';
-
   constructor(private api: MisionService, private catalogos: CatalogoService, private datosApi: ApiService, private cdr: ChangeDetectorRef) {}
 
   ngOnInit(): void {

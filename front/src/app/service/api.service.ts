@@ -13,6 +13,7 @@ export interface CalificacionApi { idCalificacion: number; idMision: number; idC
 export interface AuditoriaApi { idAuditoria: number; idCuenta: number; campoModificado: string; valorAnterior: string | null; valorNuevo: string | null; fechaCambio: string; usuarioBd: string; }
 export interface MovimientoApiFull { idMovimiento: number; idBilletera: number; idMision: number | null; tipo: string; monto: number; fecha: string; descripcion: string | null; }
 export interface BitacoraApi { tipo: 'PAGO' | 'MISION' | 'REPORTE' | 'CUENTA'; accion: string; fecha: string; idCuenta: number | null; operador: string | null; referencia: string; idMision: number | null; detalle: string | null; }
+export interface ResumenCazadorApi { totalCobrado: number; cobradoUltimos30Dias: number; misionesCompletadas: number; misionesActivas: number; postulacionesPendientes: number; calificaciones: number; reputacion: number; saldoDisponible: number; }
 
 @Injectable({ providedIn: 'root' })
 export class ApiService {
@@ -25,6 +26,7 @@ export class ApiService {
   miUsuario(): Observable<UsuarioApi> { return this.http.get<UsuarioApi>(`${API_URL}/usuarios/yo`); }
   actualizarUsuario(biografia: string): Observable<UsuarioApi> { return this.http.put<UsuarioApi>(`${API_URL}/usuarios/yo`, { biografia }); }
   miCazador(): Observable<any> { return this.http.get(`${API_URL}/cazarrecompensas/yo`); }
+  resumenCazador(): Observable<ResumenCazadorApi> { return this.http.get<ResumenCazadorApi>(`${API_URL}/cazarrecompensas/yo/resumen`); }
   actualizarCazador(datos: { idZona: number; biografia: string; disponibilidad: string }): Observable<any> { return this.http.put(`${API_URL}/cazarrecompensas/yo`, datos); }
   habilidades(idCazarrecompensas: number): Observable<HabilidadApi[]> { return this.http.get<HabilidadApi[]>(`${API_URL}/cazarrecompensas/${idCazarrecompensas}/especialidades`); }
   agregarHabilidad(idEspecialidad: number, nivel: number): Observable<HabilidadApi[]> { return this.http.post<HabilidadApi[]>(`${API_URL}/cazarrecompensas/yo/especialidades`, { idEspecialidad, nivel }); }

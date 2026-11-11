@@ -78,10 +78,9 @@ h1, h2, p { margin: 0; }
 .admin-mission-head, .admin-mission-row { display: grid; grid-template-columns: minmax(300px, 1.5fr) minmax(180px, 1fr) 130px 130px 170px; align-items: center; gap: 16px; }
 .admin-mission-head { min-height: 44px; padding: 0 20px; color: #6b7a81; background: #090e11; font: 600 11px "Rajdhani"; letter-spacing: .09em; }
 .admin-mission-row { min-height: 100px; padding: 12px 20px; border-top: 1px solid var(--line); }
-.admin-mission-row > span:first-child { min-width: 0; display: flex; align-items: center; gap: 14px; }
-.admin-mission-row img { width: 88px; height: 62px; object-fit: cover; filter: saturate(.65); }
+.admin-mission-row > span:first-child { min-width: 0; display: block; }
 .admin-mission-row > span > span, .admin-mission-row > span:nth-child(2) { min-width: 0; display: flex; flex-direction: column; }
-.admin-mission-row b { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font: 700 16px "Rajdhani"; }
+.admin-mission-row b { overflow-wrap: anywhere; font: 700 16px "Rajdhani"; }
 .admin-mission-row small { margin-top: 5px; color: var(--muted); font-size: 12px; }
 .admin-mission-row > strong { color: var(--cyan); font: 700 17px "Rajdhani"; }
 .admin-mission-row:nth-child(2n) > strong { color: var(--amber); }

@@ -68,4 +68,8 @@ export class SidebarComponent {
   get esAdmin(): boolean {
     return this.modo === 'ADMIN';
   }
+
+  get esCazarrecompensas(): boolean {
+    return this.modo === 'CAZARRECOMPENSAS';
+  }
 }

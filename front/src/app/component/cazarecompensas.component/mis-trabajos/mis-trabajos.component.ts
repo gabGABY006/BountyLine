@@ -3,10 +3,12 @@ import { forkJoin, of } from 'rxjs';
 import { catchError, map, switchMap } from 'rxjs/operators';
 
 import { ApiService } from '../../../service/api.service';
+import { ZonaImagenService } from '../../../service/zona-imagen.service';
 import {
   ChatService,
   MensajeChatApi
 } from '../../../service/chat.service';
+const IMAGEN_MISION = 'https://images.unsplash.com/photo-1519608487953-e999c86e7455?crop=entropy&cs=tinysrgb&fit=crop&fm=jpg&q=85&w=900&h=520';
 
 type Estado = 'POSTULADA' | 'ASIGNADA' | 'EN CURSO' | 'CERRADA';
 type Tono = 'cyan' | 'pink' | 'amber';
@@ -160,7 +162,7 @@ export class MisTrabajosComponent implements OnInit {
                 reward: Number(m.montoRecompensa),
                 status,
                 tone: (['cyan', 'pink', 'amber'] as Tono[])[i % 3],
-                image: '',
+                image: IMAGEN_MISION,
                 client: m.aliasUsuario,
                 messages: []
               };

@@ -1,5 +1,6 @@
 import { ChangeDetectorRef, Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
-import { forkJoin } from 'rxjs';
+import { forkJoin, of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 import { ApiService } from '../../../service/api.service';
 import { AuthService } from '../../../service/auth.service';
 import { Catalogo, CatalogoService } from '../../../service/catalogo.service';
@@ -246,7 +247,40 @@ export class MisionesComponent implements OnInit {
 
   private cargarPostulaciones(m: Mision): void {
     const id = this.idMision(m);
-    this.api.postulacionesMision(id).subscribe({ next: (xs) => { m.postulaciones = xs.map((p: any) => ({ idCazarrecompensas: p.idCazarrecompensas, alias: p.alias, iniciales: (p.alias ?? '').replace(/[^A-Za-z0-9]/g, '').slice(0, 2).toUpperCase(), zona: '', especialidad: '', rating: '0.0', trabajos: 0, match: p.puntaje ?? 0, mensaje: p.mensaje ?? '', fecha: p.fechaPostulacion })); this.cazadorSel = m.postulaciones[0]?.alias ?? ''; this.cdr.markForCheck(); }, error: () => { this.notify('No se pudieron cargar las postulaciones.'); this.cdr.markForCheck(); } });
+    this.api.postulacionesMision(id).subscribe({
+      next: (xs) => {
+        if (!xs.length) {
+          m.postulaciones = [];
+          this.cazadorSel = '';
+          this.cdr.markForCheck();
+          return;
+        }
+        forkJoin(xs.map((p: any) => this.missionApi.buscarCazador(p.idCazarrecompensas).pipe(catchError(() => of(null))))).subscribe({
+          next: (perfiles) => {
+            m.postulaciones = xs.map((p: any, i: number) => {
+              const perfil = perfiles[i];
+              const alias = perfil?.alias ?? p.alias;
+              return {
+                idCazarrecompensas: p.idCazarrecompensas,
+                alias,
+                iniciales: (alias ?? '').replace(/[^A-Za-z0-9]/g, '').slice(0, 2).toUpperCase(),
+                zona: perfil?.zona ?? '',
+                especialidad: perfil?.especialidades ?? '',
+                rating: perfil?.reputacion == null ? '—' : Number(perfil.reputacion).toFixed(1),
+                trabajos: perfil?.misionesCompletadas ?? 0,
+                match: p.puntaje ?? 0,
+                mensaje: p.mensaje ?? '',
+                fecha: p.fechaPostulacion,
+              };
+            });
+            this.cazadorSel = m.postulaciones[0]?.alias ?? '';
+            this.cdr.markForCheck();
+          },
+          error: () => { this.notify('No se pudieron cargar los perfiles de los postulantes.'); this.cdr.markForCheck(); },
+        });
+      },
+      error: () => { this.notify('No se pudieron cargar las postulaciones.'); this.cdr.markForCheck(); },
+    });
     this.missionApi.sugerencias(id).subscribe({ next: (xs: SugerenciaApi[]) => { this.cazadores = xs.map((c) => ({ idCazarrecompensas: c.idCazarrecompensas, alias: c.alias, iniciales: c.alias.replace(/[^A-Za-z0-9]/g, '').slice(0, 2).toUpperCase(), zona: c.zona, especialidad: '', rating: Number(c.reputacion ?? 0).toFixed(1), trabajos: c.misionesCompletadas ?? 0, match: c.puntaje })); this.cdr.markForCheck(); }, error: () => { this.cazadores = []; this.cdr.markForCheck(); } });
   }
 

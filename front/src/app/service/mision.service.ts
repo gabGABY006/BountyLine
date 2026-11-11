@@ -71,6 +71,10 @@ export class MisionService {
     return this.http.get<CazadorApi[]>(`${API_URL}/cazarrecompensas`, { params });
   }
 
+  buscarCazador(idCazarrecompensas: number): Observable<CazadorApi> {
+    return this.http.get<CazadorApi>(`${API_URL}/cazarrecompensas/${idCazarrecompensas}`);
+  }
+
   postular(idMision: number, mensaje = ''): Observable<PostulacionApi[]> {
     return this.http.post<PostulacionApi[]>(`${API_URL}/postulaciones`, { idMision, mensaje });
   }

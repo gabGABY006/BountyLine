@@ -20,10 +20,6 @@
       <span class="pulse-icon ambar"><i class="pi pi-ban"></i></span>
       <div><small>SUSPENDIDAS</small><b>{{ contar('SUSPENDIDA') }}</b><em>sin acceso temporal</em></div>
     </article>
-    <article>
-      <span class="pulse-icon rosa"><i class="pi pi-trash"></i></span>
-      <div><small>ELIMINADAS</small><b>{{ contar('ELIMINADA') }}</b><em>dadas de baja</em></div>
-    </article>
   </section>
 
   <p *ngIf="mensaje" class="aviso" [class.error]="tipoMensaje === 'error'">{{ mensaje }}</p>
@@ -136,7 +132,7 @@
         <button type="button"
                 class="accion-principal"
                 [ngClass]="seleccionado.estado === 'ACTIVA' ? 'suspender' : 'reactivar'"
-                [disabled]="seleccionado.estado === 'ELIMINADA' || seleccionado.id === idSesion"
+                
                 (click)="pedirCambio()">
           <i class="pi" [ngClass]="seleccionado.estado === 'ACTIVA' ? 'pi-ban' : 'pi-refresh'"></i>
           {{ seleccionado.estado === 'ACTIVA' ? 'SUSPENDER CUENTA' : 'REACTIVAR CUENTA' }}

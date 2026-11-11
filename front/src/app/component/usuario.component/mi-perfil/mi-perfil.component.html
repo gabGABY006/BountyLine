@@ -6,6 +6,7 @@
   </div>
 </section>
 
+<div class="profile-content" [class.profile-content--normal]="!mostrarEspecialidades && !esAdministrador">
 <div class="profile-editor-grid" [class.profile-editor-grid--user]="!mostrarEspecialidades">
   <!-- DATOS DEL PERFIL -->
   <form class="profile-form panel" (submit)="guardar($event)">
@@ -68,7 +69,7 @@
   </section>
 </div>
 
-<section class="panel password-panel">
+<section class="panel password-panel" [class.password-panel--normal]="!mostrarEspecialidades && !esAdministrador">
   <div class="panel-heading">
     <div><p class="eyebrow">SEGURIDAD DE LA CUENTA</p><h2>Cambiar contraseña</h2></div>
   </div>
@@ -80,6 +81,7 @@
     <button type="submit" [disabled]="guardandoContrasena">{{ guardandoContrasena ? 'ACTUALIZANDO…' : 'CAMBIAR CONTRASEÑA' }}</button>
   </form>
 </section>
+</div>
 
 <!-- MODAL: AÑADIR ESPECIALIDAD DEL CATÁLOGO -->
 <div class="modal-backdrop" *ngIf="mostrarEspecialidades && selectorAbierto" (click)="cerrarSelector()">

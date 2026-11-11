@@ -42,11 +42,11 @@
 
   <div class="audit-list">
     <article *ngFor="let event of visible" [ngClass]="event.tone">
-      <span><i [ngClass]="event.tone"></i><b>{{ event.time }}</b><small>{{ event.type }}</small></span>
-      <strong>{{ event.operator }}</strong>
-      <p>{{ event.action }}</p>
-      <code>{{ event.reference }}</code>
-      <em>{{ event.detail }}</em>
+      <span data-label="HORA / TIPO"><i [ngClass]="event.tone"></i><b>{{ event.time }}</b><small>{{ event.type }}</small></span>
+      <strong data-label="OPERADOR">{{ event.operator }}</strong>
+      <p data-label="MOVIMIENTO">{{ event.action }}</p>
+      <code data-label="REFERENCIA">{{ event.reference }}</code>
+      <em data-label="DETALLE">{{ event.detail }}</em>
     </article>
 
     <div class="report-empty" *ngIf="visible.length === 0">

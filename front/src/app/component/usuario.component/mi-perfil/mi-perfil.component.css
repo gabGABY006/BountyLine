@@ -41,6 +41,9 @@ svg { display: block; }
 /* ---------- Layout ---------- */
 .profile-editor-grid { margin-bottom: 30px; display: grid; grid-template-columns: 500px 1fr; gap: 28px; align-items: start; }
 .profile-editor-grid--user { grid-template-columns: minmax(0, 760px); }
+.profile-content { min-width: 0; }
+.profile-content--normal { margin: 4px 0 30px; display: grid; grid-template-columns: minmax(0, 1.12fr) minmax(320px, .88fr); align-items: stretch; gap: 22px; }
+.profile-content--normal .profile-editor-grid { min-width: 0; max-width: none; margin: 0; grid-template-columns: minmax(0, 1fr); }
 
 /* ---------- Formulario ---------- */
 .profile-form { padding: 28px; display: flex; flex-direction: column; gap: 20px; border-top: 2px solid var(--amber); }
@@ -61,6 +64,73 @@ svg { display: block; }
 .profile-form > button:disabled { opacity: .6; }
 .password-panel { max-width: 760px; margin-bottom: 30px; border-top: 2px solid var(--cyan); }
 .password-form { border: 0; background: transparent; }
+
+/* ---------- Perfil de usuario normal ---------- */
+.profile-content--normal .profile-form {
+  height: 100%;
+  padding: clamp(22px, 3vw, 36px);
+  gap: 22px;
+  border-top: 2px solid var(--cyan);
+  background: radial-gradient(ellipse at 100% 0, rgba(90,245,214,.075), transparent 42%), var(--surface);
+  box-shadow: 0 18px 48px rgba(0,0,0,.16);
+}
+.profile-content--normal .editor-avatar {
+  min-height: 148px;
+  padding: 0 0 24px;
+  gap: 22px;
+  background: linear-gradient(110deg, rgba(90,245,214,.055), transparent 75%);
+}
+.profile-content--normal .profile-avatar {
+  width: 88px;
+  height: 88px;
+  font-size: 30px;
+  color: #07110f;
+  box-shadow: 0 0 28px rgba(90,245,214,.2);
+}
+.profile-content--normal .editor-avatar > div::before {
+  content: "PERFIL DE OPERADOR";
+  margin-bottom: 5px;
+  color: #82939a;
+  font: 600 11px "Rajdhani";
+  letter-spacing: .16em;
+}
+.profile-content--normal .editor-avatar h2 { font-size: clamp(30px, 3vw, 38px); overflow-wrap: anywhere; }
+.profile-content--normal .editor-avatar > div > span { display: flex; align-items: center; color: var(--cyan); font-size: 12px; letter-spacing: .12em; }
+.profile-content--normal .profile-form label { gap: 9px; }
+.profile-content--normal .profile-form input,
+.profile-content--normal .profile-form textarea {
+  border-color: #29383d;
+  background: rgba(6,11,14,.72);
+  transition: border-color .18s ease, box-shadow .18s ease, background .18s ease;
+}
+.profile-content--normal .profile-form input:hover,
+.profile-content--normal .profile-form textarea:hover { border-color: #3e6660; }
+.profile-content--normal .profile-form input:focus,
+.profile-content--normal .profile-form textarea:focus { border-color: var(--cyan); background: #090f12; box-shadow: 0 0 0 3px rgba(90,245,214,.08); }
+.profile-content--normal .profile-form textarea { min-height: 190px; }
+.profile-content--normal .profile-form > button {
+  min-height: 58px;
+  margin-top: 2px;
+  background: linear-gradient(105deg, var(--cyan), #4ddac7);
+  box-shadow: 0 8px 24px rgba(90,245,214,.12);
+  transition: filter .18s ease, transform .18s ease, box-shadow .18s ease;
+}
+.profile-content--normal .profile-form > button:hover { transform: translateY(-1px); box-shadow: 0 12px 28px rgba(90,245,214,.2); }
+.profile-content--normal .password-panel {
+  max-width: none;
+  min-width: 0;
+  margin: 0;
+  overflow: hidden;
+  border-top: 2px solid var(--pink);
+  background: radial-gradient(ellipse at 100% 0, rgba(255,61,141,.065), transparent 45%), var(--surface);
+  box-shadow: 0 18px 48px rgba(0,0,0,.16);
+}
+.profile-content--normal .password-panel .panel-heading { min-height: 112px; align-items: center; padding: 22px clamp(20px, 2.5vw, 30px); }
+.profile-content--normal .password-panel .panel-heading .eyebrow { color: var(--pink); }
+.profile-content--normal .password-panel .panel-heading h2 { font-size: clamp(23px, 2.5vw, 30px); }
+.profile-content--normal .password-form { height: calc(100% - 112px); justify-content: flex-start; padding: clamp(20px, 2.5vw, 30px); gap: 20px; }
+.profile-content--normal .password-form > button { margin-top: auto; border-color: var(--pink); background: var(--pink); }
+.profile-content--normal .password-form input:focus { border-color: var(--pink); box-shadow: 0 0 0 3px rgba(255,61,141,.08); }
 
 /* ---------- Especialidades ---------- */
 .specialty-editor { overflow: hidden; border-top: 2px solid var(--pink); }
@@ -101,11 +171,20 @@ svg { display: block; }
 /* ---------- Responsive ---------- */
 @media (max-width: 1100px) {
   .profile-editor-grid { grid-template-columns: 1fr; }
+  .profile-content--normal { grid-template-columns: minmax(0, 1fr); }
+  .profile-content--normal .profile-form { height: auto; }
+  .profile-content--normal .password-form { height: auto; }
 }
 @media (max-width: 600px) {
   .workspace-heading { min-height: 190px; align-items: flex-start; flex-direction: column; justify-content: center; }
   .workspace-heading h1 { font-size: 52px; }
   .profile-form { padding: 20px; }
+  .profile-content--normal { gap: 16px; margin-top: 0; }
+  .profile-content--normal .profile-form { padding: 20px; }
+  .profile-content--normal .editor-avatar { min-height: 120px; gap: 16px; }
+  .profile-content--normal .profile-avatar { width: 70px; height: 70px; font-size: 24px; }
+  .profile-content--normal .password-panel .panel-heading { min-height: 90px; padding: 18px 20px; }
+  .profile-content--normal .password-form { height: auto; padding: 20px; }
   .skill-row { grid-template-columns: 130px 1fr 52px 28px; gap: 12px; padding: 14px 16px; }
   .confirm-modal { padding: 24px; }
 }

@@ -1,5 +1,4 @@
-import { Component, ElementRef, HostListener, Input, ViewChild } from '@angular/core';
-import { Router } from '@angular/router';
+import { Component, Input } from '@angular/core';
 
 export type ModoApp = 'NORMAL' | 'CAZARRECOMPENSAS' | 'ADMIN';
 
@@ -12,12 +11,6 @@ export type ModoApp = 'NORMAL' | 'CAZARRECOMPENSAS' | 'ADMIN';
 export class NavbarComponent {
   @Input() alias = 'OPERADOR';
   @Input() modo: ModoApp = 'NORMAL';
-
-  termino = '';
-
-  @ViewChild('buscador') buscadorRef!: ElementRef<HTMLInputElement>;
-
-  constructor(private router: Router) {}
 
   get rutaBase(): string {
     const bases: Record<ModoApp, string> = {
@@ -37,27 +30,4 @@ export class NavbarComponent {
     return etiquetas[this.modo] ?? 'NORMAL';
   }
 
-  get rutaBusqueda(): string[] {
-    const rutas: Record<ModoApp, string[]> = {
-      NORMAL: ['/usuario', 'misiones'],
-      CAZARRECOMPENSAS: ['/cazarrecompensas', 'mercado'],
-      ADMIN: ['/admin', 'usuarios'],
-    };
-    return rutas[this.modo] ?? rutas['NORMAL'];
-  }
-
-  buscar(): void {
-    const texto = this.termino.trim();
-    if (!texto) return;
-    this.router.navigate(this.rutaBusqueda, { queryParams: { q: texto } });
-    this.termino = '';
-  }
-
-  @HostListener('document:keydown', ['$event'])
-  atajoBuscador(event: KeyboardEvent): void {
-    if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k') {
-      event.preventDefault();
-      this.buscadorRef?.nativeElement.focus();
-    }
-  }
 }

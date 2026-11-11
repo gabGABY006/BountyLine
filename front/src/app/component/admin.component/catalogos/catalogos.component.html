@@ -82,10 +82,7 @@
     <span>MISIÓN</span><span>ZONA / ESPECIALIDAD</span><span>RECOMPENSA</span><span>ESTADO</span><span></span>
   </div>
   <div class="admin-mission-row" *ngFor="let mission of misionesVisibles" [class.cancelled]="isCancelled(mission.id)">
-    <span>
-      <img [src]="mission.image" alt="" />
-      <span><b>{{ mission.title }}</b><small>{{ mission.id }} · {{ mission.applicants }} postulaciones</small></span>
-    </span>
+    <span class="mission-title"><b>{{ mission.title }}</b></span>
     <span><b>{{ mission.zone }}</b><small>{{ mission.specialty }}</small></span>
     <strong>{{ mission.reward }} CR</strong>
     <span class="mission-status" [ngClass]="statusClass(mission)"><i></i>{{ statusLabel(mission) }}</span>
@@ -129,6 +126,7 @@
         placeholder="Una línea que explique para qué sirve"></textarea>
       <small class="counter">{{ formDescripcion.length }}/{{ maxDescripcion }}</small>
     </label>
+
 
     <p class="form-error" *ngIf="formError" role="alert">{{ formError }}</p>
 

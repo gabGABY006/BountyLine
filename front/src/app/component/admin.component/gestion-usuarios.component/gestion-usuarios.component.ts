@@ -10,7 +10,7 @@ interface Usuario { id: number; codigo: string; alias: string; iniciales: string
 export class GestionUsuariosComponent implements OnInit {
   get idSesion(): number { return this.auth.sesion?.idCuenta ?? -1; }
   usuarios: Usuario[] = [];
-  filtrosEstado: { valor: FiltroEstado; texto: string }[] = [{ valor: 'TODAS', texto: 'TODOS' }, { valor: 'ACTIVA', texto: 'ACTIVAS' }, { valor: 'SUSPENDIDA', texto: 'SUSPENDIDAS' }, { valor: 'ELIMINADA', texto: 'ELIMINADAS' }];
+  filtrosEstado: { valor: FiltroEstado; texto: string }[] = [{ valor: 'TODAS', texto: 'TODOS' }, { valor: 'ACTIVA', texto: 'ACTIVAS' }, { valor: 'SUSPENDIDA', texto: 'SUSPENDIDAS' }];
   busqueda = '';
   filtroEstado: FiltroEstado = 'TODAS';
   filtroRol: Rol | 'TODOS' = 'TODOS';

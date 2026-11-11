@@ -5,3 +5,10 @@ body {
   margin: 0;
   font-family: "DM Sans", sans-serif;
 }
+
+html, body {
+  width: 100%;
+  min-width: 0;
+  min-height: 100%;
+  overflow-x: auto;
+}

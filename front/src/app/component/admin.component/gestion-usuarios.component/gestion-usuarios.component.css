@@ -94,7 +94,7 @@ h2 {
 /* RESUMEN */
 .user-pulse {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   border: 1px solid var(--line);
   background: rgba(13, 18, 22, 0.75);
 }
