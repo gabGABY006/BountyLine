@@ -7,7 +7,7 @@ API REST de BountyLine. La parte relacional (cuentas, misiones, pagos, reportes)
 - JDK 21.
 - Maven no es necesario: el proyecto trae el wrapper `mvnw`.
 - La máquina virtual con MySQL encendida. Por defecto la API busca MySQL en `127.0.0.1:3307`. Si la VM usa otra dirección o puerto, cámbielo con `DB_URL`.
-- MongoDB con la base `bountyline` cargada. Por ahora la API usa el clúster de Atlas que está en `spring.mongodb.uri` de `application.properties`. Cuando la VM de MongoDB funcione, se cambia esa línea por la dirección de la VM.
+- MongoDB con la base `bountyline` cargada. La dirección se configura en `spring.data.mongodb.uri` de `application.properties`.
 
 ## Ejecutar
 
