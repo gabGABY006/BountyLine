@@ -34,6 +34,7 @@ Es la rama de producción. Contiene el código estable y consolidado. Aquí se i
 | Interfaz | `frontend` | Interfaz de usuario, componentes visuales, estilos y lógica del cliente |
 | Servidor | `backend` | Lógica del servidor, API, rutas y controladores |
 | Datos | `bd` | Scripts de inicialización, migraciones, modelos y diagramas de la base de datos híbrida |
+| Documentación | `docs` | Documentación completa del proyecto BountyLine |
 
 <img src="https://capsule-render.vercel.app/api?type=rect&color=0:19f5f0,50:1de9a0,100:e8408f&height=2" width="100%" alt=""/>
 
